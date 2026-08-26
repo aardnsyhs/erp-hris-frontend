@@ -8,6 +8,7 @@ import { apiClient } from '@/lib/api/axios';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -70,28 +71,30 @@ export function AppHeader() {
             </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                  {user?.employee?.fullName || 'Akun Pengguna'}
-                </p>
-                <p className="text-xs text-neutral-500 truncate">
-                  {user?.email}
-                </p>
-                <div className="flex items-center gap-1.5 mt-1 text-[11px] text-blue-600 font-medium">
-                  <Shield className="w-3 h-3" />
-                  <span>Role: {user?.role}</span>
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+                    {user?.employee?.fullName || 'Akun Pengguna'}
+                  </p>
+                  <p className="text-xs text-neutral-500 truncate">
+                    {user?.email}
+                  </p>
+                  <div className="flex items-center gap-1.5 mt-1 text-[11px] text-blue-600 font-medium">
+                    <Shield className="w-3 h-3" />
+                    <span>Role: {user?.role}</span>
+                  </div>
                 </div>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => router.push('/profile')}
-              className="cursor-pointer"
-            >
-              <UserIcon className="mr-2 h-4 w-4 text-neutral-500" />
-              <span>Profil Pengguna</span>
-            </DropdownMenuItem>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => router.push('/profile')}
+                className="cursor-pointer"
+              >
+                <UserIcon className="mr-2 h-4 w-4 text-neutral-500" />
+                <span>Profil Pengguna</span>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={handleLogout}

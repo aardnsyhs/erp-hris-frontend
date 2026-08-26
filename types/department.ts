@@ -9,6 +9,22 @@ export interface Department {
   };
 }
 
+export interface CreateDepartmentDto {
+  code: string;
+  name: string;
+}
+
+export interface UpdateDepartmentDto {
+  code?: string;
+  name?: string;
+}
+
+export interface DepartmentQueryParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+}
+
 export interface DepartmentListResponse {
   data: Department[];
   meta: {

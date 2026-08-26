@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -178,36 +179,38 @@ export default function EmployeesPage() {
               <MoreHorizontal className="h-4 w-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44">
-              <DropdownMenuLabel className="text-xs font-semibold text-neutral-400">
-                Pilihan Tindakan
-              </DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => router.push(`/employees/${emp.id}`)}
-                className="flex items-center gap-2 cursor-pointer"
-              >
-                <Eye className="h-4 w-4 text-neutral-500" />
-                <span>Lihat Profil</span>
-              </DropdownMenuItem>
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="text-xs font-semibold text-neutral-400">
+                  Pilihan Tindakan
+                </DropdownMenuLabel>
+                <DropdownMenuItem
+                  onClick={() => router.push(`/employees/${emp.id}`)}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <Eye className="h-4 w-4 text-neutral-500" />
+                  <span>Lihat Profil</span>
+                </DropdownMenuItem>
 
-              {isHrAdmin && (
-                <>
-                  <DropdownMenuItem
-                    onClick={() => handleEditClick(emp)}
-                    className="flex items-center gap-2 cursor-pointer"
-                  >
-                    <Edit2 className="h-4 w-4 text-blue-500" />
-                    <span>Edit Data</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => handleDeleteClick(emp)}
-                    className="flex items-center gap-2 text-red-600 dark:text-red-400 cursor-pointer focus:bg-red-50 dark:focus:bg-red-950/40"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                    <span>Nonaktifkan</span>
-                  </DropdownMenuItem>
-                </>
-              )}
+                {isHrAdmin && (
+                  <>
+                    <DropdownMenuItem
+                      onClick={() => handleEditClick(emp)}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <Edit2 className="h-4 w-4 text-blue-500" />
+                      <span>Edit Data</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => handleDeleteClick(emp)}
+                      className="flex items-center gap-2 text-red-600 dark:text-red-400 cursor-pointer focus:bg-red-50 dark:focus:bg-red-950/40"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span>Nonaktifkan</span>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
         );
@@ -255,7 +258,7 @@ export default function EmployeesPage() {
 
         {/* Department Filter (Only useful if multiple depts visible, e.g. HR_ADMIN) */}
         {isHrAdmin && (
-          <div className="w-48">
+          <div className="w-52">
             <Select
               value={selectedDept}
               onValueChange={(val) => {
@@ -265,8 +268,12 @@ export default function EmployeesPage() {
                 }
               }}
             >
-              <SelectTrigger className="h-9 text-xs">
-                <SelectValue placeholder="Semua Departemen" />
+              <SelectTrigger className="h-9 text-xs w-full">
+                <SelectValue placeholder="Semua Departemen">
+                  {selectedDept === 'ALL'
+                    ? 'Semua Departemen'
+                    : departments.find((d) => d.id === selectedDept)?.name || 'Semua Departemen'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">Semua Departemen</SelectItem>
@@ -281,7 +288,7 @@ export default function EmployeesPage() {
         )}
 
         {/* Status Filter */}
-        <div className="w-40">
+        <div className="w-44">
           <Select
             value={selectedStatus}
             onValueChange={(val) => {
@@ -291,8 +298,18 @@ export default function EmployeesPage() {
               }
             }}
           >
-            <SelectTrigger className="h-9 text-xs">
-              <SelectValue placeholder="Semua Status" />
+            <SelectTrigger className="h-9 text-xs w-full">
+              <SelectValue placeholder="Semua Status">
+                {selectedStatus === 'ALL'
+                  ? 'Semua Status'
+                  : selectedStatus === 'ACTIVE'
+                  ? 'Aktif (ACTIVE)'
+                  : selectedStatus === 'INACTIVE'
+                  ? 'Nonaktif (INACTIVE)'
+                  : selectedStatus === 'TERMINATED'
+                  ? 'Diberhentikan'
+                  : undefined}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">Semua Status</SelectItem>

@@ -7,6 +7,7 @@ import { apiClient } from '@/lib/api/axios';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { AuthUser, RefreshResponse } from '@/types/auth';
 import { Toaster } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 export function QueryProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => createQueryClient());
@@ -51,8 +52,10 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
-      <Toaster position="top-right" richColors />
+      <TooltipProvider>
+        {children}
+        <Toaster position="top-right" richColors />
+      </TooltipProvider>
     </QueryClientProvider>
   );
 }

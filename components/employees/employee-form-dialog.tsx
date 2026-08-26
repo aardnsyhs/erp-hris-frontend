@@ -218,7 +218,11 @@ export function EmployeeFormDialog({
                 disabled={isSubmitting || isLoadingDepts}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder={isLoadingDepts ? 'Memuat departemen...' : 'Pilih Departemen'} />
+                  <SelectValue placeholder={isLoadingDepts ? 'Memuat departemen...' : 'Pilih Departemen'}>
+                    {departments.find((d) => d.id === selectedDepartmentId)
+                      ? `${departments.find((d) => d.id === selectedDepartmentId)?.name} (${departments.find((d) => d.id === selectedDepartmentId)?.code})`
+                      : undefined}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {departments.map((dept) => (
@@ -293,7 +297,15 @@ export function EmployeeFormDialog({
               disabled={isSubmitting}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Pilih Status" />
+                <SelectValue placeholder="Pilih Status">
+                  {selectedStatus === 'ACTIVE'
+                    ? 'Aktif (ACTIVE)'
+                    : selectedStatus === 'INACTIVE'
+                    ? 'Nonaktif (INACTIVE)'
+                    : selectedStatus === 'TERMINATED'
+                    ? 'Diberhentikan (TERMINATED)'
+                    : undefined}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ACTIVE">Aktif (ACTIVE)</SelectItem>
