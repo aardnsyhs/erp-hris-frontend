@@ -16,12 +16,15 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { DateRangePicker } from '@/components/ui/date-picker';
 import {
   Dialog,
-  DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  LongDialogContent,
+  LongDialogHeader,
+  LongDialogBody,
+  LongDialogFooter,
+} from '@/components/shared/dialog-layout';
 import { EmployeeCombobox } from '@/components/employees/employee-combobox';
 
 interface PayrollGenerateDialogProps {
@@ -38,16 +41,17 @@ export function PayrollGenerateDialog({
   const tEmp = useTranslations('employees');
 
   const createMutation = useCreatePayroll();
-  const isSubmitting = createMutation.isPending;
   const [conflictError, setConflictError] = useState<string | null>(null);
+
+  const isSubmitting = createMutation.isPending;
 
   const {
     register,
     handleSubmit,
     setValue,
     watch,
-    setError,
     reset,
+    setError,
     formState: { errors },
   } = useForm<CreatePayrollFormValues>({
     resolver: zodResolver(createPayrollSchema),
@@ -55,8 +59,8 @@ export function PayrollGenerateDialog({
       employeeId: '',
       periodStart: '',
       periodEnd: '',
-      allowances: '0',
-      deductions: '0',
+      allowances: '',
+      deductions: '',
     },
   });
 
@@ -66,14 +70,14 @@ export function PayrollGenerateDialog({
 
   useEffect(() => {
     if (open) {
-      setConflictError(null);
       reset({
         employeeId: '',
         periodStart: '',
         periodEnd: '',
-        allowances: '0',
-        deductions: '0',
+        allowances: '',
+        deductions: '',
       });
+      setConflictError(null);
     }
   }, [open, reset]);
 
@@ -99,23 +103,23 @@ export function PayrollGenerateDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-2xl max-h-[90vh] flex flex-col">
-        <DialogHeader className="gap-2 shrink-0 pr-10 sm:pr-12">
-          <div className="flex items-center gap-2 text-primary">
-            <div className="p-2 rounded-xl bg-primary/10">
-              <Calculator className="w-5 h-5" />
+    <Dialog open={open} onOpenChange={(val) => !isSubmitting && onOpenChange(val)}>
+      <LongDialogContent className="sm:max-w-2xl">
+        <LongDialogHeader>
+          <div className="flex items-center gap-2.5 text-primary">
+            <div className="p-2 rounded-md bg-primary/10 text-primary border border-primary/20">
+              <Calculator className="w-4 h-4" />
             </div>
-            <DialogTitle>{t('generateDraft')}</DialogTitle>
+            <DialogTitle className="text-sm font-semibold">{t('generateDraft')}</DialogTitle>
           </div>
-          <DialogDescription>
+          <DialogDescription className="text-xs text-muted-foreground mt-1">
             {t('subtitle')}
           </DialogDescription>
-        </DialogHeader>
+        </LongDialogHeader>
 
         {/* 409 Conflict Alert Box */}
         {conflictError && (
-          <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/30 flex items-start gap-2.5 text-xs text-destructive shrink-0">
+          <div className="p-3 mx-4 sm:mx-5 mt-4 rounded-md bg-status-danger-bg border border-(--status-danger)/30 flex items-start gap-2 text-xs text-status-danger shrink-0 font-mono">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold">{conflictError}</p>
@@ -123,120 +127,127 @@ export function PayrollGenerateDialog({
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col min-h-0 flex-1">
-          <ScrollArea className="max-h-[60vh] pr-2">
-            <div className="space-y-4 py-2">
-              {/* Employee Selection */}
+        <form
+          id="payroll-generate-form"
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col flex-1 min-h-0 overflow-hidden"
+        >
+          <LongDialogBody className="font-mono text-xs">
+            {/* Employee Selection */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground">
+                {tEmp('fullName')} <span className="text-destructive">*</span>
+              </label>
+              <EmployeeCombobox
+                value={selectedEmployeeId}
+                onChange={(empId) => {
+                  setValue('employeeId', empId, { shouldValidate: true });
+                  setConflictError(null);
+                }}
+                disabled={isSubmitting}
+              />
+              {errors.employeeId && (
+                <p className="text-xs text-status-danger font-mono">{errors.employeeId.message}</p>
+              )}
+            </div>
+
+            {/* Period Range */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground">
+                {t('period')} <span className="text-destructive">*</span>
+              </label>
+              <DateRangePicker
+                from={periodStart}
+                to={periodEnd}
+                onChange={({ from, to }) => {
+                  setValue('periodStart', from, { shouldValidate: true });
+                  setValue('periodEnd', to, { shouldValidate: true });
+                  setConflictError(null);
+                }}
+                disabled={isSubmitting}
+                placeholder={t('period')}
+              />
+              {(errors.periodStart || errors.periodEnd) && (
+                <p className="text-xs text-status-danger font-mono">
+                  {errors.periodStart?.message || errors.periodEnd?.message}
+                </p>
+              )}
+            </div>
+
+            {/* Financial Adjustments: Allowances & Deductions */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-foreground">
-                  {tEmp('fullName')} <span className="text-destructive">*</span>
+                  {t('allowances')} (Rp)
                 </label>
-                <EmployeeCombobox
-                  value={selectedEmployeeId}
-                  onChange={(empId) => {
-                    setValue('employeeId', empId, { shouldValidate: true });
-                    setConflictError(null);
-                  }}
+                <Input
+                  type="text"
+                  placeholder="0"
+                  {...register('allowances')}
                   disabled={isSubmitting}
+                  className="font-mono text-xs"
                 />
-                {errors.employeeId && (
-                  <p className="text-xs text-destructive">{errors.employeeId.message}</p>
+                {errors.allowances && (
+                  <p className="text-xs text-status-danger font-mono">{errors.allowances.message}</p>
                 )}
               </div>
 
-              {/* Period Range */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-foreground">
-                  {t('period')} <span className="text-destructive">*</span>
+                  {t('deductions')} (Rp)
                 </label>
-                <DateRangePicker
-                  from={periodStart}
-                  to={periodEnd}
-                  onChange={({ from, to }) => {
-                    setValue('periodStart', from, { shouldValidate: true });
-                    setValue('periodEnd', to, { shouldValidate: true });
-                    setConflictError(null);
-                  }}
+                <Input
+                  type="text"
+                  placeholder="0"
+                  {...register('deductions')}
                   disabled={isSubmitting}
-                  placeholder={t('period')}
+                  className="font-mono text-xs"
                 />
-                {(errors.periodStart || errors.periodEnd) && (
-                  <p className="text-xs text-destructive">
-                    {errors.periodStart?.message || errors.periodEnd?.message}
-                  </p>
+                {errors.deductions && (
+                  <p className="text-xs text-status-danger font-mono">{errors.deductions.message}</p>
                 )}
-              </div>
-
-              {/* Financial Adjustments: Allowances & Deductions */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">
-                    {t('allowances')} (Rp)
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="0"
-                    {...register('allowances')}
-                    disabled={isSubmitting}
-                  />
-                  {errors.allowances && (
-                    <p className="text-xs text-destructive">{errors.allowances.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-foreground">
-                    {t('deductions')} (Rp)
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="0"
-                    {...register('deductions')}
-                    disabled={isSubmitting}
-                  />
-                  {errors.deductions && (
-                    <p className="text-xs text-destructive">{errors.deductions.message}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Snapshot Info Box */}
-              <div className="p-3 rounded-xl bg-muted/40 border border-border flex items-start gap-2 text-xs text-muted-foreground">
-                <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                <span>
-                  <strong>{t('basicSalary')}</strong> di-snapshot otomatis, dan <strong>{t('netSalary')}</strong> dihitung otomatis.
-                </span>
               </div>
             </div>
-          </ScrollArea>
 
-          <DialogFooter className="pt-3 shrink-0">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-              className="cursor-pointer"
-            >
-              {tCommon('cancel')}
-            </Button>
-            <Button
-              type="submit"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold cursor-pointer"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {tCommon('processing')}
-                </>
-              ) : (
-                t('generateDraft')
-              )}
-            </Button>
-          </DialogFooter>
+            {/* Snapshot Info Box */}
+            <div className="p-3 rounded-md bg-muted/40 border border-border flex items-start gap-2 text-xs text-muted-foreground font-mono">
+              <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+              <span>
+                <strong>{t('basicSalary')}</strong> di-snapshot otomatis, dan <strong>{t('netSalary')}</strong> dihitung otomatis.
+              </span>
+            </div>
+          </LongDialogBody>
+
+          <LongDialogFooter>
+            <div className="flex w-full flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting}
+                className="min-h-11 w-full sm:w-auto font-mono text-xs cursor-pointer"
+              >
+                {tCommon('cancel')}
+              </Button>
+              <Button
+                type="submit"
+                form="payroll-generate-form"
+                className="min-h-11 w-full sm:w-auto font-mono text-xs font-semibold bg-primary hover:bg-primary-hover text-primary-foreground cursor-pointer"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    {tCommon('processing')}
+                  </>
+                ) : (
+                  t('generateDraft')
+                )}
+              </Button>
+            </div>
+          </LongDialogFooter>
         </form>
-      </DialogContent>
+      </LongDialogContent>
     </Dialog>
   );
 }

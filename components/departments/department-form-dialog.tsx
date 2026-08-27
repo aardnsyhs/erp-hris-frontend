@@ -95,21 +95,25 @@ export function DepartmentFormDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
-        <DialogHeader className="pr-10 sm:pr-12">
-          <DialogTitle>
+    <Dialog open={open} onOpenChange={(val) => !isSubmitting && onOpenChange(val)}>
+      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-md">
+        <DialogHeader className="shrink-0 pr-10">
+          <DialogTitle className="text-sm font-semibold">
             {isEditMode ? t('editDepartment') : t('addDepartment')}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-xs text-muted-foreground">
             {t('subtitle')}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
+        <form
+          id="department-form"
+          onSubmit={handleSubmit(onSubmit)}
+          className="min-h-0 flex-1 space-y-4 overflow-y-auto py-2"
+        >
           {/* Field: Code */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-foreground">
+            <label className="text-xs font-semibold text-foreground font-mono">
               {t('code')} <span className="text-destructive">*</span>
             </label>
             <Input
@@ -121,11 +125,12 @@ export function DepartmentFormDialog({
                 },
               })}
               disabled={isSubmitting}
+              className="font-mono text-xs"
             />
             {errors.code ? (
-              <p className="text-xs text-destructive">{errors.code.message}</p>
+              <p className="text-xs text-status-danger font-mono">{errors.code.message}</p>
             ) : (
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground font-mono">
                 2–20 karakter unik (ENG, MKT, HRD).
               </p>
             )}
@@ -133,47 +138,49 @@ export function DepartmentFormDialog({
 
           {/* Field: Name */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-foreground">
+            <label className="text-xs font-semibold text-foreground font-mono">
               {t('name')} <span className="text-destructive">*</span>
             </label>
             <Input
               placeholder="Engineering, Human Resources"
               {...register('name')}
               disabled={isSubmitting}
+              className="text-xs"
             />
             {errors.name && (
-              <p className="text-xs text-destructive">{errors.name.message}</p>
+              <p className="text-xs text-status-danger font-mono">{errors.name.message}</p>
             )}
           </div>
-
-          <DialogFooter className="pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-              className="cursor-pointer"
-            >
-              {tCommon('cancel')}
-            </Button>
-            <Button
-              type="submit"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {tCommon('saving')}
-                </>
-              ) : isEditMode ? (
-                tCommon('save')
-              ) : (
-                tCommon('create')
-              )}
-            </Button>
-          </DialogFooter>
         </form>
+
+        <DialogFooter className="shrink-0 pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting}
+            className="min-h-11 w-full sm:w-auto font-mono text-xs cursor-pointer"
+          >
+            {tCommon('cancel')}
+          </Button>
+          <Button
+            type="submit"
+            form="department-form"
+            className="min-h-11 w-full sm:w-auto font-mono text-xs font-semibold bg-primary hover:bg-primary-hover text-primary-foreground cursor-pointer"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                {tCommon('saving')}
+              </>
+            ) : isEditMode ? (
+              tCommon('save')
+            ) : (
+              tCommon('create')
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -71,7 +71,8 @@
     "optional": "Opsional",
     "success": "Berhasil",
     "viewAll": "Lihat Semua",
-    "days": "{count, plural, =0 {0 hari} other {# hari}}"
+    "days": "{count, plural, =0 {0 hari} other {# hari}}",
+    "submitting": "Mengirimkan..."
   },
   "auth": {
     "loginTitle": "Masuk ke Sistem HRIS",
@@ -177,10 +178,14 @@
     "accountInfo": "Akun Akses Sistem",
     "credentialsModalTitle": "Akun Karyawan Berhasil Dibuat",
     "credentialsModalDesc": "Karyawan dan akun login sistem telah terdaftar. Berikan kredensial login berikut kepada karyawan yang bersangkutan.",
+    "credentialsModalWarning": "Kredensial ini hanya ditampilkan sekali. Simpan dan kirimkan ke karyawan terkait dengan aman.",
     "username": "Username Login",
     "temporaryPassword": "Password Sementara",
     "copyCredentials": "Salin Password",
     "copied": "Password sementara berhasil disalin ke clipboard!",
+    "selectDepartment": "Pilih Departemen",
+    "noDepartment": "Tanpa Departemen",
+    "accountStatus": "Status Akun",
     "statusActive": "Aktif",
     "statusInactive": "Nonaktif (INACTIVE)",
     "statusTerminated": "Diberhentikan (TERMINATED)",
@@ -279,7 +284,8 @@
     "cannotRejectOwn": "Anda tidak dapat menolak pengajuan cuti Anda sendiri.",
     "cannotApproveOwn": "Anda tidak dapat menyetujui pengajuan cuti Anda sendiri.",
     "remainingQuota": "Sisa Kuota Cuti",
-    "quotaDays": "{count} / {total} Hari"
+    "quotaDays": "{count} / {total} Hari",
+    "submit": "Ajukan Permohonan"
   },
   "payroll": {
     "title": "Penggajian & Slip Gaji",
@@ -287,6 +293,7 @@
     "generateDraft": "Generate Draft Payroll",
     "editDraft": "Edit Draft Payroll",
     "deleteDraft": "Hapus Draft",
+    "deleteDraftConfirm": "Apakah Anda yakin ingin menghapus draft payroll untuk {name}?",
     "viewPayslip": "Lihat Slip Gaji",
     "viewSlip": "Slip Gaji",
     "period": "Periode Payroll",
@@ -296,6 +303,9 @@
     "allowances": "Tunjangan Tambahan",
     "deductions": "Potongan Gaji",
     "netSalary": "Estimasi Gaji Bersih (Net)",
+    "breakdown": "Rincian Pendapatan & Potongan",
+    "netFormula": "Gaji Bersih = Gaji Pokok + Tunjangan - Potongan",
+    "verified": "Terverifikasi Sistem",
     "paymentDate": "Tgl Bayar",
     "notPaidYet": "Belum Ditransfer",
     "process": "Proses Payroll",

@@ -16,12 +16,15 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
-  DialogContent,
   DialogDescription,
-  DialogFooter,
-  DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  LongDialogContent,
+  LongDialogHeader,
+  LongDialogBody,
+  LongDialogFooter,
+} from '@/components/shared/dialog-layout';
 
 interface LeaveDetailDialogProps {
   leaveRequest: LeaveRequest | null;
@@ -88,153 +91,167 @@ export function LeaveDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-3xl max-h-[90vh] flex flex-col p-4 sm:p-6 overflow-hidden">
-        <DialogHeader className="gap-2 shrink-0 pr-10 sm:pr-12">
+      <LongDialogContent className="sm:max-w-3xl">
+        <LongDialogHeader>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
-            <div className="flex items-center gap-2 min-w-0">
-              <div className="p-2 rounded-xl bg-primary/10 text-primary shrink-0">
-                <FileText className="w-5 h-5" />
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="p-2 rounded-md bg-primary/10 text-primary shrink-0 border border-primary/20">
+                <FileText className="w-4 h-4" />
               </div>
-              <DialogTitle className="truncate text-base font-bold text-foreground">
+              <DialogTitle className="truncate text-sm font-semibold text-foreground">
                 {t('detailTitle')}
               </DialogTitle>
             </div>
             <div className="shrink-0 self-start sm:self-auto">
               {leaveRequest.status === 'APPROVED' ? (
-                <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 gap-1 text-xs whitespace-nowrap">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
+                <Badge className="bg-status-success-bg text-status-success border-(--status-success)/30 gap-1 text-[10px] font-mono whitespace-nowrap">
+                  <CheckCircle2 className="w-3 h-3" />
                   {t('statusApproved')}
                 </Badge>
               ) : leaveRequest.status === 'REJECTED' ? (
-                <Badge variant="destructive" className="gap-1 text-xs whitespace-nowrap">
-                  <XCircle className="w-3.5 h-3.5" />
+                <Badge variant="destructive" className="gap-1 text-[10px] font-mono whitespace-nowrap bg-status-danger text-white">
+                  <XCircle className="w-3 h-3" />
                   {t('statusRejected')}
                 </Badge>
               ) : (
-                <Badge variant="outline" className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 gap-1 text-xs whitespace-nowrap">
-                  <Clock className="w-3.5 h-3.5" />
+                <Badge variant="outline" className="bg-status-warning-bg text-status-warning border-(--status-warning)/30 gap-1 text-[10px] font-mono whitespace-nowrap">
+                  <Clock className="w-3 h-3" />
                   {t('statusPending')}
                 </Badge>
               )}
             </div>
           </div>
-          <DialogDescription className="text-xs text-muted-foreground">
+          <DialogDescription className="text-xs text-muted-foreground mt-1">
             {t('detailSubtitle')}
           </DialogDescription>
-        </DialogHeader>
+        </LongDialogHeader>
 
-        <ScrollArea className="min-h-0 flex-1 -mr-2 pr-4 my-2">
-          <div className="space-y-4 py-1 text-sm">
-            {/* Section 1: Karyawan */}
-            <div className="p-3 rounded-xl bg-card border border-border space-y-1.5 shadow-2xs">
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">
-                {t('applicantInfo')}
-              </span>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-bold text-foreground">
-                    {leaveRequest.employee?.fullName || 'Karyawan'}
-                  </p>
-                  <p className="text-xs text-muted-foreground font-mono">
-                    NIP: {leaveRequest.employee?.nip} • {leaveRequest.employee?.jobTitle}
-                  </p>
-                </div>
-                {leaveRequest.employee?.department?.name && (
-                  <Badge variant="outline" className="text-xs">
-                    {leaveRequest.employee.department.name}
-                  </Badge>
-                )}
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Section 2: Informasi Cuti */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-xl bg-card border border-border shadow-2xs">
-                <span className="text-[11px] font-semibold text-muted-foreground block">{t('leaveType')}</span>
-                <p className="font-semibold text-foreground mt-0.5 text-xs sm:text-sm">
-                  {getLeaveTypeLabel(leaveRequest.leaveType)}
+        <LongDialogBody className="text-xs font-mono">
+          {/* Section 1: Karyawan */}
+          <div className="p-3.5 rounded-md bg-card border border-border space-y-1.5 shadow-2xs">
+            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">
+              {t('applicantInfo')}
+            </span>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-bold text-foreground text-xs">
+                  {leaveRequest.employee?.fullName || 'Karyawan'}
+                </p>
+                <p className="text-[11px] text-muted-foreground font-mono">
+                  NIP: {leaveRequest.employee?.nip} • {leaveRequest.employee?.jobTitle}
                 </p>
               </div>
-
-              <div className="p-3 rounded-xl bg-card border border-border shadow-2xs">
-                <span className="text-[11px] font-semibold text-muted-foreground block">{t('duration')}</span>
-                <p className="font-semibold text-foreground mt-0.5 text-xs sm:text-sm">
-                  {t('calendarDays', { count: calculateDays() })}
-                </p>
-              </div>
+              {leaveRequest.employee?.department?.name && (
+                <Badge variant="outline" className="text-[10px] font-mono">
+                  {leaveRequest.employee.department.name}
+                </Badge>
+              )}
             </div>
+          </div>
 
-            {/* Section 3: Periode Cuti */}
-            <div className="p-3 rounded-xl bg-card border border-border space-y-1 shadow-2xs">
-              <span className="text-[11px] font-semibold text-muted-foreground block">{t('period')}</span>
-              <div className="flex items-center gap-2 text-foreground font-medium text-xs">
-                <Calendar className="w-4 h-4 text-primary shrink-0" />
-                <span>{formatDate(leaveRequest.startDate)}</span>
-                <span>{tCommon('to')}</span>
-                <span>{formatDate(leaveRequest.endDate)}</span>
-              </div>
-            </div>
+          <Separator />
 
-            {/* Section 4: Alasan Pengajuan */}
-            <div className="space-y-1">
-              <span className="text-xs font-semibold text-muted-foreground">{t('reason')}:</span>
-              <p className="p-3 rounded-xl bg-card border border-border text-xs text-foreground leading-relaxed shadow-2xs">
-                {leaveRequest.reason}
+          {/* Section 2: Informasi Cuti */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-3 rounded-md bg-card border border-border shadow-2xs">
+              <span className="text-[10px] font-semibold text-muted-foreground block">{t('leaveType')}</span>
+              <p className="font-semibold text-foreground mt-0.5 text-xs">
+                {getLeaveTypeLabel(leaveRequest.leaveType)}
               </p>
             </div>
 
-            {/* Section 5: Riwayat Approver (Jika sudah di-approve / di-reject) */}
-            {leaveRequest.status !== 'PENDING' && (
-              <>
-                <Separator />
-                <div
-                  className={`p-3 rounded-xl border space-y-2 shadow-2xs ${leaveRequest.status === 'APPROVED'
-                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-950 dark:text-emerald-200'
-                      : 'bg-destructive/10 border-destructive/30 text-destructive-foreground'
-                    }`}
-                >
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold">
-                      {leaveRequest.status === 'APPROVED' ? t('approvedBy') : t('rejectedBy')}
-                    </span>
-                    <span className="text-[11px] opacity-75">
-                      {formatDateTime(leaveRequest.approvedAt || leaveRequest.updatedAt)}
-                    </span>
-                  </div>
-                  <p className="text-xs font-medium">
-                    {leaveRequest.approver?.fullName || 'Manager / HR Admin'}{' '}
-                    {leaveRequest.approver?.nip ? `(${leaveRequest.approver.nip})` : ''}
-                  </p>
-
-                  {leaveRequest.status === 'REJECTED' && leaveRequest.rejectionReason && (
-                    <div className="pt-2 border-t border-destructive/30">
-                      <span className="text-[11px] font-semibold block text-destructive">
-                        {t('rejectionReason')}
-                      </span>
-                      <p className="text-xs mt-0.5 text-foreground">
-                        {leaveRequest.rejectionReason}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
+            <div className="p-3 rounded-md bg-card border border-border shadow-2xs">
+              <span className="text-[10px] font-semibold text-muted-foreground block">{t('duration')}</span>
+              <p className="font-semibold text-primary mt-0.5 text-xs">
+                {tCommon('days', { count: calculateDays() })}
+              </p>
+            </div>
           </div>
-        </ScrollArea>
 
-        <DialogFooter className="shrink-0 p-4 border-t border-border bg-card flex flex-col sm:flex-row sm:justify-end -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 rounded-b-xl gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            className="w-full sm:w-auto min-h-11 px-6 text-sm font-medium cursor-pointer"
-          >
-            {tCommon('close')}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
+          {/* Tanggal Mulai - Selesai */}
+          <div className="p-3.5 rounded-md bg-muted/40 border border-border space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5" />
+                {t('startDate')}:
+              </span>
+              <span className="font-semibold text-foreground">
+                {formatDate(leaveRequest.startDate)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5" />
+                {t('endDate')}:
+              </span>
+              <span className="font-semibold text-foreground">
+                {formatDate(leaveRequest.endDate)}
+              </span>
+            </div>
+          </div>
+
+          {/* Alasan Cuti */}
+          <div className="space-y-1.5">
+            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">
+              {t('reason')}
+            </span>
+            <div className="p-3 rounded-md bg-card border border-border text-xs text-foreground leading-relaxed whitespace-pre-wrap">
+              {leaveRequest.reason || '-'}
+            </div>
+          </div>
+
+          {/* Section 3: Status Approver info */}
+          {leaveRequest.status !== 'PENDING' && (
+            <>
+              <Separator />
+              <div
+                className={`p-3.5 rounded-md border space-y-2 ${
+                  leaveRequest.status === 'APPROVED'
+                    ? 'bg-status-success-bg border-(--status-success)/30 text-status-success'
+                    : 'bg-status-danger-bg border-(--status-danger)/30 text-status-danger'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider">
+                    {leaveRequest.status === 'APPROVED' ? t('approvedBy') : t('rejectedBy')}
+                  </span>
+                  <span className="text-[10px] opacity-75">
+                    {formatDateTime(leaveRequest.approvedAt || leaveRequest.updatedAt)}
+                  </span>
+                </div>
+                <p className="text-xs font-medium">
+                  {leaveRequest.approver?.fullName || 'Manager / HR Admin'}{' '}
+                  {leaveRequest.approver?.nip ? `(${leaveRequest.approver.nip})` : ''}
+                </p>
+
+                {leaveRequest.status === 'REJECTED' && leaveRequest.rejectionReason && (
+                  <div className="pt-2 border-t border-destructive/30">
+                    <span className="text-[10px] font-semibold block text-destructive">
+                      {t('rejectionReason')}
+                    </span>
+                    <p className="text-xs mt-0.5 text-foreground">
+                      {leaveRequest.rejectionReason}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </LongDialogBody>
+
+        <LongDialogFooter>
+          <div className="flex w-full justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="min-h-11 w-full sm:w-auto font-mono text-xs cursor-pointer"
+            >
+              {tCommon('close')}
+            </Button>
+          </div>
+        </LongDialogFooter>
+      </LongDialogContent>
     </Dialog>
   );
 }

@@ -42,42 +42,40 @@ export function EmployeeTerminateDialog({
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
-        <AlertDialogHeader className="gap-2 pr-10 sm:pr-12">
-          <div className="flex items-center gap-2 text-destructive">
-            <div className="p-2 rounded-full bg-destructive/10">
-              <UserX className="h-5 w-5" />
+    <AlertDialog open={open} onOpenChange={(val) => !isTerminating && onOpenChange(val)}>
+      <AlertDialogContent className="sm:max-w-md">
+        <AlertDialogHeader className="pr-10">
+          <div className="flex items-center gap-2.5 text-status-danger">
+            <div className="p-2 rounded-md bg-status-danger-bg text-status-danger border border-(--status-danger)/30">
+              <UserX className="h-4 w-4" />
             </div>
-            <AlertDialogTitle>{t('terminateTitle')}</AlertDialogTitle>
+            <AlertDialogTitle className="text-sm font-semibold">{t('terminateTitle')}</AlertDialogTitle>
           </div>
-          <AlertDialogDescription className="pt-2 text-muted-foreground">
+          <AlertDialogDescription className="text-xs text-muted-foreground">
             {t('terminateDesc', { name: employee?.fullName ?? '', nip: employee?.nip ?? '' })}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <AlertDialogFooter className="pt-4">
+        <AlertDialogFooter className="pt-2">
           <Button
             type="button"
             variant="outline"
-            size="sm"
             onClick={() => onOpenChange(false)}
             disabled={isTerminating}
-            className="cursor-pointer"
+            className="min-h-11 w-full sm:w-auto font-mono text-xs cursor-pointer"
           >
             {tCommon('cancel')}
           </Button>
           <Button
             type="button"
             variant="destructive"
-            size="sm"
             onClick={handleTerminate}
             disabled={isTerminating}
-            className="cursor-pointer"
+            className="min-h-11 w-full sm:w-auto font-mono text-xs font-semibold cursor-pointer bg-status-danger hover:opacity-90 text-white"
           >
             {isTerminating ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                 {tCommon('processing')}
               </>
             ) : (

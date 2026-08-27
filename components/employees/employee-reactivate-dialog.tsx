@@ -42,44 +42,44 @@ export function EmployeeReactivateDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
-        <DialogHeader className="gap-2 pr-10 sm:pr-12">
-          <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-            <div className="p-2 rounded-xl bg-emerald-500/10">
-              <UserCheck className="w-5 h-5" />
+    <Dialog open={open} onOpenChange={(val) => !isPending && onOpenChange(val)}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader className="pr-10">
+          <div className="flex items-center gap-2.5 text-status-success">
+            <div className="p-2 rounded-md bg-status-success-bg text-status-success border border-(--status-success)/30">
+              <UserCheck className="w-4 h-4" />
             </div>
-            <DialogTitle>{t('reactivateTitle')}</DialogTitle>
+            <DialogTitle className="text-sm font-semibold">{t('reactivateTitle')}</DialogTitle>
           </div>
-          <DialogDescription>
+          <DialogDescription className="text-xs text-muted-foreground">
             {t('reactivateDesc', { name: employee?.fullName ?? '', nip: employee?.nip ?? '' })}
           </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter className="pt-3">
+        <DialogFooter className="pt-2">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isPending}
-            className="cursor-pointer"
+            className="min-h-11 w-full sm:w-auto font-mono text-xs cursor-pointer"
           >
             {tCommon('cancel')}
           </Button>
           <Button
             type="button"
-            className="bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
+            className="min-h-11 w-full sm:w-auto font-mono text-xs font-semibold cursor-pointer bg-status-success hover:opacity-90 text-white"
             onClick={handleReactivate}
             disabled={isPending}
           >
             {isPending ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                 {tCommon('processing')}
               </>
             ) : (
               <>
-                <RefreshCw className="w-4 h-4 mr-2" />
+                <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
                 {t('reactivate')}
               </>
             )}

@@ -42,42 +42,40 @@ export function PayrollDeleteDialog({
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
-        <AlertDialogHeader className="gap-2 pr-10 sm:pr-12">
-          <div className="flex items-center gap-2 text-destructive">
-            <div className="p-2 rounded-xl bg-destructive/10">
-              <Trash2 className="w-5 h-5" />
+    <AlertDialog open={open} onOpenChange={(val) => !isDeleting && onOpenChange(val)}>
+      <AlertDialogContent className="sm:max-w-md">
+        <AlertDialogHeader className="pr-10">
+          <div className="flex items-center gap-2.5 text-status-danger">
+            <div className="p-2 rounded-md bg-status-danger-bg text-status-danger border border-(--status-danger)/30">
+              <Trash2 className="w-4 h-4" />
             </div>
-            <AlertDialogTitle>{t('deleteDraft')}</AlertDialogTitle>
+            <AlertDialogTitle className="text-sm font-semibold">{t('deleteDraft')}</AlertDialogTitle>
           </div>
-          <AlertDialogDescription>
-            {payroll?.employee?.fullName}
+          <AlertDialogDescription className="text-xs text-muted-foreground">
+            {t('deleteDraftConfirm', { name: payroll?.employee?.fullName || '' })}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <AlertDialogFooter className="pt-3">
+        <AlertDialogFooter className="pt-2">
           <Button
             type="button"
             variant="outline"
-            size="sm"
             onClick={() => onOpenChange(false)}
             disabled={isDeleting}
-            className="cursor-pointer"
+            className="min-h-11 w-full sm:w-auto font-mono text-xs cursor-pointer"
           >
             {tCommon('cancel')}
           </Button>
           <Button
             type="button"
             variant="destructive"
-            size="sm"
             onClick={handleDelete}
             disabled={isDeleting}
-            className="cursor-pointer"
+            className="min-h-11 w-full sm:w-auto font-mono text-xs font-semibold cursor-pointer bg-status-danger hover:opacity-90 text-white"
           >
             {isDeleting ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                 {tCommon('processing')}
               </>
             ) : (

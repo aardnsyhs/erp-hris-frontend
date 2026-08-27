@@ -73,21 +73,25 @@ export function WorkScheduleDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
-        <DialogHeader className="gap-2 pr-10 sm:pr-12">
-          <div className="flex items-center gap-2 text-primary">
-            <div className="p-2 rounded-xl bg-primary/10">
-              <Settings className="w-5 h-5" />
+    <Dialog open={open} onOpenChange={(val) => !isSubmitting && onOpenChange(val)}>
+      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-md">
+        <DialogHeader className="shrink-0 pr-10">
+          <div className="flex items-center gap-2.5 text-primary">
+            <div className="p-2 rounded-md bg-primary/10 text-primary border border-primary/20">
+              <Settings className="w-4 h-4" />
             </div>
-            <DialogTitle>{t('workSchedule')}</DialogTitle>
+            <DialogTitle className="text-sm font-semibold">{t('workSchedule')}</DialogTitle>
           </div>
-          <DialogDescription>
+          <DialogDescription className="text-xs text-muted-foreground">
             {t('subtitle')}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
+        <form
+          id="work-schedule-form"
+          onSubmit={handleSubmit(onSubmit)}
+          className="min-h-0 flex-1 space-y-4 overflow-y-auto py-2 font-mono text-xs"
+        >
           {/* Field: Start Time */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-foreground">
@@ -99,12 +103,13 @@ export function WorkScheduleDialog({
                 placeholder="09:00"
                 {...register('startTime')}
                 disabled={isSubmitting || isLoadingSchedule}
+                className="font-mono text-xs"
               />
             </div>
             {errors.startTime ? (
-              <p className="text-xs text-destructive">{errors.startTime.message}</p>
+              <p className="text-xs text-status-danger font-mono">{errors.startTime.message}</p>
             ) : (
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground font-mono">
                 Format 24 jam "HH:mm" (08:30, 09:00).
               </p>
             )}
@@ -120,13 +125,14 @@ export function WorkScheduleDialog({
               placeholder="15"
               {...register('lateToleranceMinutes', { valueAsNumber: true })}
               disabled={isSubmitting || isLoadingSchedule}
+              className="font-mono text-xs"
             />
             {errors.lateToleranceMinutes ? (
-              <p className="text-xs text-destructive">
+              <p className="text-xs text-status-danger font-mono">
                 {errors.lateToleranceMinutes.message}
               </p>
             ) : (
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground font-mono">
                 {t('statusLate')} jika lewat dari batas ini.
               </p>
             )}
@@ -142,40 +148,42 @@ export function WorkScheduleDialog({
               placeholder="480"
               {...register('standardWorkMinutes', { valueAsNumber: true })}
               disabled={isSubmitting || isLoadingSchedule}
+              className="font-mono text-xs"
             />
             {errors.standardWorkMinutes && (
-              <p className="text-xs text-destructive">
+              <p className="text-xs text-status-danger font-mono">
                 {errors.standardWorkMinutes.message}
               </p>
             )}
           </div>
-
-          <DialogFooter className="pt-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-              className="cursor-pointer"
-            >
-              {tCommon('cancel')}
-            </Button>
-            <Button
-              type="submit"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
-              disabled={isSubmitting || isLoadingSchedule}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {tCommon('saving')}
-                </>
-              ) : (
-                tCommon('save')
-              )}
-            </Button>
-          </DialogFooter>
         </form>
+
+        <DialogFooter className="shrink-0 pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting}
+            className="min-h-11 w-full sm:w-auto font-mono text-xs cursor-pointer"
+          >
+            {tCommon('cancel')}
+          </Button>
+          <Button
+            type="submit"
+            form="work-schedule-form"
+            className="min-h-11 w-full sm:w-auto font-mono text-xs font-semibold bg-primary hover:bg-primary-hover text-primary-foreground cursor-pointer"
+            disabled={isSubmitting || isLoadingSchedule}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                {tCommon('saving')}
+              </>
+            ) : (
+              tCommon('save')
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

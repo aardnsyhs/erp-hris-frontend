@@ -45,25 +45,20 @@ export function DepartmentDeleteDialog({
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
-        <AlertDialogHeader className="gap-2 pr-10 sm:pr-12">
-          <div className="flex items-center gap-2 text-destructive">
-            <div className="p-2 rounded-full bg-destructive/10">
-              <AlertTriangle className="h-5 w-5" />
+    <AlertDialog open={open} onOpenChange={(val) => !isDeleting && onOpenChange(val)}>
+      <AlertDialogContent className="sm:max-w-md">
+        <AlertDialogHeader className="pr-10">
+          <div className="flex items-center gap-2.5 text-destructive">
+            <div className="p-2 rounded-md bg-status-danger-bg text-status-danger border border-(--status-danger)/30">
+              <AlertTriangle className="h-4 w-4" />
             </div>
-            <AlertDialogTitle>{t('deleteDepartment')}</AlertDialogTitle>
+            <AlertDialogTitle className="text-sm font-semibold">{t('deleteDepartment')}</AlertDialogTitle>
           </div>
-          <AlertDialogDescription className="pt-2 text-muted-foreground">
+          <AlertDialogDescription className="text-xs text-muted-foreground">
             {hasEmployees ? (
-              <div className="space-y-3">
-                <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-start gap-2 text-amber-700 dark:text-amber-300 text-xs">
-                  <Users className="w-4 h-4 shrink-0 mt-0.5" />
-                  <span>
-                    {t('deleteWarningHasEmployees', { count: employeeCount })}
-                  </span>
-                </div>
-              </div>
+              <span className="text-status-warning">
+                {t('deleteWarningHasEmployees', { count: employeeCount })}
+              </span>
             ) : (
               <span>
                 {t('deleteConfirmDesc', { name: department?.name ?? '', code: department?.code ?? '' })}
@@ -72,14 +67,22 @@ export function DepartmentDeleteDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <AlertDialogFooter className="pt-4">
+        {hasEmployees && (
+          <div className="p-3 rounded-md bg-status-warning-bg border border-(--status-warning)/30 flex items-start gap-2 text-status-warning text-xs font-mono">
+            <Users className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>
+              {t('deleteWarningHasEmployees', { count: employeeCount })}
+            </span>
+          </div>
+        )}
+
+        <AlertDialogFooter className="pt-2">
           <Button
             type="button"
             variant="outline"
-            size="sm"
             onClick={() => onOpenChange(false)}
             disabled={isDeleting}
-            className="cursor-pointer"
+            className="min-h-11 w-full sm:w-auto font-mono text-xs cursor-pointer"
           >
             {hasEmployees ? tCommon('close') : tCommon('cancel')}
           </Button>
@@ -87,18 +90,17 @@ export function DepartmentDeleteDialog({
             <Button
               type="button"
               variant="destructive"
-              size="sm"
               onClick={handleDelete}
               disabled={isDeleting}
-              className="cursor-pointer"
+              className="min-h-11 w-full sm:w-auto font-mono text-xs cursor-pointer bg-status-danger hover:opacity-90"
             >
               {isDeleting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                   {tCommon('processing')}
                 </>
               ) : (
-                t('deleteDepartment')
+                tCommon('delete')
               )}
             </Button>
           )}

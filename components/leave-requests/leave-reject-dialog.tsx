@@ -77,67 +77,69 @@ export function LeaveRejectDialog({
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="w-[calc(100vw-2rem)] sm:max-w-lg max-h-[90vh]">
-        <AlertDialogHeader className="gap-2 pr-10 sm:pr-12">
-          <div className="flex items-center gap-2 text-destructive">
-            <div className="p-2 rounded-xl bg-destructive/10">
-              <XCircle className="w-5 h-5" />
+    <AlertDialog open={open} onOpenChange={(val) => !isSubmitting && onOpenChange(val)}>
+      <AlertDialogContent className="sm:max-w-md">
+        <AlertDialogHeader className="pr-10">
+          <div className="flex items-center gap-2.5 text-status-danger">
+            <div className="p-2 rounded-md bg-status-danger-bg text-status-danger border border-(--status-danger)/30">
+              <XCircle className="w-4 h-4" />
             </div>
-            <AlertDialogTitle>{t('reject')}</AlertDialogTitle>
+            <AlertDialogTitle className="text-sm font-semibold">{t('reject')}</AlertDialogTitle>
           </div>
-          <AlertDialogDescription>
+          <AlertDialogDescription className="text-xs text-muted-foreground">
             {leaveRequest?.employee?.fullName} ({tCommon('days', { count: getDaysCount() })})
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
+        <form
+          id="leave-reject-form"
+          onSubmit={handleSubmit(onSubmit)}
+          className="min-h-0 flex-1 space-y-4 py-2"
+        >
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-foreground">
+            <label className="text-xs font-semibold text-foreground font-mono">
               {t('rejectionReason')} <span className="text-destructive">*</span>
             </label>
             <textarea
-              className="flex w-full rounded-lg border border-input bg-background text-foreground px-3 py-2 text-sm shadow-2xs placeholder:text-muted-foreground focus-visible:border-destructive focus-visible:ring-3 focus-visible:ring-destructive/20 min-h-[90px] outline-none"
+              className="flex w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-xs font-mono shadow-2xs placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 min-h-24 outline-none"
               placeholder={t('rejectionReasonPlaceholder')}
               {...register('rejectionReason')}
               disabled={isSubmitting}
             />
             {errors.rejectionReason && (
-              <p className="text-xs text-destructive">
+              <p className="text-xs text-status-danger font-mono">
                 {errors.rejectionReason.message}
               </p>
             )}
           </div>
-
-          <AlertDialogFooter className="pt-3">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-              className="cursor-pointer"
-            >
-              {tCommon('cancel')}
-            </Button>
-            <Button
-              type="submit"
-              variant="destructive"
-              size="sm"
-              disabled={isSubmitting}
-              className="cursor-pointer"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {tCommon('processing')}
-                </>
-              ) : (
-                t('reject')
-              )}
-            </Button>
-          </AlertDialogFooter>
         </form>
+
+        <AlertDialogFooter className="pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting}
+            className="min-h-11 w-full sm:w-auto font-mono text-xs cursor-pointer"
+          >
+            {tCommon('cancel')}
+          </Button>
+          <Button
+            type="submit"
+            form="leave-reject-form"
+            disabled={isSubmitting}
+            className="min-h-11 w-full sm:w-auto font-mono text-xs font-semibold cursor-pointer bg-status-danger hover:opacity-90 text-white"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                {tCommon('processing')}
+              </>
+            ) : (
+              t('reject')
+            )}
+          </Button>
+        </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );

@@ -54,22 +54,22 @@ export function EmployeeCredentialsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
-        <DialogHeader className="gap-2 pr-10 sm:pr-12">
-          <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-            <div className="p-2 rounded-xl bg-emerald-500/10">
-              <UserCheck className="w-5 h-5" />
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader className="pr-10">
+          <div className="flex items-center gap-2.5 text-status-success">
+            <div className="p-2 rounded-md bg-status-success-bg text-status-success border border-(--status-success)/30">
+              <UserCheck className="w-4 h-4" />
             </div>
-            <DialogTitle>{t('credentialsModalTitle')}</DialogTitle>
+            <DialogTitle className="text-sm font-semibold">{t('credentialsModalTitle')}</DialogTitle>
           </div>
-          <DialogDescription>
+          <DialogDescription className="text-xs text-muted-foreground">
             {t('credentialsModalDesc')}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-2 text-sm">
+        <div className="space-y-4 text-xs font-mono py-2">
           {/* Account Details Box */}
-          <div className="p-4 rounded-xl bg-card border border-border space-y-3 shadow-2xs">
+          <div className="p-4 rounded-md bg-card border border-border space-y-3 shadow-2xs">
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground flex items-center gap-1.5">
                 <Mail className="w-3.5 h-3.5" />
@@ -85,38 +85,38 @@ export function EmployeeCredentialsDialog({
                 <Shield className="w-3.5 h-3.5" />
                 {t('role')}:
               </span>
-              <Badge variant="outline" className="text-xs font-semibold">
+              <Badge variant="outline" className="text-[10px] font-mono font-semibold">
                 {credentials.role}
               </Badge>
             </div>
 
             {/* Temporary Password with Copy Button */}
             <div className="pt-2 border-t border-border space-y-1.5">
-              <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-foreground flex items-center gap-1.5 font-mono">
                 <KeyRound className="w-3.5 h-3.5 text-primary" />
                 {t('temporaryPassword')}:
               </span>
               <div className="flex items-center gap-2">
-                <div className="flex-1 p-2.5 rounded-lg bg-muted border border-border font-mono font-bold text-base text-primary tracking-wider text-center select-all">
+                <div className="flex-1 p-2.5 rounded-md bg-muted border border-border font-mono font-bold text-sm text-primary tracking-wider text-center select-all">
                   {credentials.temporaryPassword}
                 </div>
                 <Button
                   type="button"
                   onClick={handleCopy}
-                  className={`h-11 px-4 text-xs font-semibold cursor-pointer ${
+                  className={`min-h-11 px-4 text-xs font-mono font-semibold cursor-pointer ${
                     copied
-                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                      : 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                      ? 'bg-status-success hover:opacity-90 text-white'
+                      : 'bg-primary hover:bg-primary-hover text-primary-foreground'
                   }`}
                 >
                   {copied ? (
                     <>
-                      <Check className="w-4 h-4 mr-1.5" />
+                      <Check className="w-3.5 h-3.5 mr-1.5" />
                       {t('copied')}
                     </>
                   ) : (
                     <>
-                      <Copy className="w-4 h-4 mr-1.5" />
+                      <Copy className="w-3.5 h-3.5 mr-1.5" />
                       {t('copyCredentials')}
                     </>
                   )}
@@ -124,13 +124,19 @@ export function EmployeeCredentialsDialog({
               </div>
             </div>
           </div>
+
+          {/* Security Notice */}
+          <div className="p-3 rounded-md bg-status-warning-bg border border-(--status-warning)/30 flex items-start gap-2 text-status-warning text-xs font-mono">
+            <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>{t('credentialsModalWarning')}</span>
+          </div>
         </div>
 
         <DialogFooter className="pt-2">
           <Button
             type="button"
-            className="w-full sm:w-auto bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
             onClick={() => onOpenChange(false)}
+            className="min-h-11 w-full sm:w-auto font-mono text-xs font-semibold bg-primary hover:bg-primary-hover text-primary-foreground cursor-pointer"
           >
             {tCommon('close')}
           </Button>

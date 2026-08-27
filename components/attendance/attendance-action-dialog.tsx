@@ -72,20 +72,20 @@ export function AttendanceActionDialog({
       }
       onOpenChange(false);
     } catch {
-      // Toast notification is handled in mutation hooks
+      // Toast notification and error handling is managed in mutation hooks
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
-        <DialogHeader className="gap-2 pr-10 sm:pr-12">
-          <div className="flex items-center gap-2">
+    <Dialog open={open} onOpenChange={(val) => !isSubmitting && onOpenChange(val)}>
+      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-md">
+        <DialogHeader className="shrink-0 pr-10">
+          <div className="flex items-center gap-2.5">
             <div
-              className={`p-2 rounded-xl ${
+              className={`p-2 rounded-md ${
                 isCheckIn
-                  ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
-                  : 'bg-primary/10 text-primary'
+                  ? 'bg-status-success-bg text-status-success border border-(--status-success)/30'
+                  : 'bg-primary/10 text-primary border border-primary/20'
               }`}
             >
               {isCheckIn ? (
@@ -103,54 +103,65 @@ export function AttendanceActionDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
+        <form
+          id="attendance-action-form"
+          onSubmit={handleSubmit(onSubmit)}
+          className="min-h-0 flex-1 space-y-4 overflow-y-auto py-2"
+        >
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-foreground">
               {t('notes')} ({tCommon('optional')})
             </label>
             <textarea
-              className="flex w-full rounded-lg border border-input bg-background text-foreground px-3 py-2 text-sm shadow-2xs placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 min-h-20 outline-none"
+              className="flex w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-xs font-mono shadow-2xs placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 min-h-24 outline-none"
               placeholder={t('notesPlaceholder')}
               {...register('notes')}
               disabled={isSubmitting}
             />
             {errors.notes && (
-              <p className="text-xs text-destructive">{errors.notes.message}</p>
+              <p className="text-xs text-status-danger font-mono">{errors.notes.message}</p>
             )}
           </div>
-
-          <DialogFooter className="pt-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-              className="cursor-pointer"
-            >
-              {tCommon('cancel')}
-            </Button>
-            <Button
-              type="submit"
-              className={`cursor-pointer ${
-                isCheckIn
-                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                  : 'bg-primary hover:bg-primary/90 text-primary-foreground'
-              }`}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {tCommon('processing')}
-                </>
-              ) : isCheckIn ? (
-                t('checkIn')
-              ) : (
-                t('checkOut')
-              )}
-            </Button>
-          </DialogFooter>
         </form>
+
+        <DialogFooter className="shrink-0 pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting}
+            className="min-h-11 w-full sm:w-auto font-mono text-xs cursor-pointer"
+          >
+            {tCommon('cancel')}
+          </Button>
+          <Button
+            type="submit"
+            form="attendance-action-form"
+            disabled={isSubmitting}
+            className={`min-h-11 w-full sm:w-auto font-mono text-xs font-semibold cursor-pointer ${
+              isCheckIn
+                ? 'bg-status-success hover:opacity-90 text-white'
+                : 'bg-primary hover:bg-primary-hover text-primary-foreground'
+            }`}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                {tCommon('processing')}
+              </>
+            ) : isCheckIn ? (
+              <>
+                <LogIn className="w-3.5 h-3.5 mr-1.5" />
+                {t('checkIn')}
+              </>
+            ) : (
+              <>
+                <LogOut className="w-3.5 h-3.5 mr-1.5" />
+                {t('checkOut')}
+              </>
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

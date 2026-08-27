@@ -99,139 +99,140 @@ export function LeaveRequestFormDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-xl max-h-[90vh] flex flex-col">
-        <DialogHeader className="gap-2 shrink-0 pr-10 sm:pr-12">
-          <div className="flex items-center gap-2 text-primary">
-            <div className="p-2 rounded-xl bg-primary/10">
-              <CalendarPlus className="w-5 h-5" />
+    <Dialog open={open} onOpenChange={(val) => !isSubmitting && onOpenChange(val)}>
+      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-xl">
+        <DialogHeader className="shrink-0 pr-10">
+          <div className="flex items-center gap-2.5 text-primary">
+            <div className="p-2 rounded-md bg-primary/10 text-primary border border-primary/20">
+              <CalendarPlus className="w-4 h-4" />
             </div>
-            <DialogTitle>{t('requestLeave')}</DialogTitle>
+            <DialogTitle className="text-sm font-semibold">{t('requestLeave')}</DialogTitle>
           </div>
-          <DialogDescription>
+          <DialogDescription className="text-xs text-muted-foreground">
             {t('subtitleEmployee')}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col min-h-0 flex-1">
-          <ScrollArea className="max-h-[60vh] pr-2">
-            <div className="space-y-4 py-2">
-              {/* Tipe Cuti */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground">
-                  {t('leaveType')} <span className="text-destructive">*</span>
-                </label>
-                <Select
-                  value={selectedLeaveType}
-                  onValueChange={(val) => {
-                    if (val) setValue('leaveType', val as LeaveType, { shouldValidate: true });
-                  }}
-                  disabled={isSubmitting}
-                >
-                  <SelectTrigger className="w-full h-9">
-                    <SelectValue placeholder={t('leaveType')}>
-                      {selectedLeaveType === 'ANNUAL'
-                        ? t('annual')
-                        : selectedLeaveType === 'SICK'
-                        ? t('sick')
-                        : selectedLeaveType === 'UNPAID'
-                        ? t('unpaid')
-                        : selectedLeaveType === 'MATERNITY'
-                        ? t('maternity')
-                        : undefined}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ANNUAL">{t('annual')}</SelectItem>
-                    <SelectItem value="SICK">{t('sick')}</SelectItem>
-                    <SelectItem value="UNPAID">{t('unpaid')}</SelectItem>
-                    <SelectItem value="MATERNITY">{t('maternity')}</SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.leaveType && (
-                  <p className="text-xs text-destructive">{errors.leaveType.message}</p>
-                )}
-              </div>
+        <form
+          id="leave-request-form"
+          onSubmit={handleSubmit(onSubmit)}
+          className="min-h-0 flex-1 space-y-4 overflow-y-auto py-2"
+        >
+          {/* Tipe Cuti */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-foreground font-mono">
+              {t('leaveType')} <span className="text-destructive">*</span>
+            </label>
+            <Select
+              value={selectedLeaveType}
+              onValueChange={(val) => {
+                if (val) setValue('leaveType', val as LeaveType, { shouldValidate: true });
+              }}
+              disabled={isSubmitting}
+            >
+              <SelectTrigger className="w-full h-9 font-mono text-xs">
+                <SelectValue placeholder={t('leaveType')}>
+                  {selectedLeaveType === 'ANNUAL'
+                    ? t('annual')
+                    : selectedLeaveType === 'SICK'
+                    ? t('sick')
+                    : selectedLeaveType === 'UNPAID'
+                    ? t('unpaid')
+                    : selectedLeaveType === 'MATERNITY'
+                    ? t('maternity')
+                    : undefined}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ANNUAL">{t('annual')}</SelectItem>
+                <SelectItem value="SICK">{t('sick')}</SelectItem>
+                <SelectItem value="UNPAID">{t('unpaid')}</SelectItem>
+                <SelectItem value="MATERNITY">{t('maternity')}</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.leaveType && (
+              <p className="text-xs text-status-danger font-mono">{errors.leaveType.message}</p>
+            )}
+          </div>
 
-              {/* Date Range Picker */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground">
-                  {t('period')} <span className="text-destructive">*</span>
-                </label>
-                <DateRangePicker
-                  from={startDate}
-                  to={endDate}
-                  onChange={({ from, to }) => {
-                    setValue('startDate', from, { shouldValidate: true });
-                    setValue('endDate', to, { shouldValidate: true });
-                  }}
-                  disabled={isSubmitting}
-                  placeholder={t('period')}
-                />
-                {(errors.startDate || errors.endDate) && (
-                  <p className="text-xs text-destructive">
-                    {errors.startDate?.message || errors.endDate?.message}
-                  </p>
-                )}
-              </div>
+          {/* Date Range Picker */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-foreground font-mono">
+              {t('period')} <span className="text-destructive">*</span>
+            </label>
+            <DateRangePicker
+              from={startDate}
+              to={endDate}
+              onChange={({ from, to }) => {
+                setValue('startDate', from, { shouldValidate: true });
+                setValue('endDate', to, { shouldValidate: true });
+              }}
+              disabled={isSubmitting}
+              placeholder={t('period')}
+            />
+            {(errors.startDate || errors.endDate) && (
+              <p className="text-xs text-status-danger font-mono">
+                {errors.startDate?.message || errors.endDate?.message}
+              </p>
+            )}
+          </div>
 
-              {/* Duration Summary Badge */}
-              {dayCount > 0 && (
-                <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-between text-xs text-primary">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-primary" />
-                    <span>{t('duration')}:</span>
-                  </div>
-                  <Badge className="bg-primary text-primary-foreground font-semibold">
-                    {t('calendarDays', { count: dayCount })}
-                  </Badge>
-                </div>
-              )}
-
-              {/* Reason */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-foreground">
-                  {t('reason')} <span className="text-destructive">*</span>
-                </label>
-                <textarea
-                  className="flex w-full rounded-lg border border-input bg-background text-foreground px-3 py-2 text-sm shadow-2xs placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 min-h-22.5 outline-none"
-                  placeholder={t('reasonPlaceholder')}
-                  {...register('reason')}
-                  disabled={isSubmitting}
-                />
-                {errors.reason && (
-                  <p className="text-xs text-destructive">{errors.reason.message}</p>
-                )}
+          {/* Duration Summary Badge */}
+          {dayCount > 0 && (
+            <div className="p-3 rounded-md bg-primary/10 border border-primary/20 flex items-center justify-between text-xs text-primary font-mono">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-primary" />
+                <span>{t('duration')}:</span>
               </div>
+              <Badge className="bg-primary text-primary-foreground font-semibold font-mono text-xs">
+                {t('calendarDays', { count: dayCount })}
+              </Badge>
             </div>
-          </ScrollArea>
+          )}
 
-          <DialogFooter className="pt-3 shrink-0">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
+          {/* Reason */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-foreground font-mono">
+              {t('reason')} <span className="text-destructive">*</span>
+            </label>
+            <textarea
+              className="flex w-full rounded-md border border-input bg-background text-foreground px-3 py-2 text-xs font-mono shadow-2xs placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 min-h-24 outline-none"
+              placeholder={t('reasonPlaceholder')}
+              {...register('reason')}
               disabled={isSubmitting}
-              className="cursor-pointer"
-            >
-              {tCommon('cancel')}
-            </Button>
-            <Button
-              type="submit"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold cursor-pointer"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {tCommon('processing')}
-                </>
-              ) : (
-                t('requestLeave')
-              )}
-            </Button>
-          </DialogFooter>
+            />
+            {errors.reason && (
+              <p className="text-xs text-status-danger font-mono">{errors.reason.message}</p>
+            )}
+          </div>
         </form>
+
+        <DialogFooter className="shrink-0 pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting}
+            className="min-h-11 w-full sm:w-auto font-mono text-xs cursor-pointer"
+          >
+            {tCommon('cancel')}
+          </Button>
+          <Button
+            type="submit"
+            form="leave-request-form"
+            className="min-h-11 w-full sm:w-auto font-mono text-xs font-semibold bg-primary hover:bg-primary-hover text-primary-foreground cursor-pointer"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                {tCommon('submitting')}
+              </>
+            ) : (
+              t('submit')
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -96,27 +96,31 @@ export function PayrollEditDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
-        <DialogHeader className="gap-2 pr-10 sm:pr-12">
-          <div className="flex items-center gap-2 text-primary">
-            <div className="p-2 rounded-xl bg-primary/10">
-              <Edit2 className="w-5 h-5" />
+    <Dialog open={open} onOpenChange={(val) => !isSubmitting && onOpenChange(val)}>
+      <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-md">
+        <DialogHeader className="shrink-0 pr-10">
+          <div className="flex items-center gap-2.5 text-primary">
+            <div className="p-2 rounded-md bg-primary/10 text-primary border border-primary/20">
+              <Edit2 className="w-4 h-4" />
             </div>
-            <DialogTitle>{t('editDraft')}</DialogTitle>
+            <DialogTitle className="text-sm font-semibold">{t('editDraft')}</DialogTitle>
           </div>
-          <DialogDescription>
+          <DialogDescription className="text-xs text-muted-foreground">
             {payroll?.employee?.fullName}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
+        <form
+          id="payroll-edit-form"
+          onSubmit={handleSubmit(onSubmit)}
+          className="min-h-0 flex-1 space-y-4 overflow-y-auto py-2 font-mono text-xs"
+        >
           {/* Snapshotted Basic Salary (Read-only) */}
-          <div className="p-3 rounded-xl bg-card border border-border space-y-1 shadow-2xs">
-            <span className="text-[11px] font-semibold text-muted-foreground block">
+          <div className="p-3.5 rounded-md bg-card border border-border space-y-1 shadow-2xs">
+            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">
               {t('basicSalary')}
             </span>
-            <p className="font-mono font-bold text-sm text-foreground">
+            <p className="font-mono font-bold text-xs text-foreground">
               {formatCurrency(basic)}
             </p>
           </div>
@@ -131,9 +135,10 @@ export function PayrollEditDialog({
               placeholder="0"
               {...register('allowances')}
               disabled={isSubmitting}
+              className="font-mono text-xs"
             />
             {errors.allowances && (
-              <p className="text-xs text-destructive">{errors.allowances.message}</p>
+              <p className="text-xs text-status-danger font-mono">{errors.allowances.message}</p>
             )}
           </div>
 
@@ -147,52 +152,54 @@ export function PayrollEditDialog({
               placeholder="0"
               {...register('deductions')}
               disabled={isSubmitting}
+              className="font-mono text-xs"
             />
             {errors.deductions && (
-              <p className="text-xs text-destructive">{errors.deductions.message}</p>
+              <p className="text-xs text-status-danger font-mono">{errors.deductions.message}</p>
             )}
           </div>
 
           {/* Estimated Net Salary Box */}
           <div
-            className={`p-3 rounded-xl border flex items-center justify-between text-xs shadow-2xs ${
+            className={`p-3.5 rounded-md border flex items-center justify-between text-xs font-mono shadow-2xs ${
               estimatedNet < 0
-                ? 'bg-destructive/10 border-destructive/30 text-destructive'
-                : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300'
+                ? 'bg-status-danger-bg border-(--status-danger)/30 text-status-danger'
+                : 'bg-status-success-bg border-(--status-success)/30 text-status-success'
             }`}
           >
             <span className="font-semibold">{t('netSalary')}:</span>
-            <span className="font-mono font-bold text-sm">
+            <span className="font-mono font-bold text-xs">
               {formatCurrency(estimatedNet)}
             </span>
           </div>
-
-          <DialogFooter className="pt-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-              className="cursor-pointer"
-            >
-              {tCommon('cancel')}
-            </Button>
-            <Button
-              type="submit"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {tCommon('saving')}
-                </>
-              ) : (
-                tCommon('save')
-              )}
-            </Button>
-          </DialogFooter>
         </form>
+
+        <DialogFooter className="shrink-0 pt-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isSubmitting}
+            className="min-h-11 w-full sm:w-auto font-mono text-xs cursor-pointer"
+          >
+            {tCommon('cancel')}
+          </Button>
+          <Button
+            type="submit"
+            form="payroll-edit-form"
+            className="min-h-11 w-full sm:w-auto font-mono text-xs font-semibold bg-primary hover:bg-primary-hover text-primary-foreground cursor-pointer"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                {tCommon('saving')}
+              </>
+            ) : (
+              tCommon('save')
+            )}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
