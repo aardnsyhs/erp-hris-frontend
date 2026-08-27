@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { ColumnDef, PaginationState } from '@tanstack/react-table';
 import { useLocale, useTranslations } from 'next-intl';
 import {
@@ -16,6 +17,7 @@ import { useAuthStore } from '@/lib/stores/auth-store';
 import { useDepartments } from '@/hooks/use-departments';
 import { Department } from '@/types/department';
 import { DataTable } from '@/components/shared/data-table';
+import { PageHeader } from '@/components/shared/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -93,7 +95,7 @@ export default function DepartmentsPage() {
       accessorKey: 'code',
       header: t('code'),
       cell: ({ row }) => (
-        <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-md bg-primary/10 text-primary border border-primary/20">
+        <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-muted text-foreground border border-border">
           {row.original.code}
         </span>
       ),
@@ -102,11 +104,13 @@ export default function DepartmentsPage() {
       accessorKey: 'name',
       header: t('name'),
       cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <Building2 className="w-4 h-4 text-muted-foreground shrink-0" />
-          <span className="font-semibold text-foreground text-sm">
+        <div className="flex flex-col min-w-0">
+          <Link
+            href={`/employees?departmentId=${row.original.id}`}
+            className="font-semibold text-foreground text-xs hover:text-primary hover:underline transition-colors truncate"
+          >
             {row.original.name}
-          </span>
+          </Link>
         </div>
       ),
     },
@@ -116,27 +120,22 @@ export default function DepartmentsPage() {
       cell: ({ row }) => {
         const count = row.original._count?.employees ?? 0;
         return (
-          <div className="flex items-center gap-1.5">
-            <Badge
-              variant="outline"
-              className={
-                count > 0
-                  ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
-                  : 'bg-muted text-muted-foreground'
-              }
-            >
-              <Users className="w-3 h-3 mr-1" />
-              {count}
-            </Badge>
-          </div>
+          <Link
+            href={`/employees?departmentId=${row.original.id}`}
+            className="inline-flex items-center gap-1.5 font-mono text-xs text-muted-foreground hover:text-foreground"
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span className="font-semibold tabular-nums text-foreground">{count}</span>
+            <span className="text-[10px]">Headcount</span>
+          </Link>
         );
       },
     },
     {
       accessorKey: 'createdAt',
-      header: tCommon('status'),
+      header: 'Registered Date',
       cell: ({ row }) => (
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-mono">
           <Calendar className="w-3.5 h-3.5" />
           <span>{formatDate(row.original.createdAt)}</span>
         </div>
@@ -160,20 +159,20 @@ export default function DepartmentsPage() {
           <DropdownMenu>
             <DropdownMenuTrigger
               aria-label={tNav('menuAction')}
-              className="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground outline-none cursor-pointer"
+              className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground outline-none cursor-pointer"
             >
               <MoreHorizontal className="h-4 w-4" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent align="end" className="w-48 font-sans">
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">
                   {tCommon('actions')}
                 </DropdownMenuLabel>
                 <DropdownMenuItem
                   onClick={() => handleEditClick(dept)}
-                  className="flex items-center gap-2 cursor-pointer"
+                  className="flex items-center gap-2 cursor-pointer text-xs"
                 >
-                  <Edit2 className="h-4 w-4 text-primary" />
+                  <Edit2 className="h-3.5 w-3.5 text-primary" />
                   <span>{t('editDepartment')}</span>
                 </DropdownMenuItem>
 
@@ -184,9 +183,9 @@ export default function DepartmentsPage() {
                     <TooltipTrigger render={<div className="w-full" />}>
                       <DropdownMenuItem
                         disabled
-                        className="flex items-center gap-2 text-muted-foreground opacity-50 cursor-not-allowed"
+                        className="flex items-center gap-2 text-muted-foreground opacity-50 cursor-not-allowed text-xs"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3.5 w-3.5" />
                         <span>{t('deleteDepartment')}</span>
                       </DropdownMenuItem>
                     </TooltipTrigger>
@@ -197,9 +196,9 @@ export default function DepartmentsPage() {
                 ) : (
                   <DropdownMenuItem
                     onClick={() => handleDeleteClick(dept)}
-                    className="flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/10"
+                    className="flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/10 text-xs"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-3.5 w-3.5" />
                     <span>{t('deleteDepartment')}</span>
                   </DropdownMenuItem>
                 )}
@@ -212,33 +211,31 @@ export default function DepartmentsPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-primary/10 text-primary">
-              <Building2 className="w-5 h-5" />
-            </div>
-            <h1 className="text-xl font-bold tracking-tight text-foreground">
-              {t('title')}
-            </h1>
-          </div>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t('subtitle')}
-          </p>
-        </div>
-
-        {isHrAdmin && (
-          <Button
-            onClick={handleCreateClick}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs shrink-0 cursor-pointer"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            {t('addDepartment')}
-          </Button>
-        )}
-      </div>
+      <PageHeader
+        title={t('title')}
+        description={t('subtitle')}
+        badge={
+          meta?.total !== undefined ? (
+            <Badge variant="outline" className="font-mono text-xs px-2 py-0.5">
+              {meta.total} Units
+            </Badge>
+          ) : undefined
+        }
+        actions={
+          isHrAdmin && (
+            <Button
+              onClick={handleCreateClick}
+              size="sm"
+              className="bg-primary hover:bg-[var(--primary-hover)] text-primary-foreground shadow-xs shrink-0 cursor-pointer font-medium text-xs h-8.5 rounded-md"
+            >
+              <Plus className="w-3.5 h-3.5 mr-1.5" />
+              {t('addDepartment')}
+            </Button>
+          )
+        }
+      />
 
       {/* Data Table */}
       <DataTable

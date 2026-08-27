@@ -43,29 +43,29 @@ export function DataTablePagination<TData>({
   const endRow = Math.min((pageIndex + 1) * pageSize, total);
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 px-1 text-sm text-muted-foreground">
-      <div className="flex items-center gap-1 text-xs sm:text-sm">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 py-1.5 px-0.5 text-xs text-muted-foreground font-mono">
+      <div className="flex items-center gap-1.5 text-xs">
         <span>{t('showing', { count: total })}</span>
-        <span className="font-semibold text-foreground">
-          ({startRow}-{endRow} {t('of')} {total})
+        <span className="font-semibold text-foreground tabular-nums">
+          [{startRow}–{endRow} {t('of')} {total}]
         </span>
       </div>
 
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2">
-          <span className="text-xs sm:text-sm">{t('rowsPerPage')}:</span>
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs">{t('rowsPerPage')}:</span>
           <Select
             value={`${pageSize}`}
             onValueChange={(value) => {
               table.setPageSize(Number(value));
             }}
           >
-            <SelectTrigger className="h-8 w-[70px]">
+            <SelectTrigger className="h-7.5 w-[65px] text-xs font-mono rounded-md border-border bg-card">
               <SelectValue placeholder={pageSize} />
             </SelectTrigger>
             <SelectContent side="top">
               {[10, 20, 30, 50].map((size) => (
-                <SelectItem key={size} value={`${size}`}>
+                <SelectItem key={size} value={`${size}`} className="text-xs font-mono">
                   {size}
                 </SelectItem>
               ))}
@@ -75,8 +75,8 @@ export function DataTablePagination<TData>({
 
         <TooltipProvider>
           <div className="flex items-center gap-1">
-            <span className="text-xs sm:text-sm mr-2 text-foreground font-medium">
-              {t('page')} {pageIndex + 1} {t('of')} {Math.max(pageCount, 1)}
+            <span className="text-xs mr-2 text-foreground font-semibold tabular-nums">
+              {pageIndex + 1} / {Math.max(pageCount, 1)}
             </span>
 
             <Tooltip>
@@ -84,15 +84,15 @@ export function DataTablePagination<TData>({
                 render={
                   <Button
                     variant="outline"
-                    size="icon"
-                    className="h-8 w-8 cursor-pointer"
+                    size="icon-xs"
+                    className="h-7.5 w-7.5 rounded-md border-border bg-card cursor-pointer"
                     onClick={() => table.setPageIndex(0)}
                     disabled={!table.getCanPreviousPage()}
                     aria-label={t('firstPage')}
                   />
                 }
               >
-                <ChevronsLeft className="h-4 w-4" />
+                <ChevronsLeft className="h-3.5 w-3.5" />
               </TooltipTrigger>
               <TooltipContent>{t('firstPage')}</TooltipContent>
             </Tooltip>
@@ -102,15 +102,15 @@ export function DataTablePagination<TData>({
                 render={
                   <Button
                     variant="outline"
-                    size="icon"
-                    className="h-8 w-8 cursor-pointer"
+                    size="icon-xs"
+                    className="h-7.5 w-7.5 rounded-md border-border bg-card cursor-pointer"
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
                     aria-label={t('previousPage')}
                   />
                 }
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-3.5 w-3.5" />
               </TooltipTrigger>
               <TooltipContent>{t('previousPage')}</TooltipContent>
             </Tooltip>
@@ -120,15 +120,15 @@ export function DataTablePagination<TData>({
                 render={
                   <Button
                     variant="outline"
-                    size="icon"
-                    className="h-8 w-8 cursor-pointer"
+                    size="icon-xs"
+                    className="h-7.5 w-7.5 rounded-md border-border bg-card cursor-pointer"
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
                     aria-label={t('nextPage')}
                   />
                 }
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-3.5 w-3.5" />
               </TooltipTrigger>
               <TooltipContent>{t('nextPage')}</TooltipContent>
             </Tooltip>
@@ -138,15 +138,15 @@ export function DataTablePagination<TData>({
                 render={
                   <Button
                     variant="outline"
-                    size="icon"
-                    className="h-8 w-8 cursor-pointer"
+                    size="icon-xs"
+                    className="h-7.5 w-7.5 rounded-md border-border bg-card cursor-pointer"
                     onClick={() => table.setPageIndex(pageCount - 1)}
                     disabled={!table.getCanNextPage()}
                     aria-label={t('lastPage')}
                   />
                 }
               >
-                <ChevronsRight className="h-4 w-4" />
+                <ChevronsRight className="h-3.5 w-3.5" />
               </TooltipTrigger>
               <TooltipContent>{t('lastPage')}</TooltipContent>
             </Tooltip>

@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { LucideIcon, Inbox } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -20,18 +22,18 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center p-8 text-center rounded-xl border border-dashed border-neutral-300 dark:border-neutral-800 bg-white/50 dark:bg-neutral-900/50 backdrop-blur-sm',
+        'flex flex-col items-center justify-center p-8 text-center rounded-lg border border-dashed border-border bg-card text-foreground',
         className,
       )}
     >
-      <div className="flex items-center justify-center w-12 h-12 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 mb-4">
-        <Icon className="w-6 h-6" />
+      <div className="flex items-center justify-center w-10 h-10 rounded-md bg-muted text-muted-foreground mb-3">
+        <Icon className="w-5 h-5" />
       </div>
-      <h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+      <h3 className="text-sm font-semibold text-foreground tracking-tight">
         {title}
       </h3>
       {description && (
-        <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400 max-w-sm">
+        <p className="mt-1 text-xs text-muted-foreground max-w-sm leading-relaxed">
           {description}
         </p>
       )}

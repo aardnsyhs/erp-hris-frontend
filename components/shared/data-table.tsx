@@ -95,17 +95,17 @@ export function DataTable<TData, TValue>({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Search & Actions Toolbar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {(searchKey || onSearchChange) && (
           <div className="relative max-w-sm w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <Input
               placeholder={searchPlaceholder}
               value={searchValue ?? (searchKey ? (table.getColumn(searchKey)?.getFilterValue() as string) ?? '' : clientSearch)}
               onChange={handleSearchInput}
-              className="pl-9 bg-card text-foreground"
+              className="pl-8 text-xs bg-card text-foreground h-8.5 rounded-md border-border"
             />
           </div>
         )}
@@ -116,13 +116,16 @@ export function DataTable<TData, TValue>({
       {isLoading ? (
         <DataTableSkeleton columnCount={columns.length} rowCount={pagination?.pageSize ?? 5} />
       ) : (
-        <div className="rounded-xl border border-border bg-card overflow-hidden shadow-2xs">
+        <div className="rounded-md border border-border bg-card overflow-hidden">
           <Table>
-            <TableHeader className="bg-muted/60">
+            <TableHeader className="bg-muted/40 border-b border-border">
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                <TableRow key={headerGroup.id} className="hover:bg-transparent border-border">
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="h-11 font-semibold text-foreground">
+                    <TableHead
+                      key={header.id}
+                      className="h-9 px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider select-none"
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -134,16 +137,16 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody>
+            <TableBody className="divide-y divide-border">
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
-                    className="hover:bg-muted/40 transition-colors"
+                    className="hover:bg-muted/30 transition-colors border-border"
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="py-3 text-foreground">
+                      <TableCell key={cell.id} className="py-2.5 px-3 text-xs text-foreground font-normal">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext(),
@@ -156,7 +159,7 @@ export function DataTable<TData, TValue>({
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-48 text-center p-0"
+                    className="h-44 text-center p-0 border-0"
                   >
                     <EmptyState
                       title={emptyTitle}

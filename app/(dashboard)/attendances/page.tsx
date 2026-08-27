@@ -1,17 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { ColumnDef, PaginationState } from '@tanstack/react-table';
 import { useLocale, useTranslations } from 'next-intl';
 import {
   Clock,
   Settings,
-  Filter,
   Calendar,
-  Building2,
-  CheckCircle2,
-  AlertTriangle,
-  XCircle,
+  X,
   FileText,
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/auth-store';
@@ -19,6 +16,8 @@ import { useAttendances } from '@/hooks/use-attendance';
 import { useDepartments } from '@/hooks/use-departments';
 import { Attendance, AttendanceStatus } from '@/types/attendance';
 import { DataTable } from '@/components/shared/data-table';
+import { StatusBadge } from '@/components/shared/status-badge';
+import { PageHeader } from '@/components/shared/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -40,8 +39,6 @@ export default function AttendancesPage() {
 
   const currentUser = useAuthStore((state) => state.user);
   const isHrAdmin = currentUser?.role === 'HR_ADMIN';
-  const isManager = currentUser?.role === 'MANAGER';
-  const isEmployee = currentUser?.role === 'EMPLOYEE';
 
   // Filters & Pagination State
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
@@ -71,7 +68,6 @@ export default function AttendancesPage() {
   const attendances = data?.data || [];
   const meta = data?.meta;
 
-  // Format date helper
   const formatDate = (dateStr: string) => {
     return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
       timeZone: 'Asia/Jakarta',
@@ -82,7 +78,6 @@ export default function AttendancesPage() {
     }).format(new Date(dateStr));
   };
 
-  // Format time helper
   const formatTime = (timeStr?: string | null) => {
     if (!timeStr) return '-';
     return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
@@ -94,65 +89,63 @@ export default function AttendancesPage() {
     }).format(new Date(timeStr));
   };
 
-  // Calculate duration between check-in and check-out
   const formatDuration = (checkIn?: string | null, checkOut?: string | null) => {
     if (!checkIn || !checkOut) return '-';
     const start = new Date(checkIn).getTime();
     const end = new Date(checkOut).getTime();
     const diffMinutes = Math.max(0, Math.floor((end - start) / (1000 * 60)));
-    const h = Math.floor(diffMinutes / 60);
-    const m = diffMinutes % 60;
-    if (locale === 'en') {
-      if (h === 0) return `${m}m`;
-      return `${h}h ${m > 0 ? `${m}m` : ''}`;
-    }
-    if (h === 0) return `${m}m`;
-    return `${h}j ${m > 0 ? `${m}m` : ''}`;
+    const hours = Math.floor(diffMinutes / 60);
+    const minutes = diffMinutes % 60;
+    return `${hours}h ${minutes}m`;
   };
 
-  // Table Columns Definition
+  const resetFilters = () => {
+    setSelectedStatus('ALL');
+    setSelectedDept('ALL');
+    setStartDate('');
+    setEndDate('');
+    setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+  };
+
+  const hasActiveFilters =
+    selectedStatus !== 'ALL' || selectedDept !== 'ALL' || startDate !== '' || endDate !== '';
+
   const columns: ColumnDef<Attendance>[] = [
     {
       accessorKey: 'attendanceDate',
-      header: tCommon('from'),
+      header: 'Shift Date',
       cell: ({ row }) => (
-        <span className="font-medium text-xs text-foreground">
+        <span className="font-mono text-xs font-semibold text-foreground whitespace-nowrap">
           {formatDate(row.original.attendanceDate)}
         </span>
       ),
     },
-    ...(!isEmployee
-      ? [
-          {
-            accessorKey: 'employee',
-            header: tEmp('fullName'),
-            cell: ({ row }: { row: { original: Attendance } }) => {
-              const emp = row.original.employee;
-              return (
-                <div className="flex flex-col">
-                  <span className="font-semibold text-xs text-foreground">
-                    {emp?.fullName || '-'}
-                  </span>
-                  <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                    <span className="font-mono">{emp?.nip}</span>
-                    {emp?.department?.name && (
-                      <>
-                        <span>•</span>
-                        <span>{emp.department.name}</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              );
-            },
-          },
-        ]
-      : []),
+    {
+      accessorKey: 'employee.fullName',
+      header: tEmp('fullName'),
+      cell: ({ row }) => {
+        const emp = row.original.employee;
+        if (!emp) return <span className="text-muted-foreground">-</span>;
+        return (
+          <div className="flex flex-col min-w-0">
+            <Link
+              href={`/employees/${emp.id}`}
+              className="font-semibold text-foreground text-xs hover:text-primary hover:underline transition-colors truncate"
+            >
+              {emp.fullName}
+            </Link>
+            <span className="text-[11px] font-mono text-muted-foreground truncate">
+              {emp.nip} {emp.department?.name ? `• ${emp.department.name}` : ''}
+            </span>
+          </div>
+        );
+      },
+    },
     {
       accessorKey: 'checkIn',
       header: t('checkInTime'),
       cell: ({ row }) => (
-        <span className="font-mono text-xs text-foreground">
+        <span className="font-mono text-xs font-semibold tabular-nums text-foreground">
           {formatTime(row.original.checkIn)}
         </span>
       ),
@@ -161,7 +154,7 @@ export default function AttendancesPage() {
       accessorKey: 'checkOut',
       header: t('checkOutTime'),
       cell: ({ row }) => (
-        <span className="font-mono text-xs text-foreground">
+        <span className="font-mono text-xs font-semibold tabular-nums text-foreground">
           {formatTime(row.original.checkOut)}
         </span>
       ),
@@ -170,48 +163,25 @@ export default function AttendancesPage() {
       id: 'duration',
       header: t('duration'),
       cell: ({ row }) => (
-        <span className="text-xs text-muted-foreground font-medium">
+        <span className="font-mono text-xs text-muted-foreground tabular-nums">
           {formatDuration(row.original.checkIn, row.original.checkOut)}
         </span>
       ),
     },
     {
       accessorKey: 'status',
-      header: tCommon('status'),
-      cell: ({ row }) => {
-        const status = row.original.status;
-        if (status === 'PRESENT') {
-          return (
-            <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-[11px] gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              {t('statusPresent')}
-            </Badge>
-          );
-        }
-        if (status === 'LATE') {
-          return (
-            <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30 text-[11px] gap-1">
-              <AlertTriangle className="w-3.5 h-3.5" />
-              {t('statusLate')}
-            </Badge>
-          );
-        }
-        return (
-          <Badge variant="destructive" className="text-[11px] gap-1">
-            <XCircle className="w-3.5 h-3.5" />
-            {t('statusAbsent')}
-          </Badge>
-        );
-      },
+      header: t('status'),
+      cell: ({ row }) => <StatusBadge status={row.original.status} />,
     },
     {
       accessorKey: 'notes',
       header: t('notes'),
       cell: ({ row }) => {
         const notes = row.original.notes;
+        if (!notes) return <span className="text-muted-foreground font-mono text-xs">—</span>;
         return (
-          <span className="text-xs text-muted-foreground truncate max-w-50 block">
-            {notes || '-'}
+          <span className="text-xs text-muted-foreground truncate max-w-48 block" title={notes}>
+            {notes}
           </span>
         );
       },
@@ -219,156 +189,119 @@ export default function AttendancesPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-              <Clock className="w-5 h-5" />
-            </div>
-            <h1 className="text-xl font-bold tracking-tight text-foreground">
-              {t('title')}
-            </h1>
-          </div>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t('subtitle')}
-          </p>
-        </div>
+      <PageHeader
+        title={t('title')}
+        description={t('subtitle')}
+        actions={
+          isHrAdmin && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsScheduleOpen(true)}
+              className="text-xs h-8.5 cursor-pointer font-mono"
+            >
+              <Settings className="w-3.5 h-3.5 mr-1.5" />
+              {t('workSchedule')}
+            </Button>
+          )
+        }
+      />
 
-        {isHrAdmin && (
-          <Button
-            variant="outline"
-            onClick={() => setIsScheduleOpen(true)}
-            className="border-border shrink-0 cursor-pointer"
-          >
-            <Settings className="w-4 h-4 mr-2 text-muted-foreground" />
-            {t('workSchedule')}
-          </Button>
-        )}
-      </div>
-
-      {/* Real-Time Attendance Action Widget */}
+      {/* Operator Attendance Widget */}
       <AttendanceWidget />
 
-      {/* Filter Toolbar */}
-      <div className="flex flex-wrap items-center gap-3 p-4 rounded-xl border border-border bg-card shadow-2xs">
-        <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-          <Filter className="w-3.5 h-3.5" />
-          <span>{tCommon('filter')}:</span>
-        </div>
-
-        {/* Status Filter */}
-        <div className="w-44">
-          <Select
-            value={selectedStatus}
-            onValueChange={(val) => {
-              if (val) {
-                setSelectedStatus(val);
-                setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-              }
-            }}
-          >
-            <SelectTrigger className="h-9 text-xs w-full bg-card">
-              <SelectValue placeholder={tCommon('allStatus')}>
-                {selectedStatus === 'ALL'
-                  ? tCommon('allStatus')
-                  : selectedStatus === 'PRESENT'
-                  ? t('statusPresent')
-                  : selectedStatus === 'LATE'
-                  ? t('statusLate')
-                  : selectedStatus === 'ABSENT'
-                  ? t('statusAbsent')
-                  : undefined}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">{tCommon('allStatus')}</SelectItem>
-              <SelectItem value="PRESENT">{t('statusPresent')}</SelectItem>
-              <SelectItem value="LATE">{t('statusLate')}</SelectItem>
-              <SelectItem value="ABSENT">{t('statusAbsent')}</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Department Filter (HR Admin only) */}
-        {isHrAdmin && (
-          <div className="w-52">
+      {/* Operations Record Table & Filter Bar */}
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          {isHrAdmin && (
             <Select
               value={selectedDept}
-              onValueChange={(val) => {
+              onValueChange={(val: string | null) => {
                 if (val) {
                   setSelectedDept(val);
                   setPagination((prev) => ({ ...prev, pageIndex: 0 }));
                 }
               }}
             >
-              <SelectTrigger className="h-9 text-xs w-full bg-card">
-                <SelectValue placeholder={tCommon('allDepartments')}>
-                  {selectedDept === 'ALL'
-                    ? tCommon('allDepartments')
-                    : departments.find((d) => d.id === selectedDept)?.name || tCommon('allDepartments')}
-                </SelectValue>
+              <SelectTrigger className="w-[180px] h-8.5 text-xs bg-card border-border rounded-md font-mono">
+                <SelectValue placeholder={tCommon('allDepartments')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">{tCommon('allDepartments')}</SelectItem>
+                <SelectItem value="ALL" className="text-xs">{tCommon('allDepartments')}</SelectItem>
                 {departments.map((dept) => (
-                  <SelectItem key={dept.id} value={dept.id}>
+                  <SelectItem key={dept.id} value={dept.id} className="text-xs">
                     {dept.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          </div>
-        )}
+          )}
 
-        {/* Date Range Picker */}
-        <div className="w-64">
-          <DateRangePicker
-            from={startDate}
-            to={endDate}
-            onChange={({ from, to }) => {
-              setStartDate(from);
-              setEndDate(to);
-              setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+          <Select
+            value={selectedStatus}
+            onValueChange={(val: string | null) => {
+              if (val) {
+                setSelectedStatus(val);
+                setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+              }
             }}
-            placeholder={t('dateRangePlaceholder')}
-            allowClear
-          />
+          >
+            <SelectTrigger className="w-[150px] h-8.5 text-xs bg-card border-border rounded-md font-mono">
+              <SelectValue placeholder={tCommon('allStatus')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL" className="text-xs">{tCommon('allStatus')}</SelectItem>
+              <SelectItem value="PRESENT" className="text-xs">{t('statusPresent')}</SelectItem>
+              <SelectItem value="LATE" className="text-xs">{t('statusLate')}</SelectItem>
+              <SelectItem value="LEAVE" className="text-xs">{t('statusLeave')}</SelectItem>
+              <SelectItem value="ABSENT" className="text-xs">{t('statusAbsent')}</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Date Range Control */}
+          <div className="w-[240px]">
+            <DateRangePicker
+              from={startDate}
+              to={endDate}
+              placeholder={t('dateRangePlaceholder')}
+              onChange={(range) => {
+                setStartDate(range.from);
+                setEndDate(range.to);
+                setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+              }}
+            />
+          </div>
+
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="xs"
+              onClick={resetFilters}
+              className="text-xs text-muted-foreground hover:text-foreground h-8.5 px-2 font-mono"
+            >
+              <X className="w-3 h-3 mr-1" />
+              {tCommon('resetFilter')}
+            </Button>
+          )}
         </div>
 
-        {(startDate || endDate || selectedStatus !== 'ALL' || selectedDept !== 'ALL') && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setSelectedStatus('ALL');
-              setSelectedDept('ALL');
-              setStartDate('');
-              setEndDate('');
-              setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-            }}
-            className="text-xs text-muted-foreground h-9 cursor-pointer"
-          >
-            {tCommon('resetFilter')}
-          </Button>
-        )}
+        {/* Data Table */}
+        <DataTable
+          columns={columns}
+          data={attendances}
+          isLoading={isLoading || isPlaceholderData}
+          totalRows={meta?.total}
+          pageCount={meta?.totalPages}
+          pagination={{ pageIndex, pageSize }}
+          onPaginationChange={setPagination}
+          emptyTitle={t('noAttendanceRecords')}
+          emptyDescription={t('noAttendanceRecords')}
+        />
       </div>
 
-      {/* Data Table */}
-      <DataTable
-        columns={columns}
-        data={attendances}
-        isLoading={isLoading || isPlaceholderData}
-        totalRows={meta?.total}
-        pageCount={meta?.totalPages}
-        pagination={{ pageIndex, pageSize }}
-        onPaginationChange={setPagination}
-        emptyTitle={t('noAttendanceRecords')}
-        emptyDescription={t('noAttendanceRecords')}
-      />
-
-      {/* Work Schedule Dialog (HR_ADMIN only) */}
+      {/* Schedule Dialog */}
       <WorkScheduleDialog
         open={isScheduleOpen}
         onOpenChange={setIsScheduleOpen}
