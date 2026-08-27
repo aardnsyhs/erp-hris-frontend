@@ -11,6 +11,8 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { apiClient } from '@/lib/api/axios';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -37,13 +39,22 @@ export function AppHeader() {
   const tNav = useTranslations('navigation');
   const pathname = usePathname();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleLogout = () => {
-    clearAuth();
-    router.push('/login');
+  const handleLogout = async () => {
+    try {
+      await apiClient.post('/auth/logout');
+    } catch {
+      // Gracefully proceed with client-side cleanup if network or session already expired
+    } finally {
+      clearAuth();
+      queryClient.clear();
+      router.replace('/login');
+      router.refresh();
+    }
   };
 
   const getPageTitle = () => {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
@@ -49,12 +49,20 @@ export default function LoginPage() {
   const router = useRouter();
   const t = useTranslations('auth');
   const setAuth = useAuthStore((state) => state.setAuth);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isLoadingAuth = useAuthStore((state) => state.isLoading);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isLoadingAuth && isAuthenticated) {
+      router.replace('/');
+    }
+  }, [isAuthenticated, isLoadingAuth, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,23 +74,28 @@ export default function LoginPage() {
     setIsLoading(true);
     setErrorMessage(null);
 
+    let loginData: LoginResponse | null = null;
+
     try {
       const response = await apiClient.post<LoginResponse>('/auth/login', {
         email,
         password,
       });
 
-      const { user, accessToken } = response.data;
-      setAuth(user, accessToken);
+      if (!response?.data?.accessToken || !response?.data?.user) {
+        const internalErr = 'Respons server tidak valid. Silakan coba beberapa saat lagi.';
+        setErrorMessage(internalErr);
+        toast.error(internalErr);
+        setIsLoading(false);
+        return;
+      }
 
-      toast.success(t('loginSuccess'));
-      router.push('/');
+      loginData = response.data;
     } catch (err: any) {
       if (err?.response?.status === 429) {
-        setErrorMessage(
-          'Terlalu banyak percobaan login. Silakan tunggu 1 menit.',
-        );
-        toast.error('Batas percobaan login terlampaui (Rate limit 429)');
+        const msg = 'Terlalu banyak percobaan login. Silakan tunggu 1 menit.';
+        setErrorMessage(msg);
+        toast.error(msg);
       } else if (err?.response?.status === 401) {
         const rawMessage =
           err?.response?.data?.message || t('invalidCredentials');
@@ -91,11 +104,37 @@ export default function LoginPage() {
           : rawMessage;
         setErrorMessage(displayMsg);
         toast.error(displayMsg);
+      } else if (err?.response?.status === 400) {
+        const rawMessage =
+          err?.response?.data?.message || 'Validasi login gagal';
+        const displayMsg = Array.isArray(rawMessage)
+          ? rawMessage.join(', ')
+          : rawMessage;
+        setErrorMessage(displayMsg);
+        toast.error(displayMsg);
+      } else if (!err?.response) {
+        const networkMsg = 'Tidak dapat terhubung ke server. Periksa koneksi Anda.';
+        setErrorMessage(networkMsg);
+        toast.error(networkMsg);
       } else {
-        const fallback = t('loginFailed');
-        setErrorMessage(fallback);
-        toast.error(fallback);
+        const serverMsg =
+          err?.response?.data?.message || 'Terjadi kesalahan sistem pada server.';
+        const displayMsg = Array.isArray(serverMsg)
+          ? serverMsg.join(', ')
+          : serverMsg;
+        setErrorMessage(displayMsg);
+        toast.error(displayMsg);
       }
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setAuth(loginData.user, loginData.accessToken);
+      toast.success(t('loginSuccess'));
+      router.replace('/');
+      router.refresh();
+    } catch (clientErr) {
     } finally {
       setIsLoading(false);
     }
