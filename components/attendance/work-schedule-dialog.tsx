@@ -71,8 +71,8 @@ export function WorkScheduleDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="gap-2">
+      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
+        <DialogHeader className="gap-2 pr-10 sm:pr-12">
           <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
             <div className="p-2 rounded-xl bg-indigo-100 dark:bg-indigo-950">
               <Settings className="w-5 h-5" />

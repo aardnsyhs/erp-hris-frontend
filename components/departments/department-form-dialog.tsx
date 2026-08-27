@@ -94,8 +94,8 @@ export function DepartmentFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
+        <DialogHeader className="pr-10 sm:pr-12">
           <DialogTitle>
             {isEditMode ? 'Edit Data Departemen' : 'Tambah Departemen Baru'}
           </DialogTitle>

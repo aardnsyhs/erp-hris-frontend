@@ -40,8 +40,8 @@ export function EmployeeTerminateDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="sm:max-w-md">
-        <AlertDialogHeader className="gap-2">
+      <AlertDialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
+        <AlertDialogHeader className="gap-2 pr-10 sm:pr-12">
           <div className="flex items-center gap-2 text-rose-600">
             <div className="p-2 rounded-full bg-rose-100 dark:bg-rose-950/60">
               <UserX className="h-5 w-5" />

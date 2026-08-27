@@ -40,8 +40,8 @@ export function EmployeeReactivateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="gap-2">
+      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
+        <DialogHeader className="gap-2 pr-10 sm:pr-12">
           <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
             <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950">
               <UserCheck className="w-5 h-5" />

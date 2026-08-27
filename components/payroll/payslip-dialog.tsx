@@ -63,37 +63,43 @@ export function PayslipDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader className="gap-2">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="flex items-center gap-2">
-              <Receipt className="w-5 h-5 text-blue-600" />
-              Slip Gaji Karyawan
-            </DialogTitle>
-            {payroll.status === 'PAID' ? (
-              <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                Sudah Dibayar (PAID)
-              </Badge>
-            ) : payroll.status === 'PROCESSED' ? (
-              <Badge className="bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30 gap-1">
-                <Clock className="w-3.5 h-3.5" />
-                Diproses (PROCESSED)
-              </Badge>
-            ) : (
-              <Badge variant="outline" className="bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-300 gap-1">
-                <Clock className="w-3.5 h-3.5" />
-                Draft (DRAFT)
-              </Badge>
-            )}
+      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-3xl max-h-[90vh] flex flex-col p-4 sm:p-6 overflow-hidden">
+        <DialogHeader className="gap-2 shrink-0 pr-10 sm:pr-12">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 shrink-0">
+                <Receipt className="w-5 h-5" />
+              </div>
+              <DialogTitle className="truncate text-base font-bold text-neutral-900 dark:text-neutral-100">
+                Slip Gaji Karyawan
+              </DialogTitle>
+            </div>
+            <div className="shrink-0 self-start sm:self-auto">
+              {payroll.status === 'PAID' ? (
+                <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 gap-1 text-xs whitespace-nowrap">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Sudah Dibayar (PAID)
+                </Badge>
+              ) : payroll.status === 'PROCESSED' ? (
+                <Badge className="bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30 gap-1 text-xs whitespace-nowrap">
+                  <Clock className="w-3.5 h-3.5" />
+                  Diproses (PROCESSED)
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-300 gap-1 text-xs whitespace-nowrap">
+                  <Clock className="w-3.5 h-3.5" />
+                  Draft (DRAFT)
+                </Badge>
+              )}
+            </div>
           </div>
-          <DialogDescription>
+          <DialogDescription className="text-xs text-neutral-500">
             Dokumen resmi rincian kompensasi dan pemotongan gaji karyawan.
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="max-h-[60vh] pr-2">
-          <div className="space-y-4 py-2 text-sm">
+        <ScrollArea className="min-h-0 flex-1 -mr-2 pr-4 my-2">
+          <div className="space-y-4 py-1 text-sm">
             {/* Section 1: Employee Header */}
             <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-1">
               <span className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider block">
@@ -215,11 +221,12 @@ export function PayslipDialog({
           </div>
         </ScrollArea>
 
-        <DialogFooter className="pt-2">
+        <DialogFooter className="shrink-0 p-4 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50/90 dark:bg-neutral-900/90 flex flex-col sm:flex-row sm:justify-end -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 rounded-b-xl gap-2">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
+            className="w-full sm:w-auto min-h-11 px-6 text-sm font-medium cursor-pointer"
           >
             Tutup
           </Button>

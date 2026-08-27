@@ -40,8 +40,8 @@ export function EmployeeDeleteDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="sm:max-w-md">
-        <AlertDialogHeader className="gap-2">
+      <AlertDialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
+        <AlertDialogHeader className="gap-2 pr-10 sm:pr-12">
           <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
             <div className="p-2 rounded-full bg-amber-100 dark:bg-amber-950">
               <AlertTriangle className="h-5 w-5" />

@@ -38,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DateRangePicker } from '@/components/ui/date-picker';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Tooltip,
@@ -525,31 +526,18 @@ export default function LeaveRequestsPage() {
             </div>
           )}
 
-          {/* Start Date */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-neutral-400">Dari:</span>
-            <Input
-              type="date"
-              value={startDate}
-              onChange={(e) => {
-                setStartDate(e.target.value);
+          {/* Date Range Picker */}
+          <div className="w-64">
+            <DateRangePicker
+              from={startDate}
+              to={endDate}
+              onChange={({ from, to }) => {
+                setStartDate(from);
+                setEndDate(to);
                 setPagination((prev) => ({ ...prev, pageIndex: 0 }));
               }}
-              className="h-9 text-xs w-36"
-            />
-          </div>
-
-          {/* End Date */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-neutral-400">Sampai:</span>
-            <Input
-              type="date"
-              value={endDate}
-              onChange={(e) => {
-                setEndDate(e.target.value);
-                setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-              }}
-              className="h-9 text-xs w-36"
+              placeholder="Rentang Tanggal Cuti"
+              allowClear
             />
           </div>
 

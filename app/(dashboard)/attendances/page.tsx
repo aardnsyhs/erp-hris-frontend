@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DateRangePicker } from '@/components/ui/date-picker';
 import { AttendanceWidget } from '@/components/attendance/attendance-widget';
 import { WorkScheduleDialog } from '@/components/attendance/work-schedule-dialog';
 
@@ -173,7 +174,7 @@ export default function AttendancesPage() {
         if (status === 'PRESENT') {
           return (
             <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-[11px] gap-1">
-              <CheckCircle2 className="w-3 h-3" />
+              <CheckCircle2 className="w-3.5 h-3.5" />
               Tepat Waktu
             </Badge>
           );
@@ -181,14 +182,14 @@ export default function AttendancesPage() {
         if (status === 'LATE') {
           return (
             <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30 text-[11px] gap-1">
-              <AlertTriangle className="w-3 h-3" />
+              <AlertTriangle className="w-3.5 h-3.5" />
               Terlambat
             </Badge>
           );
         }
         return (
           <Badge variant="destructive" className="text-[11px] gap-1">
-            <XCircle className="w-3 h-3" />
+            <XCircle className="w-3.5 h-3.5" />
             Tidak Hadir
           </Badge>
         );
@@ -200,7 +201,7 @@ export default function AttendancesPage() {
       cell: ({ row }) => {
         const notes = row.original.notes;
         return (
-          <span className="text-xs text-neutral-500 truncate max-w-[200px] block">
+          <span className="text-xs text-neutral-500 truncate max-w-50 block">
             {notes || '-'}
           </span>
         );
@@ -316,31 +317,18 @@ export default function AttendancesPage() {
           </div>
         )}
 
-        {/* Start Date */}
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs text-neutral-400">Dari:</span>
-          <Input
-            type="date"
-            value={startDate}
-            onChange={(e) => {
-              setStartDate(e.target.value);
+        {/* Date Range Picker */}
+        <div className="w-64">
+          <DateRangePicker
+            from={startDate}
+            to={endDate}
+            onChange={({ from, to }) => {
+              setStartDate(from);
+              setEndDate(to);
               setPagination((prev) => ({ ...prev, pageIndex: 0 }));
             }}
-            className="h-9 text-xs w-36"
-          />
-        </div>
-
-        {/* End Date */}
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs text-neutral-400">Sampai:</span>
-          <Input
-            type="date"
-            value={endDate}
-            onChange={(e) => {
-              setEndDate(e.target.value);
-              setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-            }}
-            className="h-9 text-xs w-36"
+            placeholder="Rentang Tanggal Absensi"
+            allowClear
           />
         </div>
 

@@ -75,8 +75,8 @@ export function AttendanceActionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="gap-2">
+      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
+        <DialogHeader className="gap-2 pr-10 sm:pr-12">
           <div className="flex items-center gap-2">
             <div
               className={`p-2 rounded-xl ${
@@ -108,7 +108,7 @@ export function AttendanceActionDialog({
               Catatan / Lokasi Kerja (Opsional)
             </label>
             <textarea
-              className="flex w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-2xs placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 min-h-[80px] outline-none"
+              className="flex w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-2xs placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 min-h-20 outline-none"
               placeholder={
                 isCheckIn
                   ? 'Contoh: WFO Lantai 3, Bertemu klien di Jakarta Selatan...'

@@ -36,6 +36,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DateRangePicker } from '@/components/ui/date-picker';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -458,31 +459,18 @@ export default function PayrollsPage() {
           </div>
         )}
 
-        {/* Period Start */}
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs text-neutral-400">Periode:</span>
-          <Input
-            type="date"
-            value={periodStart}
-            onChange={(e) => {
-              setPeriodStart(e.target.value);
+        {/* Period Range Picker */}
+        <div className="w-64">
+          <DateRangePicker
+            from={periodStart}
+            to={periodEnd}
+            onChange={({ from, to }) => {
+              setPeriodStart(from);
+              setPeriodEnd(to);
               setPagination((prev) => ({ ...prev, pageIndex: 0 }));
             }}
-            className="h-9 text-xs w-36"
-          />
-        </div>
-
-        {/* Period End */}
-        <div className="flex items-center gap-1.5">
-          <span className="text-xs text-neutral-400">s/d:</span>
-          <Input
-            type="date"
-            value={periodEnd}
-            onChange={(e) => {
-              setPeriodEnd(e.target.value);
-              setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-            }}
-            className="h-9 text-xs w-36"
+            placeholder="Rentang Periode Payroll"
+            allowClear
           />
         </div>
 

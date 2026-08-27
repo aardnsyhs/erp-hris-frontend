@@ -11,6 +11,8 @@ import {
 import { useCreatePayroll } from '@/hooks/use-payrolls';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { DateRangePicker } from '@/components/ui/date-picker';
 import {
   Dialog,
   DialogContent,
@@ -54,6 +56,8 @@ export function PayrollGenerateDialog({
   });
 
   const selectedEmployeeId = watch('employeeId');
+  const periodStart = watch('periodStart');
+  const periodEnd = watch('periodEnd');
 
   useEffect(() => {
     if (open) {
@@ -91,8 +95,8 @@ export function PayrollGenerateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader className="gap-2">
+      <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-2xl max-h-[90vh] flex flex-col">
+        <DialogHeader className="gap-2 shrink-0 pr-10 sm:pr-12">
           <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
             <div className="p-2 rounded-xl bg-indigo-100 dark:bg-indigo-950">
               <Calculator className="w-5 h-5" />
@@ -106,7 +110,7 @@ export function PayrollGenerateDialog({
 
         {/* 409 Conflict Alert Box */}
         {conflictError && (
-          <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 flex items-start gap-2.5 text-xs text-red-700 dark:text-red-300">
+          <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 flex items-start gap-2.5 text-xs text-red-700 dark:text-red-300 shrink-0">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold">Duplikasi Periode Payroll Terdeteksi</p>
@@ -115,106 +119,94 @@ export function PayrollGenerateDialog({
           </div>
         )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
-          {/* Employee Selection */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-              Pilih Karyawan Penerima Gaji <span className="text-red-500">*</span>
-            </label>
-            <EmployeeCombobox
-              value={selectedEmployeeId}
-              onChange={(empId) => {
-                setValue('employeeId', empId, { shouldValidate: true });
-                setConflictError(null);
-              }}
-              disabled={isSubmitting}
-            />
-            {errors.employeeId && (
-              <p className="text-xs text-red-500">{errors.employeeId.message}</p>
-            )}
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col min-h-0 flex-1">
+          <ScrollArea className="max-h-[60vh] pr-2">
+            <div className="space-y-4 py-2">
+              {/* Employee Selection */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+                  Pilih Karyawan Penerima Gaji <span className="text-red-500">*</span>
+                </label>
+                <EmployeeCombobox
+                  value={selectedEmployeeId}
+                  onChange={(empId) => {
+                    setValue('employeeId', empId, { shouldValidate: true });
+                    setConflictError(null);
+                  }}
+                  disabled={isSubmitting}
+                />
+                {errors.employeeId && (
+                  <p className="text-xs text-red-500">{errors.employeeId.message}</p>
+                )}
+              </div>
 
-          {/* Period Range */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                Awal Periode <span className="text-red-500">*</span>
-              </label>
-              <Input
-                type="date"
-                {...register('periodStart')}
-                disabled={isSubmitting}
-                onChange={(e) => {
-                  setConflictError(null);
-                  register('periodStart').onChange(e);
-                }}
-              />
-              {errors.periodStart && (
-                <p className="text-xs text-red-500">{errors.periodStart.message}</p>
-              )}
+              {/* Period Range */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+                  Periode Penggajian <span className="text-red-500">*</span>
+                </label>
+                <DateRangePicker
+                  from={periodStart}
+                  to={periodEnd}
+                  onChange={({ from, to }) => {
+                    setValue('periodStart', from, { shouldValidate: true });
+                    setValue('periodEnd', to, { shouldValidate: true });
+                    setConflictError(null);
+                  }}
+                  disabled={isSubmitting}
+                  placeholder="Pilih awal s/d akhir periode gaji"
+                />
+                {(errors.periodStart || errors.periodEnd) && (
+                  <p className="text-xs text-red-500">
+                    {errors.periodStart?.message || errors.periodEnd?.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Financial Adjustments: Allowances & Deductions */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+                    Tunjangan Tambahan (Rp)
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="0"
+                    {...register('allowances')}
+                    disabled={isSubmitting}
+                  />
+                  {errors.allowances && (
+                    <p className="text-xs text-red-500">{errors.allowances.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
+                    Potongan Gaji (Rp)
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="0"
+                    {...register('deductions')}
+                    disabled={isSubmitting}
+                  />
+                  {errors.deductions && (
+                    <p className="text-xs text-red-500">{errors.deductions.message}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Snapshot Info Box */}
+              <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 flex items-start gap-2 text-xs text-neutral-500">
+                <Sparkles className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
+                <span>
+                  <strong>Gaji Pokok (basicSalary)</strong> akan di-snapshot otomatis oleh sistem dari data profil karyawan saat draft dibuat, dan <strong>Gaji Bersih (netSalary)</strong> dihitung otomatis.
+                </span>
+              </div>
             </div>
+          </ScrollArea>
 
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                Akhir Periode <span className="text-red-500">*</span>
-              </label>
-              <Input
-                type="date"
-                {...register('periodEnd')}
-                disabled={isSubmitting}
-                onChange={(e) => {
-                  setConflictError(null);
-                  register('periodEnd').onChange(e);
-                }}
-              />
-              {errors.periodEnd && (
-                <p className="text-xs text-red-500">{errors.periodEnd.message}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Financial Adjustments: Allowances & Deductions */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                Tunjangan Tambahan (Rp)
-              </label>
-              <Input
-                type="text"
-                placeholder="0"
-                {...register('allowances')}
-                disabled={isSubmitting}
-              />
-              {errors.allowances && (
-                <p className="text-xs text-red-500">{errors.allowances.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                Potongan Gaji (Rp)
-              </label>
-              <Input
-                type="text"
-                placeholder="0"
-                {...register('deductions')}
-                disabled={isSubmitting}
-              />
-              {errors.deductions && (
-                <p className="text-xs text-red-500">{errors.deductions.message}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Snapshot Info Box */}
-          <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 flex items-start gap-2 text-xs text-neutral-500">
-            <Sparkles className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
-            <span>
-              <strong>Gaji Pokok (basicSalary)</strong> akan di-snapshot otomatis oleh sistem dari data profil karyawan saat draft dibuat, dan <strong>Gaji Bersih (netSalary)</strong> dihitung otomatis.
-            </span>
-          </div>
-
-          <DialogFooter className="pt-3">
+          <DialogFooter className="pt-3 shrink-0">
             <Button
               type="button"
               variant="outline"
