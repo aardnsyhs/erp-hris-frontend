@@ -181,7 +181,7 @@ export default function DepartmentsPage() {
 
                 {hasEmployees ? (
                   <Tooltip>
-                    <TooltipTrigger className="w-full">
+                    <TooltipTrigger render={<div className="w-full" />}>
                       <DropdownMenuItem
                         disabled
                         className="flex items-center gap-2 text-muted-foreground opacity-50 cursor-not-allowed"

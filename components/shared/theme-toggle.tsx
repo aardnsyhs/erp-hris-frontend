@@ -37,7 +37,7 @@ export function ThemeToggle() {
                   variant="ghost"
                   size="icon-sm"
                   aria-label={t('toggleTheme')}
-                  className="relative text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer"
+                  className="relative text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer"
                 />
               }
             />

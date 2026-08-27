@@ -43,7 +43,7 @@ export function LanguageSwitcher() {
                   variant="ghost"
                   size="sm"
                   aria-label={t('switchLanguage')}
-                  className="flex items-center gap-1.5 h-8 px-2 text-xs font-medium text-neutral-600 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer"
+                  className="flex items-center gap-1.5 h-8 px-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer"
                 />
               }
             />
@@ -65,7 +65,7 @@ export function LanguageSwitcher() {
           className="flex items-center justify-between text-xs cursor-pointer"
         >
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold font-mono text-neutral-400">ID</span>
+            <span className="text-xs font-semibold font-mono text-muted-foreground">ID</span>
             <span>{t('id')}</span>
           </div>
           {currentLocale === 'id' && <span className="text-primary font-bold">✓</span>}
@@ -76,7 +76,7 @@ export function LanguageSwitcher() {
           className="flex items-center justify-between text-xs cursor-pointer"
         >
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold font-mono text-neutral-400">EN</span>
+            <span className="text-xs font-semibold font-mono text-muted-foreground">EN</span>
             <span>{t('en')}</span>
           </div>
           {currentLocale === 'en' && <span className="text-primary font-bold">✓</span>}
