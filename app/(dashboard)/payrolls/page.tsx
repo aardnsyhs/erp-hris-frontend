@@ -245,7 +245,7 @@ export default function PayrollsPage() {
                       <DropdownMenuItem
                         onClick={() => handlePay(payroll.id)}
                         disabled={payMutation.isPending}
-                        className="flex items-center gap-2 cursor-pointer text-xs text-[var(--status-success)]"
+                        className="flex items-center gap-2 cursor-pointer text-xs text-status-success"
                       >
                         <CheckCircle2 className="h-3.5 w-3.5" />
                         <span>{t('markAsPaid')}</span>
@@ -295,7 +295,7 @@ export default function PayrollsPage() {
             <Button
               onClick={() => setIsGenerateOpen(true)}
               size="sm"
-              className="bg-primary hover:bg-[var(--primary-hover)] text-primary-foreground shadow-xs shrink-0 cursor-pointer font-medium text-xs h-8.5 rounded-md"
+              className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-xs shrink-0 cursor-pointer font-medium text-xs h-8.5 rounded-md"
             >
               <Plus className="w-3.5 h-3.5 mr-1.5" />
               {t('generateDraft')}
@@ -320,12 +320,12 @@ export default function PayrollsPage() {
               {selectedStatus === 'ALL'
                 ? tCommon('allStatus')
                 : selectedStatus === 'DRAFT'
-                ? t('statusDraft')
-                : selectedStatus === 'PROCESSED'
-                ? t('statusProcessed')
-                : selectedStatus === 'PAID'
-                ? t('statusPaid')
-                : tCommon('allStatus')}
+                  ? t('statusDraft')
+                  : selectedStatus === 'PROCESSED'
+                    ? t('statusProcessed')
+                    : selectedStatus === 'PAID'
+                      ? t('statusPaid')
+                      : tCommon('allStatus')}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>

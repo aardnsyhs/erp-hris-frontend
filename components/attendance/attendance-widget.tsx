@@ -79,8 +79,8 @@ export function AttendanceWidget() {
     const end = todayAttendance.checkOut
       ? new Date(todayAttendance.checkOut).getTime()
       : currentTime
-      ? currentTime.getTime()
-      : Date.now();
+        ? currentTime.getTime()
+        : Date.now();
 
     const diffMinutes = Math.max(0, Math.floor((end - start) / (1000 * 60)));
     return diffMinutes;
@@ -103,7 +103,7 @@ export function AttendanceWidget() {
 
   if (!employeeId) {
     return (
-      <div className="rounded-md border border-[var(--status-warning)]/30 bg-[var(--status-warning-bg)] p-3 text-xs flex items-center gap-2 text-[var(--status-warning)]">
+      <div className="rounded-md border border-(--status-warning)/30 bg-status-warning-bg p-3 text-xs flex items-center gap-2 text-status-warning">
         <AlertCircle className="w-4 h-4 shrink-0" />
         <span>Akun login Anda belum terhubung ke data karyawan. Hubungi HR Administrator.</span>
       </div>
@@ -181,7 +181,7 @@ export function AttendanceWidget() {
           {!hasCheckedIn ? (
             <Button
               onClick={() => setDialogType('CHECK_IN')}
-              className="w-full md:w-40 bg-[var(--status-success)] hover:opacity-90 text-white font-semibold text-xs h-9 rounded-md cursor-pointer"
+              className="w-full md:w-40 bg-status-success hover:opacity-90 text-white font-semibold text-xs h-9 rounded-md cursor-pointer"
               disabled={isLoadingAttendance}
             >
               <LogIn className="w-4 h-4 mr-1.5" />
@@ -190,14 +190,14 @@ export function AttendanceWidget() {
           ) : !hasCheckedOut ? (
             <Button
               onClick={() => setDialogType('CHECK_OUT')}
-              className="w-full md:w-40 bg-primary hover:bg-[var(--primary-hover)] text-primary-foreground font-semibold text-xs h-9 rounded-md cursor-pointer"
+              className="w-full md:w-40 bg-primary hover:bg-primary-hover text-primary-foreground font-semibold text-xs h-9 rounded-md cursor-pointer"
               disabled={isLoadingAttendance}
             >
               <LogOut className="w-4 h-4 mr-1.5" />
               {t('checkOut')}
             </Button>
           ) : (
-            <div className="w-full md:w-40 text-center p-2 rounded border border-[var(--status-success)]/30 bg-[var(--status-success-bg)] text-[var(--status-success)] text-xs font-mono font-semibold flex items-center justify-center gap-1.5">
+            <div className="w-full md:w-40 text-center p-2 rounded border border-(--status-success)/30 bg-status-success-bg text-status-success text-xs font-mono font-semibold flex items-center justify-center gap-1.5">
               <CheckCircle2 className="w-4 h-4" />
               <span>{tDash('shiftComplete')}</span>
             </div>

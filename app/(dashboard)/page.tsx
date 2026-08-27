@@ -133,7 +133,7 @@ function HRAdminDashboard() {
       description: t('pendingLeavesDesc'),
       icon: Clock,
       badge: pendingLeaves > 0 ? (
-        <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-[var(--status-warning-bg)] text-[var(--status-warning)]">
+        <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-status-warning-bg text-status-warning">
           ACTION
         </span>
       ) : undefined,
@@ -150,7 +150,7 @@ function HRAdminDashboard() {
       description: t('draftPayrollDesc'),
       icon: CreditCard,
       badge: draftPayrolls > 0 ? (
-        <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-[var(--status-warning-bg)] text-[var(--status-warning)]">
+        <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-status-warning-bg text-status-warning">
           DRAFT
         </span>
       ) : undefined,
@@ -304,7 +304,7 @@ function HRAdminDashboard() {
                 className="flex items-center justify-between p-2.5 rounded-md border border-border hover:bg-muted/50 transition-colors"
               >
                 <span className="flex items-center gap-2 font-medium text-foreground">
-                  <CalendarDays className="w-4 h-4 text-[var(--status-warning)]" />
+                  <CalendarDays className="w-4 h-4 text-status-warning" />
                   {tLeave('title')}
                 </span>
                 <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
@@ -326,7 +326,7 @@ function HRAdminDashboard() {
                 className="flex items-center justify-between p-2.5 rounded-md border border-border hover:bg-muted/50 transition-colors"
               >
                 <span className="flex items-center gap-2 font-medium text-foreground">
-                  <CalendarCheck2 className="w-4 h-4 text-[var(--status-success)]" />
+                  <CalendarCheck2 className="w-4 h-4 text-status-success" />
                   {tAtt('title')}
                 </span>
                 <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
@@ -399,7 +399,7 @@ function ManagerDashboard({ departmentId }: { departmentId?: string | null }) {
       description: t('teamLeavesDesc'),
       icon: Clock,
       badge: pendingTeamLeaves > 0 ? (
-        <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-[var(--status-warning-bg)] text-[var(--status-warning)]">
+        <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-status-warning-bg text-status-warning">
           ACTION
         </span>
       ) : undefined,
@@ -450,8 +450,8 @@ function ManagerDashboard({ departmentId }: { departmentId?: string | null }) {
           </div>
 
           <div className="grid grid-cols-3 gap-3 text-center">
-            <div className="p-3 rounded-md border border-[var(--status-success)]/20 bg-[var(--status-success-bg)]">
-              <span className="text-xs font-semibold text-[var(--status-success)] block font-mono">
+            <div className="p-3 rounded-md border border-(--status-success)/20 bg-status-success-bg">
+              <span className="text-xs font-semibold text-status-success block font-mono">
                 {t('onTime')}
               </span>
               <span className="text-xl font-bold font-mono text-foreground tabular-nums">
@@ -459,8 +459,8 @@ function ManagerDashboard({ departmentId }: { departmentId?: string | null }) {
               </span>
             </div>
 
-            <div className="p-3 rounded-md border border-[var(--status-warning)]/20 bg-[var(--status-warning-bg)]">
-              <span className="text-xs font-semibold text-[var(--status-warning)] block font-mono">
+            <div className="p-3 rounded-md border border-(--status-warning)/20 bg-status-warning-bg">
+              <span className="text-xs font-semibold text-status-warning block font-mono">
                 {t('late')}
               </span>
               <span className="text-xl font-bold font-mono text-foreground tabular-nums">
@@ -468,8 +468,8 @@ function ManagerDashboard({ departmentId }: { departmentId?: string | null }) {
               </span>
             </div>
 
-            <div className="p-3 rounded-md border border-[var(--status-danger)]/20 bg-[var(--status-danger-bg)]">
-              <span className="text-xs font-semibold text-[var(--status-danger)] block font-mono">
+            <div className="p-3 rounded-md border border-(--status-danger)/20 bg-status-danger-bg">
+              <span className="text-xs font-semibold text-status-danger block font-mono">
                 {t('absent')}
               </span>
               <span className="text-xl font-bold font-mono text-foreground tabular-nums">
@@ -503,7 +503,7 @@ function ManagerDashboard({ departmentId }: { departmentId?: string | null }) {
             </div>
           ) : (teamLeavesData?.data || []).length === 0 ? (
             <div className="py-6 text-center text-xs text-muted-foreground font-mono">
-              <CheckCircle2 className="w-5 h-5 mx-auto text-[var(--status-success)] mb-1.5" />
+              <CheckCircle2 className="w-5 h-5 mx-auto text-status-success mb-1.5" />
               {t('noLeavesPending')}
             </div>
           ) : (

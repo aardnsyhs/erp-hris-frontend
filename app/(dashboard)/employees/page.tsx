@@ -218,7 +218,7 @@ export default function EmployeesPage() {
                     {canReactivate && (
                       <DropdownMenuItem
                         onClick={() => handleReactivateClick(emp)}
-                        className="flex items-center gap-2 cursor-pointer text-xs text-[var(--status-success)] focus:bg-[var(--status-success-bg)]"
+                        className="flex items-center gap-2 cursor-pointer text-xs text-status-success focus:bg-status-success-bg"
                       >
                         <RotateCcw className="h-3.5 w-3.5" />
                         <span>{t('reactivate')}</span>
@@ -228,7 +228,7 @@ export default function EmployeesPage() {
                     {canDeactivate && (
                       <DropdownMenuItem
                         onClick={() => handleDeleteClick(emp)}
-                        className="flex items-center gap-2 cursor-pointer text-xs text-[var(--status-warning)] focus:bg-[var(--status-warning-bg)]"
+                        className="flex items-center gap-2 cursor-pointer text-xs text-status-warning focus:bg-status-warning-bg"
                       >
                         <UserMinus className="h-3.5 w-3.5" />
                         <span>{t('deactivate')}</span>
@@ -272,7 +272,7 @@ export default function EmployeesPage() {
             <Button
               onClick={handleCreateClick}
               size="sm"
-              className="bg-primary hover:bg-[var(--primary-hover)] text-primary-foreground shadow-xs shrink-0 cursor-pointer font-medium text-xs h-8.5 rounded-md"
+              className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-xs shrink-0 cursor-pointer font-medium text-xs h-8.5 rounded-md"
             >
               <Plus className="w-3.5 h-3.5 mr-1.5" />
               {t('addEmployee')}
@@ -323,12 +323,12 @@ export default function EmployeesPage() {
               {selectedStatus === 'ALL'
                 ? tCommon('allStatus')
                 : selectedStatus === 'ACTIVE'
-                ? t('statusActive')
-                : selectedStatus === 'INACTIVE'
-                ? t('statusInactive')
-                : selectedStatus === 'TERMINATED'
-                ? t('statusTerminated')
-                : tCommon('allStatus')}
+                  ? t('statusActive')
+                  : selectedStatus === 'INACTIVE'
+                    ? t('statusInactive')
+                    : selectedStatus === 'TERMINATED'
+                      ? t('statusTerminated')
+                      : tCommon('allStatus')}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>

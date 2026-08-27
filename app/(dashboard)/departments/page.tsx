@@ -212,7 +212,7 @@ export default function DepartmentsPage() {
             <Button
               onClick={handleCreateClick}
               size="sm"
-              className="bg-primary hover:bg-[var(--primary-hover)] text-primary-foreground shadow-xs shrink-0 cursor-pointer font-medium text-xs h-8.5 rounded-md"
+              className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-xs shrink-0 cursor-pointer font-medium text-xs h-8.5 rounded-md"
             >
               <Plus className="w-3.5 h-3.5 mr-1.5" />
               {t('addDepartment')}

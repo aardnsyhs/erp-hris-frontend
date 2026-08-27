@@ -180,7 +180,7 @@ export default function LoginPage() {
             </div>
 
             {errorMessage && (
-              <div className="p-3 rounded-md border border-[var(--status-danger)]/30 bg-[var(--status-danger-bg)] text-xs text-[var(--status-danger)] font-mono">
+              <div className="p-3 rounded-md border border-(--status-danger)/30 bg-status-danger-bg text-xs text-status-danger font-mono">
                 {errorMessage}
               </div>
             )}
@@ -240,7 +240,7 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-primary hover:bg-[var(--primary-hover)] text-primary-foreground text-xs font-semibold h-9 rounded-md cursor-pointer mt-2"
+                className="w-full bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-semibold h-9 rounded-md cursor-pointer mt-2"
               >
                 {isLoading ? (
                   <>

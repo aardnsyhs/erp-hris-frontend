@@ -305,8 +305,8 @@ export function DateRangePicker({
               {isSelectingEnd && draftRange?.from
                 ? 'Langkah 2: Pilih tanggal akhir'
                 : isRangeComplete
-                ? 'Rentang dipilih'
-                : 'Langkah 1: Pilih tanggal mulai'}
+                  ? 'Rentang dipilih'
+                  : 'Langkah 1: Pilih tanggal mulai'}
             </span>
           </div>
 
@@ -334,9 +334,9 @@ export function DateRangePicker({
             selected={
               draftRange?.from
                 ? {
-                    from: draftRange.from,
-                    to: draftRange.to,
-                  }
+                  from: draftRange.from,
+                  to: draftRange.to,
+                }
                 : undefined
             }
             onDayClick={handleDayClick}
@@ -373,7 +373,7 @@ export function DateRangePicker({
               size="sm"
               disabled={!isRangeComplete}
               onClick={handleApply}
-              className="text-xs min-h-8 px-3.5 bg-primary hover:bg-[var(--primary-hover)] text-primary-foreground font-semibold font-mono cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-xs min-h-8 px-3.5 bg-primary hover:bg-primary-hover text-primary-foreground font-semibold font-mono cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Check className="w-3.5 h-3.5 mr-1" />
               Terapkan

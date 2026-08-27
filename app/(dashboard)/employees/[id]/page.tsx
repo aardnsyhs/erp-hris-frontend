@@ -144,7 +144,7 @@ export default function EmployeeDetailPage({ params }: PageProps) {
                   variant="outline"
                   size="sm"
                   onClick={() => setIsReactivateOpen(true)}
-                  className="text-xs h-8.5 text-[var(--status-success)] border-[var(--status-success)]/30 hover:bg-[var(--status-success-bg)] cursor-pointer font-mono"
+                  className="text-xs h-8.5 text-status-success border-(--status-success)/30 hover:bg-status-success-bg cursor-pointer font-mono"
                 >
                   <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
                   {t('reactivate')}
@@ -156,7 +156,7 @@ export default function EmployeeDetailPage({ params }: PageProps) {
                   variant="outline"
                   size="sm"
                   onClick={() => setIsDeactivateOpen(true)}
-                  className="text-xs h-8.5 text-[var(--status-warning)] border-[var(--status-warning)]/30 hover:bg-[var(--status-warning-bg)] cursor-pointer font-mono"
+                  className="text-xs h-8.5 text-status-warning border-(--status-warning)/30 hover:bg-status-warning-bg cursor-pointer font-mono"
                 >
                   <UserMinus className="w-3.5 h-3.5 mr-1.5" />
                   {t('deactivate')}
@@ -168,7 +168,7 @@ export default function EmployeeDetailPage({ params }: PageProps) {
                   variant="outline"
                   size="sm"
                   onClick={() => setIsTerminateOpen(true)}
-                  className="text-xs h-8.5 text-[var(--status-danger)] border-[var(--status-danger)]/30 hover:bg-[var(--status-danger-bg)] cursor-pointer font-mono"
+                  className="text-xs h-8.5 text-status-danger border-(--status-danger)/30 hover:bg-status-danger-bg cursor-pointer font-mono"
                 >
                   <UserX className="w-3.5 h-3.5 mr-1.5" />
                   {t('terminate')}

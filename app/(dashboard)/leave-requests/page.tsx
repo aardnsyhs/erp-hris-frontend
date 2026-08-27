@@ -100,8 +100,8 @@ export default function LeaveRequestsPage() {
     status: isPendingTab
       ? 'PENDING'
       : selectedStatus !== 'ALL'
-      ? (selectedStatus as LeaveRequestStatus)
-      : undefined,
+        ? (selectedStatus as LeaveRequestStatus)
+        : undefined,
     leaveType: selectedLeaveType !== 'ALL' ? (selectedLeaveType as LeaveType) : undefined,
     departmentId: selectedDept !== 'ALL' ? selectedDept : undefined,
     startDate: startDate || undefined,
@@ -241,7 +241,7 @@ export default function LeaveRequestsPage() {
                           size="xs"
                           disabled={isOwn || approveMutation.isPending}
                           onClick={() => handleApprove(leave)}
-                          className="h-7 px-2 bg-[var(--status-success)] hover:opacity-90 text-white text-xs font-mono cursor-pointer"
+                          className="h-7 px-2 bg-status-success hover:opacity-90 text-white text-xs font-mono cursor-pointer"
                         />
                       }
                     >
@@ -262,7 +262,7 @@ export default function LeaveRequestsPage() {
                           size="xs"
                           disabled={isOwn}
                           onClick={() => setSelectedForReject(leave)}
-                          className="h-7 px-2 text-[var(--status-danger)] border-[var(--status-danger)]/30 hover:bg-[var(--status-danger-bg)] text-xs font-mono cursor-pointer"
+                          className="h-7 px-2 text-status-danger border-(--status-danger)/30 hover:bg-status-danger-bg text-xs font-mono cursor-pointer"
                         />
                       }
                     >
@@ -292,7 +292,7 @@ export default function LeaveRequestsPage() {
           <Button
             onClick={() => setIsFormOpen(true)}
             size="sm"
-            className="bg-primary hover:bg-[var(--primary-hover)] text-primary-foreground shadow-xs shrink-0 cursor-pointer font-medium text-xs h-8.5 rounded-md"
+            className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-xs shrink-0 cursor-pointer font-medium text-xs h-8.5 rounded-md"
           >
             <Plus className="w-3.5 h-3.5 mr-1.5" />
             {t('requestLeave')}
@@ -353,12 +353,12 @@ export default function LeaveRequestsPage() {
                 {selectedStatus === 'ALL'
                   ? tCommon('allStatus')
                   : selectedStatus === 'PENDING'
-                  ? t('statusPending')
-                  : selectedStatus === 'APPROVED'
-                  ? t('statusApproved')
-                  : selectedStatus === 'REJECTED'
-                  ? t('statusRejected')
-                  : tCommon('allStatus')}
+                    ? t('statusPending')
+                    : selectedStatus === 'APPROVED'
+                      ? t('statusApproved')
+                      : selectedStatus === 'REJECTED'
+                        ? t('statusRejected')
+                        : tCommon('allStatus')}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -384,14 +384,14 @@ export default function LeaveRequestsPage() {
               {selectedLeaveType === 'ALL'
                 ? tCommon('allTypes')
                 : selectedLeaveType === 'ANNUAL'
-                ? t('annual')
-                : selectedLeaveType === 'SICK'
-                ? t('sick')
-                : selectedLeaveType === 'UNPAID'
-                ? t('unpaid')
-                : selectedLeaveType === 'MATERNITY'
-                ? t('maternity')
-                : tCommon('allTypes')}
+                  ? t('annual')
+                  : selectedLeaveType === 'SICK'
+                    ? t('sick')
+                    : selectedLeaveType === 'UNPAID'
+                      ? t('unpaid')
+                      : selectedLeaveType === 'MATERNITY'
+                        ? t('maternity')
+                        : tCommon('allTypes')}
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
