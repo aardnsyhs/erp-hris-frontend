@@ -17,6 +17,10 @@ import {
   Clock,
   Briefcase,
   AlertCircle,
+  RotateCcw,
+  UserX,
+  UserMinus,
+  AlertTriangle,
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useEmployee } from '@/hooks/use-employees';
@@ -25,7 +29,11 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmployeeFormDialog } from '@/components/employees/employee-form-dialog';
+import { EmployeeDeleteDialog } from '@/components/employees/employee-delete-dialog';
+import { EmployeeReactivateDialog } from '@/components/employees/employee-reactivate-dialog';
+import { EmployeeTerminateDialog } from '@/components/employees/employee-terminate-dialog';
 import { cn } from '@/lib/utils';
+import { Employee } from '@/types/employee';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -39,6 +47,9 @@ export default function EmployeeDetailPage({ params }: PageProps) {
   const isHrAdmin = currentUser?.role === 'HR_ADMIN';
 
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeactivateOpen, setIsDeactivateOpen] = useState(false);
+  const [isReactivateOpen, setIsReactivateOpen] = useState(false);
+  const [isTerminateOpen, setIsTerminateOpen] = useState(false);
 
   const { data: employee, isLoading, isError, error } = useEmployee(id);
 
@@ -53,12 +64,24 @@ export default function EmployeeDetailPage({ params }: PageProps) {
   };
 
   // Format date helper
-  const formatDate = (dateString?: string) => {
+  const formatDate = (dateString?: string | null) => {
     if (!dateString) return '-';
     return new Intl.DateTimeFormat('id-ID', {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
+    }).format(new Date(dateString));
+  };
+
+  // Format date time helper
+  const formatDateTime = (dateString?: string | null) => {
+    if (!dateString) return '-';
+    return new Intl.DateTimeFormat('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     }).format(new Date(dateString));
   };
 
@@ -123,7 +146,7 @@ export default function EmployeeDetailPage({ params }: PageProps) {
               Karyawan Tidak Ditemukan (404)
             </h2>
             <p className="text-sm text-neutral-500">
-              Data karyawan dengan ID tersebut tidak ditemukan atau telah dihapus dari sistem.
+              Data karyawan dengan ID tersebut tidak ditemukan dalam sistem.
             </p>
           </div>
           <div className="pt-2 flex justify-center">
@@ -158,7 +181,9 @@ export default function EmployeeDetailPage({ params }: PageProps) {
 
   if (!employee) return null;
 
-  const isDeleted = !!employee.deletedAt;
+  const isInactive = employee.status === 'INACTIVE';
+  const isTerminated = employee.status === 'TERMINATED';
+  const isActive = employee.status === 'ACTIVE';
 
   return (
     <div className="space-y-6">
@@ -177,12 +202,14 @@ export default function EmployeeDetailPage({ params }: PageProps) {
               <h1 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
                 {employee.fullName}
               </h1>
-              {isDeleted || employee.status === 'INACTIVE' ? (
-                <Badge variant="outline" className="bg-neutral-100 dark:bg-neutral-800 text-neutral-600">
-                  Nonaktif
+              {isInactive ? (
+                <Badge variant="outline" className="bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-300">
+                  Nonaktif (INACTIVE)
                 </Badge>
-              ) : employee.status === 'TERMINATED' ? (
-                <Badge variant="destructive">Diberhentikan</Badge>
+              ) : isTerminated ? (
+                <Badge variant="destructive" className="bg-red-600">
+                  Diberhentikan (TERMINATED)
+                </Badge>
               ) : (
                 <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
                   Aktif
@@ -196,15 +223,85 @@ export default function EmployeeDetailPage({ params }: PageProps) {
         </div>
 
         {isHrAdmin && (
-          <Button
-            onClick={() => setIsEditOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white shrink-0"
-          >
-            <Edit2 className="w-4 h-4 mr-2" />
-            Edit Profil
-          </Button>
+          <div className="flex items-center gap-2 shrink-0">
+            {isInactive && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsReactivateOpen(true)}
+                className="border-emerald-500 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 text-xs"
+              >
+                <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                Aktifkan Kembali
+              </Button>
+            )}
+
+            {isActive && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsDeactivateOpen(true)}
+                className="text-amber-700 dark:text-amber-400 border-amber-300 hover:bg-amber-50 text-xs"
+              >
+                <UserMinus className="w-3.5 h-3.5 mr-1.5" />
+                Nonaktifkan
+              </Button>
+            )}
+
+            {!isTerminated && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsTerminateOpen(true)}
+                className="text-red-600 dark:text-red-400 border-red-200 hover:bg-red-50 dark:hover:bg-red-950/30 text-xs"
+              >
+                <UserX className="w-3.5 h-3.5 mr-1.5" />
+                Berhentikan
+              </Button>
+            )}
+
+            <Button
+              size="sm"
+              onClick={() => setIsEditOpen(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
+            >
+              <Edit2 className="w-3.5 h-3.5 mr-1.5" />
+              Edit Profil
+            </Button>
+          </div>
         )}
       </div>
+
+      {/* Lifecycle Status Banner for Inactive & Terminated Employees */}
+      {isInactive && (
+        <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <div className="space-y-1 text-xs">
+            <h3 className="font-semibold text-amber-900 dark:text-amber-200">
+              Karyawan Berstatus Nonaktif (INACTIVE)
+            </h3>
+            <p className="text-amber-800 dark:text-amber-300 leading-relaxed">
+              Karyawan ini telah dinonaktifkan sementara pada{' '}
+              <span className="font-semibold">{formatDateTime(employee.deletedAt)}</span>. Akun pengguna terkait tidak dapat login ke sistem. Anda dapat memulihkan status keaktifannya dengan menekan tombol <strong>Aktifkan Kembali</strong>.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {isTerminated && (
+        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 flex items-start gap-3">
+          <UserX className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+          <div className="space-y-1 text-xs">
+            <h3 className="font-semibold text-red-900 dark:text-red-200">
+              Karyawan Telah Diberhentikan Permanen (TERMINATED)
+            </h3>
+            <p className="text-red-800 dark:text-red-300 leading-relaxed">
+              Karyawan ini diberhentikan permanen pada{' '}
+              <span className="font-semibold">{formatDateTime(employee.deletedAt)}</span>. Catatan riwayat tetap disimpan untuk kebutuhan audit kepatuhan, namun status ini <strong>tidak dapat diaktifkan kembali</strong> melalui sistem.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Main Details Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -370,26 +467,26 @@ export default function EmployeeDetailPage({ params }: PageProps) {
               Audit & Metadata Sistem
             </CardTitle>
             <CardDescription>
-              Catatan riwayat pembuatan dan pembaruan data
+              Catatan riwayat pembuatan, perubahan, dan penonaktifan data
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-xs text-neutral-600 dark:text-neutral-400">
             <div className="flex justify-between py-1.5 border-b border-neutral-100 dark:border-neutral-800">
               <span>Waktu Pembuatan (Created At):</span>
               <span className="font-mono text-neutral-900 dark:text-neutral-200">
-                {formatDate(employee.createdAt)}
+                {formatDateTime(employee.createdAt)}
               </span>
             </div>
             <div className="flex justify-between py-1.5 border-b border-neutral-100 dark:border-neutral-800">
               <span>Terakhir Diperbarui:</span>
               <span className="font-mono text-neutral-900 dark:text-neutral-200">
-                {formatDate(employee.updatedAt)}
+                {formatDateTime(employee.updatedAt)}
               </span>
             </div>
             {employee.deletedAt && (
-              <div className="flex justify-between py-1.5 text-red-600 dark:text-red-400">
-                <span>Dinonaktifkan Pada:</span>
-                <span className="font-mono">{formatDate(employee.deletedAt)}</span>
+              <div className="flex justify-between py-1.5 text-red-600 dark:text-red-400 font-semibold">
+                <span>Waktu Dinonaktifkan (deletedAt):</span>
+                <span className="font-mono">{formatDateTime(employee.deletedAt)}</span>
               </div>
             )}
           </CardContent>
@@ -402,6 +499,33 @@ export default function EmployeeDetailPage({ params }: PageProps) {
         onOpenChange={setIsEditOpen}
         employeeToEdit={employee}
       />
+
+      {/* Deactivate Dialog */}
+      {employee && (
+        <EmployeeDeleteDialog
+          open={isDeactivateOpen}
+          onOpenChange={setIsDeactivateOpen}
+          employee={employee}
+        />
+      )}
+
+      {/* Reactivate Dialog */}
+      {employee && (
+        <EmployeeReactivateDialog
+          open={isReactivateOpen}
+          onOpenChange={setIsReactivateOpen}
+          employee={employee}
+        />
+      )}
+
+      {/* Terminate Dialog */}
+      {employee && (
+        <EmployeeTerminateDialog
+          open={isTerminateOpen}
+          onOpenChange={setIsTerminateOpen}
+          employee={employee}
+        />
+      )}
     </div>
   );
 }
