@@ -15,15 +15,25 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // If user is authenticated and tries to access /login, redirect to dashboard
+  // If user is authenticated and tries to access /login, redirect to target destination or /
   if (isAuthRoute && authRole) {
-    return NextResponse.redirect(new URL('/', request.url));
+    const rawRedirect = request.nextUrl.searchParams.get('redirect');
+    const isSafe =
+      rawRedirect &&
+      rawRedirect.startsWith('/') &&
+      !rawRedirect.startsWith('//') &&
+      !rawRedirect.includes('\\') &&
+      !/^\/?[a-z][a-z0-9+.-]*:/i.test(rawRedirect);
+
+    const target = isSafe ? rawRedirect : '/';
+    return NextResponse.redirect(new URL(target, request.url));
   }
 
   // If user is NOT authenticated and tries to access protected dashboard routes
   if (!isAuthRoute && !authRole) {
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
+    const target = `${pathname}${request.nextUrl.search || ''}`;
+    loginUrl.searchParams.set('redirect', target);
     return NextResponse.redirect(loginUrl);
   }
 

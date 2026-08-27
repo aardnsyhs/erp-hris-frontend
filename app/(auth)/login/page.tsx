@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
   Lock,
@@ -14,6 +14,7 @@ import {
 import { apiClient } from '@/lib/api/axios';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { LoginResponse } from '@/types/auth';
+import { getSafeRedirectPath } from '@/lib/utils/redirect';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -45,12 +46,16 @@ const demoAccounts = [
   },
 ];
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations('auth');
   const setAuth = useAuthStore((state) => state.setAuth);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isLoadingAuth = useAuthStore((state) => state.isLoading);
+
+  const rawRedirect = searchParams.get('redirect');
+  const redirectTo = getSafeRedirectPath(rawRedirect);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -60,9 +65,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!isLoadingAuth && isAuthenticated) {
-      router.replace('/');
+      router.replace(redirectTo);
     }
-  }, [isAuthenticated, isLoadingAuth, router]);
+  }, [isAuthenticated, isLoadingAuth, router, redirectTo]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,7 +137,7 @@ export default function LoginPage() {
     try {
       setAuth(loginData.user, loginData.accessToken);
       toast.success(t('loginSuccess'));
-      router.replace('/');
+      router.replace(redirectTo);
       router.refresh();
     } catch (clientErr) {
     } finally {
@@ -282,5 +287,13 @@ export default function LoginPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }

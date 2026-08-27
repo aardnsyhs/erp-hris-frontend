@@ -1,20 +1,23 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import React, { useEffect, Suspense } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/auth-store';
 
-export function AuthGuard({ children }: { children: React.ReactNode }) {
+function AuthGuardInner({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isLoading = useAuthStore((state) => state.isLoading);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.replace(`/login?redirect=${encodeURIComponent(pathname)}`);
+      const searchStr = searchParams?.toString();
+      const target = `${pathname}${searchStr ? `?${searchStr}` : ''}`;
+      router.replace(`/login?redirect=${encodeURIComponent(target)}`);
     }
-  }, [isAuthenticated, isLoading, router, pathname]);
+  }, [isAuthenticated, isLoading, router, pathname, searchParams]);
 
   if (isLoading) {
     return (
@@ -36,4 +39,12 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   }
 
   return <>{children}</>;
+}
+
+export function AuthGuard({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={null}>
+      <AuthGuardInner>{children}</AuthGuardInner>
+    </Suspense>
+  );
 }
