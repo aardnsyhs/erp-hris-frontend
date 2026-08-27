@@ -199,7 +199,7 @@ export function AttendanceWidget() {
           ) : (
             <div className="w-full md:w-40 text-center p-2 rounded border border-[var(--status-success)]/30 bg-[var(--status-success-bg)] text-[var(--status-success)] text-xs font-mono font-semibold flex items-center justify-center gap-1.5">
               <CheckCircle2 className="w-4 h-4" />
-              <span>Shift Complete</span>
+              <span>{tDash('shiftComplete')}</span>
             </div>
           )}
         </div>

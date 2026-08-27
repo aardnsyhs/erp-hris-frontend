@@ -145,7 +145,12 @@
     "noLeaves": "No leave requests submitted yet.",
     "lastPayslipTitle": "Latest Payslip (Paid)",
     "lastPayslipDesc": "Information on your most recently distributed salary payment.",
-    "noPaidPayslip": "No paid payslips available yet."
+    "noPaidPayslip": "No paid payslips available yet.",
+    "presentSummary": "{present} of {total} employees present",
+    "departmentHeadcount": "{count, plural, =0 {0 employees} =1 {1 employee} other {# employees}}",
+    "shiftComplete": "Today's Attendance Complete",
+    "onScheduleToday": "On-schedule today",
+    "lateOrAbsentDesc": "{late} Late • {absent} Absent"
   },
   "employees": {
     "title": "Employee Directory",
@@ -179,6 +184,7 @@
     "statusActive": "Active",
     "statusInactive": "Inactive (INACTIVE)",
     "statusTerminated": "Terminated (TERMINATED)",
+    "deactivate": "Deactivate",
     "deactivateTitle": "Deactivate Employee",
     "deactivateDesc": "Are you sure you want to deactivate employee {name} ({nip})? Their status will be changed to INACTIVE.",
     "reactivate": "Reactivate",

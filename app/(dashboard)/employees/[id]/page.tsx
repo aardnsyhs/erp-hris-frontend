@@ -15,6 +15,7 @@ import {
   User,
   Edit2,
   RotateCcw,
+  UserMinus,
   UserX,
   AlertTriangle,
   Clock,
@@ -119,7 +120,7 @@ export default function EmployeeDetailPage({ params }: PageProps) {
         description={`${employee.jobTitle || 'No position'} • ${employee.department?.name || 'Unassigned department'}`}
         badge={<StatusBadge status={employee.status} />}
         actions={
-          isHrAdmin && (
+          isHrAdmin && employee.status !== 'TERMINATED' ? (
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
@@ -131,29 +132,53 @@ export default function EmployeeDetailPage({ params }: PageProps) {
                 {t('editEmployee')}
               </Button>
 
-              {employee.status === 'TERMINATED' ? (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsReactivateOpen(true)}
-                  className="text-xs h-8.5 text-[var(--status-success)] border-[var(--status-success)]/30 hover:bg-[var(--status-success-bg)] cursor-pointer font-mono"
-                >
-                  <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-                  {t('reactivate')}
-                </Button>
-              ) : (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsTerminateOpen(true)}
-                  className="text-xs h-8.5 text-[var(--status-danger)] border-[var(--status-danger)]/30 hover:bg-[var(--status-danger-bg)] cursor-pointer font-mono"
-                >
-                  <UserX className="w-3.5 h-3.5 mr-1.5" />
-                  {t('terminate')}
-                </Button>
+              {employee.status === 'ACTIVE' && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsDeactivateOpen(true)}
+                    className="text-xs h-8.5 text-[var(--status-warning)] border-[var(--status-warning)]/30 hover:bg-[var(--status-warning-bg)] cursor-pointer font-mono"
+                  >
+                    <UserMinus className="w-3.5 h-3.5 mr-1.5" />
+                    {t('deactivate')}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsTerminateOpen(true)}
+                    className="text-xs h-8.5 text-[var(--status-danger)] border-[var(--status-danger)]/30 hover:bg-[var(--status-danger-bg)] cursor-pointer font-mono"
+                  >
+                    <UserX className="w-3.5 h-3.5 mr-1.5" />
+                    {t('terminate')}
+                  </Button>
+                </>
+              )}
+
+              {employee.status === 'INACTIVE' && (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsReactivateOpen(true)}
+                    className="text-xs h-8.5 text-[var(--status-success)] border-[var(--status-success)]/30 hover:bg-[var(--status-success-bg)] cursor-pointer font-mono"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                    {t('reactivate')}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsTerminateOpen(true)}
+                    className="text-xs h-8.5 text-[var(--status-danger)] border-[var(--status-danger)]/30 hover:bg-[var(--status-danger-bg)] cursor-pointer font-mono"
+                  >
+                    <UserX className="w-3.5 h-3.5 mr-1.5" />
+                    {t('terminate')}
+                  </Button>
+                </>
               )}
             </div>
-          )
+          ) : undefined
         }
       />
 

@@ -145,7 +145,12 @@
     "noLeaves": "Belum ada permohonan cuti yang diajukan.",
     "lastPayslipTitle": "Slip Gaji Terakhir (Terbayar)",
     "lastPayslipDesc": "Informasi penerimaan gaji periode terakhir yang telah disalurkan.",
-    "noPaidPayslip": "Belum ada slip gaji berstatus dibayar (PAID)."
+    "noPaidPayslip": "Belum ada slip gaji berstatus dibayar (PAID).",
+    "presentSummary": "{present} dari {total} karyawan hadir",
+    "departmentHeadcount": "{count, plural, =0 {0 karyawan} other {# karyawan}}",
+    "shiftComplete": "Presensi Hari Ini Selesai",
+    "onScheduleToday": "Tepat waktu hari ini",
+    "lateOrAbsentDesc": "{late} Terlambat • {absent} Tidak Hadir"
   },
   "employees": {
     "title": "Direktori Karyawan",
@@ -179,6 +184,7 @@
     "statusActive": "Aktif",
     "statusInactive": "Nonaktif (INACTIVE)",
     "statusTerminated": "Diberhentikan (TERMINATED)",
+    "deactivate": "Nonaktifkan",
     "deactivateTitle": "Nonaktifkan Karyawan",
     "deactivateDesc": "Apakah Anda yakin ingin menonaktifkan akun karyawan {name} ({nip})? Status karyawan akan berubah menjadi INACTIVE.",
     "reactivate": "Aktifkan Kembali",

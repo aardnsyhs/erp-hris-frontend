@@ -205,7 +205,7 @@ function HRAdminDashboard() {
             <div className="space-y-1.5">
               <div className="flex items-center justify-between text-xs font-mono">
                 <span className="font-medium text-foreground">
-                  {presentCount} / {totalActiveEmployees} Active Present
+                  {t('presentSummary', { present: presentCount, total: totalActiveEmployees })}
                 </span>
                 <span className="font-bold text-foreground tabular-nums">
                   {attendancePercentage}%
@@ -260,7 +260,7 @@ function HRAdminDashboard() {
                         </span>
                       </div>
                       <p className="text-[11px] text-muted-foreground font-mono">
-                        {dept._count?.employees ?? 0} Headcount
+                        {t('departmentHeadcount', { count: dept._count?.employees ?? 0 })}
                       </p>
                     </div>
                     <Link
@@ -340,37 +340,41 @@ function HRAdminDashboard() {
 }
 
 // -------------------------------------------------------------
-// 2. MANAGER OPERATIONS CONSOLE
+// 2. DEPARTMENT MANAGER OPERATIONS CONSOLE
 // -------------------------------------------------------------
 function ManagerDashboard({ departmentId }: { departmentId?: string | null }) {
   const t = useTranslations('dashboard');
   const tCommon = useTranslations('common');
+  const tAtt = useTranslations('attendance');
+  const tLeave = useTranslations('leave');
   const locale = useLocale();
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date());
 
-  const { data: teamEmployees, isLoading: loadingTeam } = useEmployees({
+  const { data: teamData, isLoading: loadingTeam } = useEmployees({
     departmentId: departmentId || undefined,
     status: 'ACTIVE',
     limit: 1,
   });
-
-  const { data: teamLeaves, isLoading: loadingLeaves } = useLeaveRequests({
+  const { data: teamLeavesData, isLoading: loadingLeaves } = useLeaveRequests({
     departmentId: departmentId || undefined,
     status: 'PENDING',
     limit: 5,
   });
-
-  const { data: todayAttendances, isLoading: loadingAttendance } = useAttendances({
+  const { data: attendanceData, isLoading: loadingAttendance } = useAttendances({
     departmentId: departmentId || undefined,
-    startDate: todayStr,
-    endDate: todayStr,
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0],
     limit: 100,
   });
 
-  const totalTeamMembers = teamEmployees?.meta?.total ?? 0;
-  const pendingTeamLeaves = teamLeaves?.meta?.total ?? 0;
-  const attendanceList = todayAttendances?.data || [];
+  const totalTeamMembers = teamData?.meta?.total ?? 0;
+  const pendingTeamLeaves = teamLeavesData?.meta?.total ?? 0;
 
+  const attendanceList = attendanceData?.data || [];
   const presentCount = attendanceList.filter((a) => a.status === 'PRESENT').length;
   const lateCount = attendanceList.filter((a) => a.status === 'LATE').length;
   const absentCount = attendanceList.filter((a) => a.status === 'ABSENT').length;
@@ -409,14 +413,14 @@ function ManagerDashboard({ departmentId }: { departmentId?: string | null }) {
       id: 'on_time_today',
       label: t('onTime'),
       value: loadingAttendance ? '—' : presentCount,
-      description: 'On-schedule today',
+      description: t('onScheduleToday'),
       icon: CheckCircle2,
     },
     {
       id: 'late_or_absent',
       label: t('late'),
       value: loadingAttendance ? '—' : `${lateCount + absentCount}`,
-      description: `${lateCount} Late • ${absentCount} Absent`,
+      description: t('lateOrAbsentDesc', { late: lateCount, absent: absentCount }),
       icon: AlertCircle,
     },
   ];
@@ -497,14 +501,14 @@ function ManagerDashboard({ departmentId }: { departmentId?: string | null }) {
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               {tCommon('loading')}
             </div>
-          ) : (teamLeaves?.data || []).length === 0 ? (
+          ) : (teamLeavesData?.data || []).length === 0 ? (
             <div className="py-6 text-center text-xs text-muted-foreground font-mono">
               <CheckCircle2 className="w-5 h-5 mx-auto text-[var(--status-success)] mb-1.5" />
               {t('noLeavesPending')}
             </div>
           ) : (
             <div className="space-y-2">
-              {(teamLeaves?.data || []).slice(0, 3).map((leave) => (
+              {(teamLeavesData?.data || []).slice(0, 3).map((leave) => (
                 <div
                   key={leave.id}
                   className="p-2.5 rounded-md border border-border bg-muted/20 flex items-center justify-between text-xs"

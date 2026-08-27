@@ -39,6 +39,7 @@ export default function AttendancesPage() {
 
   const currentUser = useAuthStore((state) => state.user);
   const isHrAdmin = currentUser?.role === 'HR_ADMIN';
+  const isEmployee = currentUser?.role === 'EMPLOYEE';
 
   // Filters & Pagination State
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
@@ -120,27 +121,31 @@ export default function AttendancesPage() {
         </span>
       ),
     },
-    {
-      accessorKey: 'employee.fullName',
-      header: tEmp('fullName'),
-      cell: ({ row }) => {
-        const emp = row.original.employee;
-        if (!emp) return <span className="text-muted-foreground">-</span>;
-        return (
-          <div className="flex flex-col min-w-0">
-            <Link
-              href={`/employees/${emp.id}`}
-              className="font-semibold text-foreground text-xs hover:text-primary hover:underline transition-colors truncate"
-            >
-              {emp.fullName}
-            </Link>
-            <span className="text-[11px] font-mono text-muted-foreground truncate">
-              {emp.nip} {emp.department?.name ? `• ${emp.department.name}` : ''}
-            </span>
-          </div>
-        );
-      },
-    },
+    ...(!isEmployee
+      ? [
+          {
+            accessorKey: 'employee.fullName',
+            header: tEmp('fullName'),
+            cell: ({ row }: { row: { original: Attendance } }) => {
+              const emp = row.original.employee;
+              if (!emp) return <span className="text-muted-foreground">-</span>;
+              return (
+                <div className="flex flex-col min-w-0">
+                  <Link
+                    href={`/employees/${emp.id}`}
+                    className="font-semibold text-foreground text-xs hover:text-primary hover:underline transition-colors truncate"
+                  >
+                    {emp.fullName}
+                  </Link>
+                  <span className="text-[11px] font-mono text-muted-foreground truncate">
+                    {emp.nip} {emp.department?.name ? `• ${emp.department.name}` : ''}
+                  </span>
+                </div>
+              );
+            },
+          },
+        ]
+      : []),
     {
       accessorKey: 'checkIn',
       header: t('checkInTime'),
@@ -163,7 +168,7 @@ export default function AttendancesPage() {
       id: 'duration',
       header: t('duration'),
       cell: ({ row }) => (
-        <span className="font-mono text-xs text-muted-foreground tabular-nums">
+        <span className="font-mono text-xs text-muted-foreground">
           {formatDuration(row.original.checkIn, row.original.checkOut)}
         </span>
       ),
@@ -176,15 +181,11 @@ export default function AttendancesPage() {
     {
       accessorKey: 'notes',
       header: t('notes'),
-      cell: ({ row }) => {
-        const notes = row.original.notes;
-        if (!notes) return <span className="text-muted-foreground font-mono text-xs">—</span>;
-        return (
-          <span className="text-xs text-muted-foreground truncate max-w-48 block" title={notes}>
-            {notes}
-          </span>
-        );
-      },
+      cell: ({ row }) => (
+        <span className="text-xs text-muted-foreground truncate max-w-44 block font-mono">
+          {row.original.notes || '—'}
+        </span>
+      ),
     },
   ];
 
@@ -255,7 +256,6 @@ export default function AttendancesPage() {
               <SelectItem value="ALL" className="text-xs">{tCommon('allStatus')}</SelectItem>
               <SelectItem value="PRESENT" className="text-xs">{t('statusPresent')}</SelectItem>
               <SelectItem value="LATE" className="text-xs">{t('statusLate')}</SelectItem>
-              <SelectItem value="LEAVE" className="text-xs">{t('statusLeave')}</SelectItem>
               <SelectItem value="ABSENT" className="text-xs">{t('statusAbsent')}</SelectItem>
             </SelectContent>
           </Select>

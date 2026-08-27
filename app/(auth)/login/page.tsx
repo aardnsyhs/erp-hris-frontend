@@ -103,7 +103,7 @@ export default function LoginPage() {
 
   const fillDemoAccount = (demoEmail: string) => {
     setEmail(demoEmail);
-    setPassword('Admin123!');
+    setPassword('password123');
     setErrorMessage(null);
   };
 

@@ -92,14 +92,14 @@ export function DatePicker({
             aria-label={ariaLabel}
             aria-expanded={open}
             className={cn(
-              'w-full justify-start text-left font-normal text-xs h-9 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 px-3 cursor-pointer',
-              !selectedDate && 'text-neutral-400',
+              'w-full justify-start text-left font-normal text-xs h-8.5 bg-card border-border px-2.5 font-mono cursor-pointer rounded-md',
+              !selectedDate && 'text-muted-foreground',
               className,
             )}
           />
         }
       >
-        <CalendarIcon className="mr-2 h-3.5 w-3.5 shrink-0 text-neutral-500" />
+        <CalendarIcon className="mr-2 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
         <span className="truncate flex-1">
           {selectedDate ? formatIndonesianDate(selectedDate) : placeholder}
         </span>
@@ -109,7 +109,7 @@ export function DatePicker({
             role="button"
             tabIndex={0}
             aria-label="Hapus tanggal"
-            className="ml-1 p-0.5 rounded-sm hover:bg-neutral-200 dark:hover:bg-neutral-800 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 cursor-pointer"
+            className="ml-1 p-0.5 rounded-sm hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
           >
             <X className="h-3 w-3" />
           </span>
@@ -117,7 +117,7 @@ export function DatePicker({
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="w-auto p-2 bg-popover rounded-xl shadow-lg border border-neutral-200 dark:border-neutral-800 max-w-[calc(100vw-1rem)]"
+        className="w-auto p-2 bg-popover rounded-md shadow-lg border border-border max-w-[calc(100vw-1rem)]"
       >
         <Calendar
           mode="single"
@@ -270,14 +270,14 @@ export function DateRangePicker({
             aria-label={ariaLabel}
             aria-expanded={open}
             className={cn(
-              'w-full justify-start text-left font-normal text-xs h-9 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 px-3 cursor-pointer',
-              !from && !to && 'text-neutral-400',
+              'w-full justify-start text-left font-normal text-xs h-8.5 bg-card border-border px-2.5 font-mono cursor-pointer rounded-md',
+              !from && !to && 'text-muted-foreground',
               className,
             )}
           />
         }
       >
-        <CalendarIcon className="mr-2 h-3.5 w-3.5 shrink-0 text-neutral-500" />
+        <CalendarIcon className="mr-2 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
         <span className="truncate flex-1">{displayText}</span>
         {allowClear && hasAppliedValue && !disabled && (
           <span
@@ -285,7 +285,7 @@ export function DateRangePicker({
             role="button"
             tabIndex={0}
             aria-label="Hapus rentang tanggal"
-            className="ml-1 p-0.5 rounded-sm hover:bg-neutral-200 dark:hover:bg-neutral-800 text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 cursor-pointer"
+            className="ml-1 p-0.5 rounded-sm hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
           >
             <X className="h-3 w-3" />
           </span>
@@ -293,15 +293,15 @@ export function DateRangePicker({
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="w-[calc(100vw-1rem)] sm:w-[340px] max-w-[calc(100vw-1rem)] p-0 bg-popover rounded-xl shadow-xl border border-neutral-200 dark:border-neutral-800 overflow-hidden"
+        className="w-[calc(100vw-1rem)] sm:w-[340px] max-w-[calc(100vw-1rem)] p-0 bg-popover rounded-md shadow-xl border border-border overflow-hidden"
       >
         {/* Structured Header with Mulai / Selesai Cards */}
-        <div className="space-y-2 border-b border-neutral-200 dark:border-neutral-800 px-4 py-3 bg-neutral-50/50 dark:bg-neutral-900/50">
+        <div className="space-y-2 border-b border-border px-4 py-3 bg-muted/30">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold text-neutral-900 dark:text-neutral-100">
+            <p className="text-xs font-semibold text-foreground font-mono">
               Pilih rentang tanggal
             </p>
-            <span className="text-[10px] text-neutral-500 dark:text-neutral-400 font-medium">
+            <span className="text-[10px] text-muted-foreground font-medium font-mono">
               {isSelectingEnd && draftRange?.from
                 ? 'Langkah 2: Pilih tanggal akhir'
                 : isRangeComplete
@@ -310,17 +310,17 @@ export function DateRangePicker({
             </span>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="rounded-lg bg-white dark:bg-neutral-800/80 px-2.5 py-1.5 border border-neutral-200/70 dark:border-neutral-700/70 shadow-2xs">
-              <span className="block text-[10px] text-neutral-400 font-medium">Mulai</span>
-              <span className="font-semibold text-neutral-900 dark:text-neutral-100 text-xs truncate block">
+          <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+            <div className="rounded-md bg-card px-2.5 py-1.5 border border-border shadow-2xs">
+              <span className="block text-[10px] text-muted-foreground uppercase">Mulai</span>
+              <span className="font-semibold text-foreground text-xs truncate block tabular-nums">
                 {draftRange?.from ? formatIndonesianDate(draftRange.from) : 'Belum dipilih'}
               </span>
             </div>
 
-            <div className="rounded-lg bg-white dark:bg-neutral-800/80 px-2.5 py-1.5 border border-neutral-200/70 dark:border-neutral-700/70 shadow-2xs">
-              <span className="block text-[10px] text-neutral-400 font-medium">Selesai</span>
-              <span className="font-semibold text-neutral-900 dark:text-neutral-100 text-xs truncate block">
+            <div className="rounded-md bg-card px-2.5 py-1.5 border border-border shadow-2xs">
+              <span className="block text-[10px] text-muted-foreground uppercase">Selesai</span>
+              <span className="font-semibold text-foreground text-xs truncate block tabular-nums">
                 {draftRange?.to ? formatIndonesianDate(draftRange.to) : 'Belum dipilih'}
               </span>
             </div>
@@ -345,16 +345,16 @@ export function DateRangePicker({
         </div>
 
         {/* Structured Footer Actions */}
-        <div className="flex items-center justify-between gap-2 border-t border-neutral-200 dark:border-neutral-800 px-4 py-3 bg-neutral-50/50 dark:bg-neutral-900/50">
+        <div className="flex items-center justify-between gap-2 border-t border-border px-4 py-3 bg-muted/30">
           <Button
             type="button"
             variant="ghost"
             size="sm"
             onClick={handleReset}
             disabled={!hasAppliedValue && !draftRange?.from}
-            className="text-xs min-h-10 px-3 text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200 cursor-pointer"
+            className="text-xs min-h-8 px-2.5 text-muted-foreground hover:text-foreground font-mono cursor-pointer"
           >
-            <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+            <RotateCcw className="w-3.5 h-3.5 mr-1" />
             Reset
           </Button>
 
@@ -364,7 +364,7 @@ export function DateRangePicker({
               variant="outline"
               size="sm"
               onClick={handleCancel}
-              className="text-xs min-h-10 px-3 cursor-pointer"
+              className="text-xs min-h-8 px-3 font-mono cursor-pointer"
             >
               Batal
             </Button>
@@ -373,9 +373,9 @@ export function DateRangePicker({
               size="sm"
               disabled={!isRangeComplete}
               onClick={handleApply}
-              className="text-xs min-h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-xs min-h-8 px-3.5 bg-primary hover:bg-[var(--primary-hover)] text-primary-foreground font-semibold font-mono cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Check className="w-3.5 h-3.5 mr-1.5" />
+              <Check className="w-3.5 h-3.5 mr-1" />
               Terapkan
             </Button>
           </div>
