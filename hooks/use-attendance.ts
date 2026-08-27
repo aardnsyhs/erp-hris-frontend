@@ -39,15 +39,10 @@ export function useTodayAttendance(employeeId?: string | null) {
       employeeId: employeeId || 'me',
     }),
     queryFn: async () => {
-      const { data } = await apiClient.get<AttendanceListResponse>('/attendances', {
-        params: {
-          limit: 1,
-          page: 1,
-          startDate: todayStr,
-          endDate: todayStr,
-        },
-      });
-      return data.data[0] || null;
+      const { data } = await apiClient.get<Attendance | null>(
+        '/attendances/me/today',
+      );
+      return data;
     },
     enabled: employeeId !== null,
   });

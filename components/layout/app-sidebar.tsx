@@ -68,7 +68,7 @@ const navItems: NavItem[] = [
     title: 'Profil Saya',
     href: '/profile',
     icon: User,
-    roles: ['EMPLOYEE'],
+    roles: ['HR_ADMIN', 'MANAGER', 'EMPLOYEE'],
   },
 ];
 
