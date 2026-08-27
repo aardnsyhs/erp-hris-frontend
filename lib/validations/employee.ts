@@ -1,6 +1,9 @@
 import { z } from 'zod';
 
 export const employeeFormSchema = z.object({
+  role: z.enum(['HR_ADMIN', 'MANAGER', 'EMPLOYEE'], {
+    message: 'Role akun karyawan wajib dipilih',
+  }),
   departmentId: z
     .string()
     .uuid({ message: 'Pilihan departemen tidak valid' }),

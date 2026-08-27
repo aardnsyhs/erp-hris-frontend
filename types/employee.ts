@@ -1,6 +1,7 @@
 import { Department } from './department';
 
 export type EmployeeStatus = 'ACTIVE' | 'INACTIVE' | 'TERMINATED';
+export type UserRole = 'HR_ADMIN' | 'MANAGER' | 'EMPLOYEE';
 
 export interface Employee {
   id: string;
@@ -26,6 +27,7 @@ export interface Employee {
 }
 
 export interface CreateEmployeeDto {
+  role: UserRole;
   departmentId: string;
   nip: string;
   fullName: string;
@@ -35,6 +37,10 @@ export interface CreateEmployeeDto {
   hireDate: string | Date;
   baseSalary: string;
   status?: EmployeeStatus;
+}
+
+export interface CreateEmployeeResponse extends Employee {
+  temporaryPassword?: string;
 }
 
 export interface UpdateEmployeeDto {

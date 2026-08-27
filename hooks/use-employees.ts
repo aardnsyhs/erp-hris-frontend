@@ -3,6 +3,7 @@ import { apiClient } from '@/lib/api/axios';
 import { queryKeys } from '@/lib/api/query-keys';
 import {
   CreateEmployeeDto,
+  CreateEmployeeResponse,
   Employee,
   EmployeeListResponse,
   EmployeeQueryParams,
@@ -15,7 +16,13 @@ export function useEmployees(params?: EmployeeQueryParams) {
     queryKey: queryKeys.employees.list(params),
     queryFn: async () => {
       const { data } = await apiClient.get<EmployeeListResponse>('/employees', {
-        params,
+        params: {
+          limit: params?.limit ?? 10,
+          page: params?.page ?? 1,
+          search: params?.search,
+          departmentId: params?.departmentId,
+          status: params?.status,
+        },
       });
       return data;
     },
@@ -45,12 +52,15 @@ export function useCreateEmployee() {
 
   return useMutation({
     mutationFn: async (payload: CreateEmployeeDto) => {
-      const { data } = await apiClient.post<Employee>('/employees', payload);
+      const { data } = await apiClient.post<CreateEmployeeResponse>(
+        '/employees',
+        payload,
+      );
       return data;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
-      toast.success(`Karyawan "${data.fullName}" berhasil ditambahkan.`);
+      toast.success(`Karyawan "${data.fullName}" dan akun login berhasil dibuat.`);
     },
     onError: (error: any) => {
       const message =
