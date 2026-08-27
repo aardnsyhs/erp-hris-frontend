@@ -15,6 +15,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
   totalRows?: number;
@@ -68,47 +75,85 @@ export function DataTablePagination<TData>({
           </Select>
         </div>
 
-        <div className="flex items-center gap-1">
-          <span className="text-xs sm:text-sm mr-2">
-            Halaman {pageIndex + 1} dari {Math.max(pageCount, 1)}
-          </span>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <ChevronsLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => table.setPageIndex(pageCount - 1)}
-            disabled={!table.getCanNextPage()}
-          >
-            <ChevronsRight className="h-4 w-4" />
-          </Button>
-        </div>
+        <TooltipProvider>
+          <div className="flex items-center gap-1">
+            <span className="text-xs sm:text-sm mr-2">
+              Halaman {pageIndex + 1} dari {Math.max(pageCount, 1)}
+            </span>
+
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => table.setPageIndex(0)}
+                    disabled={!table.getCanPreviousPage()}
+                    aria-label="Halaman pertama"
+                  />
+                }
+              >
+                <ChevronsLeft className="h-4 w-4" />
+              </TooltipTrigger>
+              <TooltipContent>Halaman pertama</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => table.previousPage()}
+                    disabled={!table.getCanPreviousPage()}
+                    aria-label="Halaman sebelumnya"
+                  />
+                }
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </TooltipTrigger>
+              <TooltipContent>Halaman sebelumnya</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => table.nextPage()}
+                    disabled={!table.getCanNextPage()}
+                    aria-label="Halaman berikutnya"
+                  />
+                }
+              >
+                <ChevronRight className="h-4 w-4" />
+              </TooltipTrigger>
+              <TooltipContent>Halaman berikutnya</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => table.setPageIndex(pageCount - 1)}
+                    disabled={!table.getCanNextPage()}
+                    aria-label="Halaman terakhir"
+                  />
+                }
+              >
+                <ChevronsRight className="h-4 w-4" />
+              </TooltipTrigger>
+              <TooltipContent>Halaman terakhir</TooltipContent>
+            </Tooltip>
+          </div>
+        </TooltipProvider>
       </div>
     </div>
   );

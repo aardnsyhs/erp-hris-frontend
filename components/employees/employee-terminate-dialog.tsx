@@ -6,13 +6,13 @@ import { useTerminateEmployee } from '@/hooks/use-employees';
 import { Employee } from '@/types/employee';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface EmployeeTerminateDialogProps {
   open: boolean;
@@ -39,16 +39,16 @@ export function EmployeeTerminateDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="gap-2">
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent className="sm:max-w-md">
+        <AlertDialogHeader className="gap-2">
           <div className="flex items-center gap-2 text-rose-600">
             <div className="p-2 rounded-full bg-rose-100 dark:bg-rose-950/60">
               <UserX className="h-5 w-5" />
             </div>
-            <DialogTitle>Berhentikan Karyawan (Permanen)</DialogTitle>
+            <AlertDialogTitle>Berhentikan Karyawan Secara Permanen</AlertDialogTitle>
           </div>
-          <DialogDescription className="pt-2 text-neutral-600 dark:text-neutral-300">
+          <AlertDialogDescription className="pt-2 text-neutral-600 dark:text-neutral-300">
             Apakah Anda yakin ingin memberhentikan secara permanen karyawan{' '}
             <strong className="text-neutral-900 dark:text-neutral-100 font-semibold">
               {employee?.fullName}
@@ -57,15 +57,16 @@ export function EmployeeTerminateDialog({
             <br />
             <br />
             <span className="text-rose-600 dark:text-rose-400 font-medium block">
-              Perhatian: Status akan diubah menjadi <code>TERMINATED</code> dan akun pengguna akan dinonaktifkan secara permanen. Karyawan yang telah diberhentikan permanen tidak dapat diaktifkan kembali melalui tombol reaktivasi biasa.
+              <strong>Konsekuensi Permanen:</strong> Status akan diubah menjadi <code>TERMINATED</code> dan akun login dinonaktifkan secara permanen. Tindakan ini tidak dapat dibatalkan atau diaktifkan kembali melalui antarmuka sistem.
             </span>
-          </DialogDescription>
-        </DialogHeader>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
 
-        <DialogFooter className="pt-4">
+        <AlertDialogFooter className="pt-4">
           <Button
             type="button"
             variant="outline"
+            size="sm"
             onClick={() => onOpenChange(false)}
             disabled={isTerminating}
           >
@@ -74,6 +75,7 @@ export function EmployeeTerminateDialog({
           <Button
             type="button"
             variant="destructive"
+            size="sm"
             className="bg-rose-600 hover:bg-rose-700 text-white"
             onClick={handleTerminate}
             disabled={isTerminating}
@@ -84,11 +86,11 @@ export function EmployeeTerminateDialog({
                 Memberhentikan...
               </>
             ) : (
-              'Ya, Berhentikan Permanen'
+              'Ya, Berhentikan Karyawan'
             )}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

@@ -253,6 +253,7 @@ function HRAdminDashboard() {
                     </div>
                     <Link
                       href={`/employees?departmentId=${dept.id}`}
+                      aria-label={`Lihat karyawan departemen ${dept.name}`}
                       className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40"
                     >
                       <ChevronRight className="w-4 h-4" />

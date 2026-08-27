@@ -38,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Tooltip,
   TooltipContent,
@@ -393,40 +394,27 @@ export default function LeaveRequestsPage() {
 
       {/* Tabs Navigation for Approvers (Manager & HR Admin) */}
       {isApproverRole && (
-        <div className="flex items-center gap-2 border-b border-neutral-200 dark:border-neutral-800">
-          <button
-            onClick={() => {
-              setActiveTab('PENDING_APPROVALS');
+        <Tabs
+          value={activeTab}
+          onValueChange={(val) => {
+            if (val) {
+              setActiveTab(val as 'PENDING_APPROVALS' | 'ALL_HISTORY');
               setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-            }}
-            className={`pb-3 px-3 text-sm font-semibold transition-colors relative cursor-pointer ${
-              activeTab === 'PENDING_APPROVALS'
-                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-300'
-            }`}
-          >
-            <span className="flex items-center gap-2">
+            }
+          }}
+          className="w-full"
+        >
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="PENDING_APPROVALS" className="gap-2">
               <Clock className="w-4 h-4" />
               Perlu Persetujuan
-            </span>
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab('ALL_HISTORY');
-              setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-            }}
-            className={`pb-3 px-3 text-sm font-semibold transition-colors relative cursor-pointer ${
-              activeTab === 'ALL_HISTORY'
-                ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
-                : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-300'
-            }`}
-          >
-            <span className="flex items-center gap-2">
+            </TabsTrigger>
+            <TabsTrigger value="ALL_HISTORY" className="gap-2">
               <CalendarDays className="w-4 h-4" />
               Semua Riwayat Cuti
-            </span>
-          </button>
-        </div>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       )}
 
       {/* Filter Toolbar (Rendered on History view) */}

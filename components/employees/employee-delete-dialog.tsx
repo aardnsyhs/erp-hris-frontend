@@ -6,13 +6,13 @@ import { useDeleteEmployee } from '@/hooks/use-employees';
 import { Employee } from '@/types/employee';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface EmployeeDeleteDialogProps {
   open: boolean;
@@ -39,33 +39,32 @@ export function EmployeeDeleteDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="gap-2">
-          <div className="flex items-center gap-2 text-red-600">
-            <div className="p-2 rounded-full bg-red-100 dark:bg-red-950">
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent className="sm:max-w-md">
+        <AlertDialogHeader className="gap-2">
+          <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+            <div className="p-2 rounded-full bg-amber-100 dark:bg-amber-950">
               <AlertTriangle className="h-5 w-5" />
             </div>
-            <DialogTitle>Nonaktifkan Karyawan</DialogTitle>
+            <AlertDialogTitle>Nonaktifkan Karyawan</AlertDialogTitle>
           </div>
-          <DialogDescription className="pt-2 text-neutral-600 dark:text-neutral-300">
-            Apakah Anda yakin ingin menonaktifkan data karyawan{' '}
+          <AlertDialogDescription className="pt-2 text-neutral-600 dark:text-neutral-300">
+            Apakah Anda yakin ingin menonaktifkan akun karyawan{' '}
             <strong className="text-neutral-900 dark:text-neutral-100 font-semibold">
               {employee?.fullName}
             </strong>{' '}
             ({employee?.nip})?
             <br />
             <br />
-            Tindakan ini akan melakukan <em>soft delete</em> (menyetel timestamp{' '}
-            <code>deletedAt</code> dan status <code>INACTIVE</code>). Riwayat absensi,
-            cuti, dan slip gaji sebelumnya akan tetap tersimpan di database.
-          </DialogDescription>
-        </DialogHeader>
+            <strong>Konsekuensi:</strong> Status karyawan akan berubah menjadi <code>INACTIVE</code> dan akun login terkait akan dinonaktifkan. Karyawan tidak dapat login ke sistem, namun riwayat absensi, cuti, dan payroll tetap tersimpan dan dapat direaktivasi di kemudian hari.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
 
-        <DialogFooter className="pt-4">
+        <AlertDialogFooter className="pt-4">
           <Button
             type="button"
             variant="outline"
+            size="sm"
             onClick={() => onOpenChange(false)}
             disabled={isDeleting}
           >
@@ -74,6 +73,7 @@ export function EmployeeDeleteDialog({
           <Button
             type="button"
             variant="destructive"
+            size="sm"
             onClick={handleDelete}
             disabled={isDeleting}
           >
@@ -83,11 +83,11 @@ export function EmployeeDeleteDialog({
                 Menonaktifkan...
               </>
             ) : (
-              'Ya, Nonaktifkan'
+              'Ya, Nonaktifkan Karyawan'
             )}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

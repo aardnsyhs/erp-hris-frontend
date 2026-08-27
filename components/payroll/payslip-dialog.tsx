@@ -3,17 +3,16 @@
 import React from 'react';
 import {
   Receipt,
-  Building2,
-  Calendar,
   CheckCircle2,
   Clock,
   ShieldCheck,
   AlertTriangle,
-  FileSpreadsheet,
 } from 'lucide-react';
 import { Payroll } from '@/types/payroll';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   Dialog,
   DialogContent,
@@ -115,6 +114,8 @@ export function PayslipDialog({
             </div>
           </div>
 
+          <Separator />
+
           {/* Section 2: Period & Payment Date */}
           <div className="grid grid-cols-2 gap-3">
             <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-0.5">
@@ -136,20 +137,20 @@ export function PayslipDialog({
             </div>
           </div>
 
+          <Separator />
+
           {/* Section 3: Financial Details OR Privacy Card */}
           {hasFinancialData ? (
             <div className="space-y-3">
               {/* Negative Net Salary Alert */}
               {isNegativeNet && (
-                <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 flex items-start gap-2.5 text-xs text-red-700 dark:text-red-300">
-                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold">Perhatian: Gaji Bersih Bernilai Negatif</p>
-                    <p className="mt-0.5 text-[11px]">
-                      Total pemotongan melebihi jumlah pendapatan kotor (gaji pokok + tunjangan). Perlu peninjauan khusus oleh HR Administrator.
-                    </p>
-                  </div>
-                </div>
+                <Alert variant="destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>Perhatian: Gaji Bersih Bernilai Negatif</AlertTitle>
+                  <AlertDescription>
+                    Total pemotongan melebihi jumlah pendapatan kotor (gaji pokok + tunjangan). Perlu peninjauan khusus oleh HR Administrator.
+                  </AlertDescription>
+                </Alert>
               )}
 
               {/* Earnings & Deductions Breakdown */}
@@ -175,7 +176,9 @@ export function PayslipDialog({
                   </span>
                 </div>
 
-                <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800 flex justify-between items-center">
+                <Separator className="my-2" />
+
+                <div className="flex justify-between items-center">
                   <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100">
                     Gaji Bersih (Take Home Pay)
                   </span>

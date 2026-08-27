@@ -28,6 +28,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { EmployeeFormDialog } from '@/components/employees/employee-form-dialog';
 import { EmployeeDeleteDialog } from '@/components/employees/employee-delete-dialog';
 import { EmployeeReactivateDialog } from '@/components/employees/employee-reactivate-dialog';
@@ -274,33 +275,25 @@ export default function EmployeeDetailPage({ params }: PageProps) {
 
       {/* Lifecycle Status Banner for Inactive & Terminated Employees */}
       {isInactive && (
-        <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-          <div className="space-y-1 text-xs">
-            <h3 className="font-semibold text-amber-900 dark:text-amber-200">
-              Karyawan Berstatus Nonaktif (INACTIVE)
-            </h3>
-            <p className="text-amber-800 dark:text-amber-300 leading-relaxed">
-              Karyawan ini telah dinonaktifkan sementara pada{' '}
-              <span className="font-semibold">{formatDateTime(employee.deletedAt)}</span>. Akun pengguna terkait tidak dapat login ke sistem. Anda dapat memulihkan status keaktifannya dengan menekan tombol <strong>Aktifkan Kembali</strong>.
-            </p>
-          </div>
-        </div>
+        <Alert variant="warning">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Karyawan Berstatus Nonaktif (INACTIVE)</AlertTitle>
+          <AlertDescription>
+            Karyawan ini telah dinonaktifkan sementara pada{' '}
+            <span className="font-semibold">{formatDateTime(employee.deletedAt)}</span>. Akun pengguna terkait tidak dapat login ke sistem. Anda dapat memulihkan status keaktifannya dengan menekan tombol <strong>Aktifkan Kembali</strong>.
+          </AlertDescription>
+        </Alert>
       )}
 
       {isTerminated && (
-        <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 flex items-start gap-3">
-          <UserX className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
-          <div className="space-y-1 text-xs">
-            <h3 className="font-semibold text-red-900 dark:text-red-200">
-              Karyawan Telah Diberhentikan Permanen (TERMINATED)
-            </h3>
-            <p className="text-red-800 dark:text-red-300 leading-relaxed">
-              Karyawan ini diberhentikan permanen pada{' '}
-              <span className="font-semibold">{formatDateTime(employee.deletedAt)}</span>. Catatan riwayat tetap disimpan untuk kebutuhan audit kepatuhan, namun status ini <strong>tidak dapat diaktifkan kembali</strong> melalui sistem.
-            </p>
-          </div>
-        </div>
+        <Alert variant="destructive">
+          <UserX className="h-4 w-4" />
+          <AlertTitle>Karyawan Telah Diberhentikan Permanen (TERMINATED)</AlertTitle>
+          <AlertDescription>
+            Karyawan ini diberhentikan permanen pada{' '}
+            <span className="font-semibold">{formatDateTime(employee.deletedAt)}</span>. Catatan riwayat tetap disimpan untuk kebutuhan audit kepatuhan, namun status ini <strong>tidak dapat diaktifkan kembali</strong> melalui sistem.
+          </AlertDescription>
+        </Alert>
       )}
 
       {/* Main Details Grid */}

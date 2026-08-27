@@ -6,13 +6,13 @@ import { useDeleteDepartment } from '@/hooks/use-departments';
 import { Department } from '@/types/department';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface DepartmentDeleteDialogProps {
   open: boolean;
@@ -42,16 +42,16 @@ export function DepartmentDeleteDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="gap-2">
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent className="sm:max-w-md">
+        <AlertDialogHeader className="gap-2">
           <div className="flex items-center gap-2 text-red-600">
             <div className="p-2 rounded-full bg-red-100 dark:bg-red-950">
               <AlertTriangle className="h-5 w-5" />
             </div>
-            <DialogTitle>Hapus Departemen</DialogTitle>
+            <AlertDialogTitle>Hapus Departemen</AlertDialogTitle>
           </div>
-          <DialogDescription className="pt-2 text-neutral-600 dark:text-neutral-300">
+          <AlertDialogDescription className="pt-2 text-neutral-600 dark:text-neutral-300">
             {hasEmployees ? (
               <div className="space-y-3">
                 <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 flex items-start gap-2 text-amber-800 dark:text-amber-200 text-xs">
@@ -74,16 +74,17 @@ export function DepartmentDeleteDialog({
                 ?
                 <br />
                 <br />
-                Tindakan ini permanen dan akan menghapus departemen dari sistem.
+                <strong>Konsekuensi:</strong> Data departemen akan dihapus secara permanen dari sistem dan tidak dapat dipulihkan.
               </span>
             )}
-          </DialogDescription>
-        </DialogHeader>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
 
-        <DialogFooter className="pt-4">
+        <AlertDialogFooter className="pt-4">
           <Button
             type="button"
             variant="outline"
+            size="sm"
             onClick={() => onOpenChange(false)}
             disabled={isDeleting}
           >
@@ -93,6 +94,7 @@ export function DepartmentDeleteDialog({
             <Button
               type="button"
               variant="destructive"
+              size="sm"
               onClick={handleDelete}
               disabled={isDeleting}
             >
@@ -106,8 +108,8 @@ export function DepartmentDeleteDialog({
               )}
             </Button>
           )}
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

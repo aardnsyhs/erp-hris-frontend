@@ -266,7 +266,10 @@ export default function PayrollsPage() {
           <div className="flex items-center justify-end gap-1.5">
             {isHrAdmin ? (
               <DropdownMenu>
-                <DropdownMenuTrigger className="p-1 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 hover:text-neutral-800 outline-none cursor-pointer">
+                <DropdownMenuTrigger
+                  aria-label="Menu aksi payroll"
+                  className="p-1 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 hover:text-neutral-800 outline-none cursor-pointer"
+                >
                   <MoreHorizontal className="h-4 w-4" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">

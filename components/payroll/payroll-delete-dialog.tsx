@@ -1,18 +1,18 @@
 'use client';
 
 import React from 'react';
-import { AlertTriangle, Loader2, Trash2 } from 'lucide-react';
+import { Loader2, Trash2 } from 'lucide-react';
 import { useDeletePayroll } from '@/hooks/use-payrolls';
 import { Payroll } from '@/types/payroll';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface PayrollDeleteDialogProps {
   payroll: Payroll | null;
@@ -39,28 +39,32 @@ export function PayrollDeleteDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="gap-2">
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent className="sm:max-w-md">
+        <AlertDialogHeader className="gap-2">
           <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
             <div className="p-2 rounded-xl bg-red-100 dark:bg-red-950">
               <Trash2 className="w-5 h-5" />
             </div>
-            <DialogTitle>Hapus Draft Payroll</DialogTitle>
+            <AlertDialogTitle>Hapus Draft Payroll</AlertDialogTitle>
           </div>
-          <DialogDescription>
+          <AlertDialogDescription>
             Apakah Anda yakin ingin menghapus draft payroll untuk karyawan{' '}
             <strong className="text-neutral-900 dark:text-neutral-100">
               {payroll?.employee?.fullName}
             </strong>
-            ? Tindakan ini tidak dapat dibatalkan.
-          </DialogDescription>
-        </DialogHeader>
+            ?
+            <br />
+            <br />
+            <strong>Konsekuensi:</strong> Data kalkulasi draft periode ini akan dihapus permanen. Anda dapat melakukan perhitungan ulang (generate) kembali sewaktu-waktu jika diperlukan.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
 
-        <DialogFooter className="pt-3">
+        <AlertDialogFooter className="pt-3">
           <Button
             type="button"
             variant="outline"
+            size="sm"
             onClick={() => onOpenChange(false)}
             disabled={isDeleting}
           >
@@ -69,6 +73,7 @@ export function PayrollDeleteDialog({
           <Button
             type="button"
             variant="destructive"
+            size="sm"
             onClick={handleDelete}
             disabled={isDeleting}
           >
@@ -78,11 +83,11 @@ export function PayrollDeleteDialog({
                 Menghapus...
               </>
             ) : (
-              'Ya, Hapus Draft'
+              'Ya, Hapus Draft Payroll'
             )}
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

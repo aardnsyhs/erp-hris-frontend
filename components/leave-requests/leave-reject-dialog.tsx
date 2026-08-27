@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertTriangle, Loader2, XCircle } from 'lucide-react';
+import { Loader2, XCircle } from 'lucide-react';
 import {
   rejectLeaveRequestSchema,
   RejectLeaveRequestFormValues,
@@ -12,13 +12,13 @@ import { useRejectLeaveRequest } from '@/hooks/use-leave-requests';
 import { LeaveRequest } from '@/types/leave-request';
 import { Button } from '@/components/ui/button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface LeaveRejectDialogProps {
   leaveRequest: LeaveRequest | null;
@@ -66,23 +66,26 @@ export function LeaveRejectDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader className="gap-2">
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent className="sm:max-w-md">
+        <AlertDialogHeader className="gap-2">
           <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
             <div className="p-2 rounded-xl bg-red-100 dark:bg-red-950">
               <XCircle className="w-5 h-5" />
             </div>
-            <DialogTitle>Tolak Permohonan Cuti</DialogTitle>
+            <AlertDialogTitle>Tolak Permohonan Cuti</AlertDialogTitle>
           </div>
-          <DialogDescription>
-            Berikan alasan penolakan permohonan cuti untuk karyawan{' '}
+          <AlertDialogDescription>
+            Apakah Anda yakin ingin menolak permohonan cuti untuk karyawan{' '}
             <strong className="text-neutral-900 dark:text-neutral-100">
               {leaveRequest?.employee?.fullName}
             </strong>
-            .
-          </DialogDescription>
-        </DialogHeader>
+            ?
+            <br />
+            <br />
+            <strong>Konsekuensi:</strong> Status cuti akan diubah menjadi <code>REJECTED</code> dan kuota cuti karyawan yang tertahan akan dikembalikan ke saldo aktif.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
           <div className="space-y-1.5">
@@ -91,7 +94,7 @@ export function LeaveRejectDialog({
             </label>
             <textarea
               className="flex w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-2xs placeholder:text-muted-foreground focus-visible:border-destructive focus-visible:ring-3 focus-visible:ring-destructive/20 min-h-[90px] outline-none"
-              placeholder="Contoh: Kekurangan kapasitas personil pada sprint aktif..."
+              placeholder="Contoh: Beban kerja sprint aktif membutuhkan kapasitas tim penuh..."
               {...register('rejectionReason')}
               disabled={isSubmitting}
             />
@@ -102,10 +105,11 @@ export function LeaveRejectDialog({
             )}
           </div>
 
-          <DialogFooter className="pt-3">
+          <AlertDialogFooter className="pt-3">
             <Button
               type="button"
               variant="outline"
+              size="sm"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
@@ -114,6 +118,7 @@ export function LeaveRejectDialog({
             <Button
               type="submit"
               variant="destructive"
+              size="sm"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
@@ -122,12 +127,12 @@ export function LeaveRejectDialog({
                   Memproses...
                 </>
               ) : (
-                'Tolak Cuti'
+                'Ya, Tolak Permohonan Cuti'
               )}
             </Button>
-          </DialogFooter>
+          </AlertDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
