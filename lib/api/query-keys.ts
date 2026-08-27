@@ -16,6 +16,9 @@ export const queryKeys = {
     all: ['attendances'] as const,
     list: (params?: unknown) => ['attendances', 'list', params] as const,
   },
+  workSchedule: {
+    active: ['work-schedule', 'active'] as const,
+  },
   leaveRequests: {
     all: ['leave-requests'] as const,
     list: (params?: unknown) => ['leave-requests', 'list', params] as const,
