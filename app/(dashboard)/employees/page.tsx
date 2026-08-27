@@ -13,6 +13,7 @@ import {
   Trash2,
   Building2,
   Filter,
+  RefreshCw,
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useEmployees } from '@/hooks/use-employees';
@@ -39,6 +40,7 @@ import {
 } from '@/components/ui/select';
 import { EmployeeFormDialog } from '@/components/employees/employee-form-dialog';
 import { EmployeeDeleteDialog } from '@/components/employees/employee-delete-dialog';
+import { EmployeeReactivateDialog } from '@/components/employees/employee-reactivate-dialog';
 
 export default function EmployeesPage() {
   const router = useRouter();
@@ -58,6 +60,8 @@ export default function EmployeesPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [employeeToEdit, setEmployeeToEdit] = useState<Employee | null>(null);
   const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
+  const [employeeToReactivate, setEmployeeToReactivate] =
+    useState<Employee | null>(null);
 
   // Queries
   const { data: departmentsData } = useDepartments();
@@ -193,21 +197,36 @@ export default function EmployeesPage() {
 
                 {isHrAdmin && (
                   <>
-                    <DropdownMenuItem
-                      onClick={() => handleEditClick(emp)}
-                      className="flex items-center gap-2 cursor-pointer"
-                    >
-                      <Edit2 className="h-4 w-4 text-blue-500" />
-                      <span>Edit Data</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={() => handleDeleteClick(emp)}
-                      className="flex items-center gap-2 text-red-600 dark:text-red-400 cursor-pointer focus:bg-red-50 dark:focus:bg-red-950/40"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      <span>Nonaktifkan</span>
-                    </DropdownMenuItem>
+                    {emp.status === 'ACTIVE' ? (
+                      <>
+                        <DropdownMenuItem
+                          onClick={() => handleEditClick(emp)}
+                          className="flex items-center gap-2 cursor-pointer"
+                        >
+                          <Edit2 className="h-4 w-4 text-blue-500" />
+                          <span>Edit Data</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => handleDeleteClick(emp)}
+                          className="flex items-center gap-2 text-red-600 dark:text-red-400 cursor-pointer focus:bg-red-50 dark:focus:bg-red-950/40"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span>Nonaktifkan</span>
+                        </DropdownMenuItem>
+                      </>
+                    ) : (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => setEmployeeToReactivate(emp)}
+                          className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 cursor-pointer focus:bg-emerald-50 dark:focus:bg-emerald-950/40"
+                        >
+                          <RefreshCw className="h-4 w-4" />
+                          <span>Aktifkan Kembali</span>
+                        </DropdownMenuItem>
+                      </>
+                    )}
                   </>
                 )}
               </DropdownMenuGroup>
@@ -352,6 +371,13 @@ export default function EmployeesPage() {
         open={!!employeeToDelete}
         onOpenChange={(open) => !open && setEmployeeToDelete(null)}
         employee={employeeToDelete}
+      />
+
+      {/* Reactivate Confirmation Dialog */}
+      <EmployeeReactivateDialog
+        open={!!employeeToReactivate}
+        onOpenChange={(open) => !open && setEmployeeToReactivate(null)}
+        employee={employeeToReactivate}
       />
     </div>
   );

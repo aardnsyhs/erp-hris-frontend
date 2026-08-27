@@ -116,3 +116,26 @@ export function useDeleteEmployee() {
     },
   });
 }
+
+export function useReactivateEmployee() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data } = await apiClient.patch<Employee>(
+        `/employees/${id}/reactivate`,
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.employees.detail(data.id) });
+      toast.success(`Karyawan "${data.fullName}" berhasil diaktifkan kembali.`);
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || 'Gagal mengaktifkan kembali karyawan.';
+      toast.error(Array.isArray(message) ? message.join(', ') : message);
+    },
+  });
+}
