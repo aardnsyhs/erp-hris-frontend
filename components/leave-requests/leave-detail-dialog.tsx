@@ -12,6 +12,7 @@ import { LeaveRequest } from '@/types/leave-request';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
@@ -111,104 +112,106 @@ export function LeaveDetailDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-2 text-sm">
-          {/* Section 1: Karyawan */}
-          <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-1.5">
-            <span className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider block">
-              Informasi Pemohon
-            </span>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-bold text-neutral-900 dark:text-neutral-100">
-                  {leaveRequest.employee?.fullName || 'Karyawan'}
-                </p>
-                <p className="text-xs text-neutral-500 font-mono">
-                  NIP: {leaveRequest.employee?.nip} • {leaveRequest.employee?.jobTitle}
-                </p>
-              </div>
-              {leaveRequest.employee?.department?.name && (
-                <Badge variant="outline" className="text-xs">
-                  {leaveRequest.employee.department.name}
-                </Badge>
-              )}
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Section 2: Informasi Cuti */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-              <span className="text-[11px] font-semibold text-neutral-400 block">Tipe Cuti</span>
-              <p className="font-semibold text-neutral-800 dark:text-neutral-200 mt-0.5">
-                {getLeaveTypeLabel(leaveRequest.leaveType)}
-              </p>
-            </div>
-
-            <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-              <span className="text-[11px] font-semibold text-neutral-400 block">Total Durasi</span>
-              <p className="font-semibold text-neutral-800 dark:text-neutral-200 mt-0.5">
-                {calculateDays()} Hari Kalender
-              </p>
-            </div>
-          </div>
-
-          {/* Section 3: Periode Cuti */}
-          <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-1">
-            <span className="text-[11px] font-semibold text-neutral-400 block">Periode Tanggal Cuti</span>
-            <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300 font-medium text-xs">
-              <Calendar className="w-4 h-4 text-blue-500 shrink-0" />
-              <span>{formatDate(leaveRequest.startDate)}</span>
-              <span>s/d</span>
-              <span>{formatDate(leaveRequest.endDate)}</span>
-            </div>
-          </div>
-
-          {/* Section 4: Alasan Pengajuan */}
-          <div className="space-y-1">
-            <span className="text-xs font-semibold text-neutral-500">Alasan Pengajuan:</span>
-            <p className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed">
-              {leaveRequest.reason}
-            </p>
-          </div>
-
-          {/* Section 5: Riwayat Approver (Jika sudah di-approve / di-reject) */}
-          {leaveRequest.status !== 'PENDING' && (
-            <>
-              <Separator />
-              <div
-                className={`p-3 rounded-xl border space-y-2 ${leaveRequest.status === 'APPROVED'
-                    ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200/70 dark:border-emerald-900 text-emerald-900 dark:text-emerald-200'
-                    : 'bg-red-50/50 dark:bg-red-950/20 border-red-200/70 dark:border-red-900 text-red-900 dark:text-red-200'
-                  }`}
-              >
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold">
-                    {leaveRequest.status === 'APPROVED' ? 'Disetujui Oleh:' : 'Ditolak Oleh:'}
-                  </span>
-                  <span className="text-[11px] opacity-75">
-                    {formatDateTime(leaveRequest.approvedAt || leaveRequest.updatedAt)}
-                  </span>
+        <ScrollArea className="max-h-[60vh] pr-2">
+          <div className="space-y-4 py-2 text-sm">
+            {/* Section 1: Karyawan */}
+            <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-1.5">
+              <span className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider block">
+                Informasi Pemohon
+              </span>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-bold text-neutral-900 dark:text-neutral-100">
+                    {leaveRequest.employee?.fullName || 'Karyawan'}
+                  </p>
+                  <p className="text-xs text-neutral-500 font-mono">
+                    NIP: {leaveRequest.employee?.nip} • {leaveRequest.employee?.jobTitle}
+                  </p>
                 </div>
-                <p className="text-xs font-medium">
-                  {leaveRequest.approver?.fullName || 'Manager / HR Admin'}{' '}
-                  {leaveRequest.approver?.nip ? `(${leaveRequest.approver.nip})` : ''}
-                </p>
-
-                {leaveRequest.status === 'REJECTED' && leaveRequest.rejectionReason && (
-                  <div className="pt-2 border-t border-red-200/60 dark:border-red-900/60">
-                    <span className="text-[11px] font-semibold block text-red-700 dark:text-red-300">
-                      Alasan Penolakan:
-                    </span>
-                    <p className="text-xs mt-0.5 text-red-800 dark:text-red-200">
-                      {leaveRequest.rejectionReason}
-                    </p>
-                  </div>
+                {leaveRequest.employee?.department?.name && (
+                  <Badge variant="outline" className="text-xs">
+                    {leaveRequest.employee.department.name}
+                  </Badge>
                 )}
               </div>
-            </>
-          )}
-        </div>
+            </div>
+
+            <Separator />
+
+            {/* Section 2: Informasi Cuti */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
+                <span className="text-[11px] font-semibold text-neutral-400 block">Tipe Cuti</span>
+                <p className="font-semibold text-neutral-800 dark:text-neutral-200 mt-0.5">
+                  {getLeaveTypeLabel(leaveRequest.leaveType)}
+                </p>
+              </div>
+
+              <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
+                <span className="text-[11px] font-semibold text-neutral-400 block">Total Durasi</span>
+                <p className="font-semibold text-neutral-800 dark:text-neutral-200 mt-0.5">
+                  {calculateDays()} Hari Kalender
+                </p>
+              </div>
+            </div>
+
+            {/* Section 3: Periode Cuti */}
+            <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-1">
+              <span className="text-[11px] font-semibold text-neutral-400 block">Periode Tanggal Cuti</span>
+              <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300 font-medium text-xs">
+                <Calendar className="w-4 h-4 text-blue-500 shrink-0" />
+                <span>{formatDate(leaveRequest.startDate)}</span>
+                <span>s/d</span>
+                <span>{formatDate(leaveRequest.endDate)}</span>
+              </div>
+            </div>
+
+            {/* Section 4: Alasan Pengajuan */}
+            <div className="space-y-1">
+              <span className="text-xs font-semibold text-neutral-500">Alasan Pengajuan:</span>
+              <p className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed">
+                {leaveRequest.reason}
+              </p>
+            </div>
+
+            {/* Section 5: Riwayat Approver (Jika sudah di-approve / di-reject) */}
+            {leaveRequest.status !== 'PENDING' && (
+              <>
+                <Separator />
+                <div
+                  className={`p-3 rounded-xl border space-y-2 ${leaveRequest.status === 'APPROVED'
+                      ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200/70 dark:border-emerald-900 text-emerald-900 dark:text-emerald-200'
+                      : 'bg-red-50/50 dark:bg-red-950/20 border-red-200/70 dark:border-red-900 text-red-900 dark:text-red-200'
+                    }`}
+                >
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold">
+                      {leaveRequest.status === 'APPROVED' ? 'Disetujui Oleh:' : 'Ditolak Oleh:'}
+                    </span>
+                    <span className="text-[11px] opacity-75">
+                      {formatDateTime(leaveRequest.approvedAt || leaveRequest.updatedAt)}
+                    </span>
+                  </div>
+                  <p className="text-xs font-medium">
+                    {leaveRequest.approver?.fullName || 'Manager / HR Admin'}{' '}
+                    {leaveRequest.approver?.nip ? `(${leaveRequest.approver.nip})` : ''}
+                  </p>
+
+                  {leaveRequest.status === 'REJECTED' && leaveRequest.rejectionReason && (
+                    <div className="pt-2 border-t border-red-200/60 dark:border-red-900/60">
+                      <span className="text-[11px] font-semibold block text-red-700 dark:text-red-300">
+                        Alasan Penolakan:
+                      </span>
+                      <p className="text-xs mt-0.5 text-red-800 dark:text-red-200">
+                        {leaveRequest.rejectionReason}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </ScrollArea>
 
         <DialogFooter className="pt-2">
           <Button

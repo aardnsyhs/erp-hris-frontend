@@ -1,8 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, User as UserIcon, Shield } from 'lucide-react';
+import { LogOut, User as UserIcon, Shield, Menu } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { apiClient } from '@/lib/api/axios';
 import {
@@ -14,12 +14,28 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { SidebarNavContent } from '@/components/layout/app-sidebar';
 import { toast } from 'sonner';
 
 export function AppHeader() {
   const router = useRouter();
   const { user, clearAuth } = useAuthStore();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -28,6 +44,7 @@ export function AppHeader() {
       // Continue clearing local state regardless of server logout response
     } finally {
       clearAuth();
+      setMobileOpen(false);
       toast.success('Anda telah berhasil keluar (logout)');
       router.push('/login');
     }
@@ -44,10 +61,46 @@ export function AppHeader() {
       : user?.email?.[0]?.toUpperCase() || 'U';
 
   return (
-    <header className="h-16 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 flex items-center justify-between px-6 shrink-0">
-      {/* Left Title / Breadcrumb context */}
+    <header className="h-16 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 flex items-center justify-between px-4 sm:px-6 shrink-0">
+      {/* Left Title / Mobile Hamburger + Context */}
       <div className="flex items-center gap-3">
-        <h1 className="text-sm font-semibold text-neutral-800 dark:text-neutral-200">
+        {/* Mobile Navigation Trigger */}
+        <div className="md:hidden">
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <SheetTrigger
+                      render={
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Buka menu navigasi"
+                          className="h-9 w-9"
+                        />
+                      }
+                    />
+                  }
+                >
+                  <Menu className="h-5 w-5" />
+                </TooltipTrigger>
+                <TooltipContent side="bottom">Buka menu navigasi</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <SheetContent
+              side="left"
+              className="p-0 w-72 sm:w-80 border-r border-neutral-200 dark:border-neutral-800"
+            >
+              <SheetHeader className="sr-only">
+                <SheetTitle>Menu Navigasi</SheetTitle>
+              </SheetHeader>
+              <SidebarNavContent onNavigate={() => setMobileOpen(false)} />
+            </SheetContent>
+          </Sheet>
+        </div>
+
+        <h1 className="text-sm font-semibold text-neutral-800 dark:text-neutral-200 truncate">
           Sistem Informasi Manajemen SDM & Penggajian
         </h1>
       </div>

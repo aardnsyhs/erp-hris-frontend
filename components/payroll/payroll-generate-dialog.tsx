@@ -9,7 +9,6 @@ import {
   CreatePayrollFormValues,
 } from '@/lib/validations/payroll';
 import { useCreatePayroll } from '@/hooks/use-payrolls';
-import { useEmployees } from '@/hooks/use-employees';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -20,13 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { EmployeeCombobox } from '@/components/employees/employee-combobox';
 
 interface PayrollGenerateDialogProps {
   open: boolean;
@@ -40,17 +33,6 @@ export function PayrollGenerateDialog({
   const createMutation = useCreatePayroll();
   const isSubmitting = createMutation.isPending;
   const [conflictError, setConflictError] = useState<string | null>(null);
-
-  // Load active employees list for selection
-  const { data: employeesData, isLoading: isLoadingEmployees } = useEmployees({
-    limit: 100,
-    page: 1,
-  });
-
-  // Filter active employees (deletedAt: null and status === 'ACTIVE')
-  const activeEmployees = (employeesData?.data || []).filter(
-    (emp) => !emp.deletedAt && emp.status === 'ACTIVE',
-  );
 
   const {
     register,
@@ -139,31 +121,14 @@ export function PayrollGenerateDialog({
             <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
               Pilih Karyawan Penerima Gaji <span className="text-red-500">*</span>
             </label>
-            <Select
+            <EmployeeCombobox
               value={selectedEmployeeId}
-              onValueChange={(val) => {
-                if (val) {
-                  setValue('employeeId', val, { shouldValidate: true });
-                  setConflictError(null);
-                }
+              onChange={(empId) => {
+                setValue('employeeId', empId, { shouldValidate: true });
+                setConflictError(null);
               }}
-              disabled={isSubmitting || isLoadingEmployees}
-            >
-              <SelectTrigger className="w-full h-9">
-                <SelectValue placeholder={isLoadingEmployees ? 'Memuat karyawan...' : 'Pilih Karyawan Aktif'}>
-                  {activeEmployees.find((e) => e.id === selectedEmployeeId)
-                    ? `${activeEmployees.find((e) => e.id === selectedEmployeeId)?.fullName} (${activeEmployees.find((e) => e.id === selectedEmployeeId)?.nip})`
-                    : undefined}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {activeEmployees.map((emp) => (
-                  <SelectItem key={emp.id} value={emp.id}>
-                    {emp.fullName} ({emp.nip}) - {emp.department?.name || emp.jobTitle}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              disabled={isSubmitting}
+            />
             {errors.employeeId && (
               <p className="text-xs text-red-500">{errors.employeeId.message}</p>
             )}

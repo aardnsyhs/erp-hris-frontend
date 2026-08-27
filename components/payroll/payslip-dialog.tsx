@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Dialog,
   DialogContent,
@@ -91,126 +92,128 @@ export function PayslipDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-2 text-sm">
-          {/* Section 1: Employee Header */}
-          <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-1">
-            <span className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider block">
-              Penerima Gaji
-            </span>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-bold text-neutral-900 dark:text-neutral-100">
-                  {payroll.employee?.fullName || 'Karyawan'}
-                </p>
-                <p className="text-xs text-neutral-500 font-mono">
-                  NIP: {payroll.employee?.nip} • {payroll.employee?.jobTitle}
-                </p>
-              </div>
-              {payroll.employee?.department?.name && (
-                <Badge variant="outline" className="text-xs">
-                  {payroll.employee.department.name}
-                </Badge>
-              )}
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Section 2: Period & Payment Date */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-0.5">
-              <span className="text-[11px] font-semibold text-neutral-400 block">
-                Periode Gaji
+        <ScrollArea className="max-h-[60vh] pr-2">
+          <div className="space-y-4 py-2 text-sm">
+            {/* Section 1: Employee Header */}
+            <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-1">
+              <span className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider block">
+                Penerima Gaji
               </span>
-              <p className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">
-                {formatDate(payroll.periodStart)} s/d {formatDate(payroll.periodEnd)}
-              </p>
-            </div>
-
-            <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-0.5">
-              <span className="text-[11px] font-semibold text-neutral-400 block">
-                Tanggal Pembayaran
-              </span>
-              <p className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">
-                {payroll.paymentDate ? formatDate(payroll.paymentDate) : 'Belum Ditransfer'}
-              </p>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Section 3: Financial Details OR Privacy Card */}
-          {hasFinancialData ? (
-            <div className="space-y-3">
-              {/* Negative Net Salary Alert */}
-              {isNegativeNet && (
-                <Alert variant="destructive">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertTitle>Perhatian: Gaji Bersih Bernilai Negatif</AlertTitle>
-                  <AlertDescription>
-                    Total pemotongan melebihi jumlah pendapatan kotor (gaji pokok + tunjangan). Perlu peninjauan khusus oleh HR Administrator.
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {/* Earnings & Deductions Breakdown */}
-              <div className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 space-y-2.5 bg-white dark:bg-neutral-900 shadow-2xs">
-                <div className="flex justify-between items-center text-xs text-neutral-600 dark:text-neutral-400">
-                  <span>Gaji Pokok (Snapshot)</span>
-                  <span className="font-mono font-medium text-neutral-900 dark:text-neutral-100">
-                    {formatCurrency(basic)}
-                  </span>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-bold text-neutral-900 dark:text-neutral-100">
+                    {payroll.employee?.fullName || 'Karyawan'}
+                  </p>
+                  <p className="text-xs text-neutral-500 font-mono">
+                    NIP: {payroll.employee?.nip} • {payroll.employee?.jobTitle}
+                  </p>
                 </div>
-
-                <div className="flex justify-between items-center text-xs text-neutral-600 dark:text-neutral-400">
-                  <span>Tunjangan Tambahan (+)</span>
-                  <span className="font-mono font-medium text-emerald-600 dark:text-emerald-400">
-                    +{formatCurrency(allowances)}
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center text-xs text-neutral-600 dark:text-neutral-400">
-                  <span>Potongan Gaji (-)</span>
-                  <span className="font-mono font-medium text-red-600 dark:text-red-400">
-                    -{formatCurrency(deductions)}
-                  </span>
-                </div>
-
-                <Separator className="my-2" />
-
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100">
-                    Gaji Bersih (Take Home Pay)
-                  </span>
-                  <span
-                    className={`font-mono font-bold text-base ${
-                      isNegativeNet
-                        ? 'text-red-600 dark:text-red-400'
-                        : 'text-emerald-600 dark:text-emerald-400'
-                    }`}
-                  >
-                    {formatCurrency(netSalary)}
-                  </span>
-                </div>
+                {payroll.employee?.department?.name && (
+                  <Badge variant="outline" className="text-xs">
+                    {payroll.employee.department.name}
+                  </Badge>
+                )}
               </div>
             </div>
-          ) : (
-            /* Privacy Protection Card for Managers viewing team members */
-            <div className="p-4 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/60 dark:border-blue-900 text-center space-y-2">
-              <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto">
-                <ShieldCheck className="w-5 h-5" />
+
+            <Separator />
+
+            {/* Section 2: Period & Payment Date */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-0.5">
+                <span className="text-[11px] font-semibold text-neutral-400 block">
+                  Periode Gaji
+                </span>
+                <p className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">
+                  {formatDate(payroll.periodStart)} s/d {formatDate(payroll.periodEnd)}
+                </p>
               </div>
-              <div>
-                <h4 className="text-xs font-bold text-blue-900 dark:text-blue-200">
-                  Informasi Finansial Dilindungi
-                </h4>
-                <p className="text-[11px] text-blue-700/80 dark:text-blue-300/80 mt-1 max-w-sm mx-auto">
-                  Sesuai kebijakan kepatuhan data HRIS, nominal rincian gaji anggota tim dirahasiakan dan hanya dapat diakses oleh HR Administrator serta karyawan yang bersangkutan.
+
+              <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-0.5">
+                <span className="text-[11px] font-semibold text-neutral-400 block">
+                  Tanggal Pembayaran
+                </span>
+                <p className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">
+                  {payroll.paymentDate ? formatDate(payroll.paymentDate) : 'Belum Ditransfer'}
                 </p>
               </div>
             </div>
-          )}
-        </div>
+
+            <Separator />
+
+            {/* Section 3: Financial Details OR Privacy Card */}
+            {hasFinancialData ? (
+              <div className="space-y-3">
+                {/* Negative Net Salary Alert */}
+                {isNegativeNet && (
+                  <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Perhatian: Gaji Bersih Bernilai Negatif</AlertTitle>
+                    <AlertDescription>
+                      Total pemotongan melebihi jumlah pendapatan kotor (gaji pokok + tunjangan). Perlu peninjauan khusus oleh HR Administrator.
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {/* Earnings & Deductions Breakdown */}
+                <div className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 space-y-2.5 bg-white dark:bg-neutral-900 shadow-2xs">
+                  <div className="flex justify-between items-center text-xs text-neutral-600 dark:text-neutral-400">
+                    <span>Gaji Pokok (Snapshot)</span>
+                    <span className="font-mono font-medium text-neutral-900 dark:text-neutral-100">
+                      {formatCurrency(basic)}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center text-xs text-neutral-600 dark:text-neutral-400">
+                    <span>Tunjangan Tambahan (+)</span>
+                    <span className="font-mono font-medium text-emerald-600 dark:text-emerald-400">
+                      +{formatCurrency(allowances)}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center text-xs text-neutral-600 dark:text-neutral-400">
+                    <span>Potongan Gaji (-)</span>
+                    <span className="font-mono font-medium text-red-600 dark:text-red-400">
+                      -{formatCurrency(deductions)}
+                    </span>
+                  </div>
+
+                  <Separator className="my-2" />
+
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100">
+                      Gaji Bersih (Take Home Pay)
+                    </span>
+                    <span
+                      className={`font-mono font-bold text-base ${
+                        isNegativeNet
+                          ? 'text-red-600 dark:text-red-400'
+                          : 'text-emerald-600 dark:text-emerald-400'
+                      }`}
+                    >
+                      {formatCurrency(netSalary)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Privacy Protection Card for Managers viewing team members */
+              <div className="p-4 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/60 dark:border-blue-900 text-center space-y-2">
+                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-blue-900 dark:text-blue-200">
+                    Informasi Finansial Dilindungi
+                  </h4>
+                  <p className="text-[11px] text-blue-700/80 dark:text-blue-300/80 mt-1 max-w-sm mx-auto">
+                    Sesuai kebijakan kepatuhan data HRIS, nominal rincian gaji anggota tim dirahasiakan dan hanya dapat diakses oleh HR Administrator serta karyawan yang bersangkutan.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
 
         <DialogFooter className="pt-2">
           <Button

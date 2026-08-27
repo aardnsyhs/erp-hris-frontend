@@ -29,6 +29,14 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import { EmployeeFormDialog } from '@/components/employees/employee-form-dialog';
 import { EmployeeDeleteDialog } from '@/components/employees/employee-delete-dialog';
 import { EmployeeReactivateDialog } from '@/components/employees/employee-reactivate-dialog';
@@ -187,9 +195,28 @@ export default function EmployeeDetailPage({ params }: PageProps) {
   const isActive = employee.status === 'ACTIVE';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      {/* Breadcrumb Navigation */}
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink render={<Link href="/" />}>Dashboard</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink render={<Link href="/employees" />}>Karyawan</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage className="max-w-40 sm:max-w-xs truncate font-medium">
+              {employee.fullName}
+            </BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       {/* Top Navigation & Actions Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
         <div className="flex items-center gap-3">
           <Link
             href="/employees"

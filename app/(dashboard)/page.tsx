@@ -30,6 +30,7 @@ import { useAttendances } from '@/hooks/use-attendance';
 import { AttendanceWidget } from '@/components/attendance/attendance-widget';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -78,6 +79,8 @@ export default function DashboardPage() {
 // 1. HR ADMINISTRATOR DASHBOARD
 // -------------------------------------------------------------
 function HRAdminDashboard() {
+  const todayStr = new Date().toISOString().split('T')[0];
+
   const { data: employeesData, isLoading: loadingEmployees } = useEmployees({
     status: 'ACTIVE',
     limit: 1,
@@ -91,11 +94,25 @@ function HRAdminDashboard() {
     limit: 1,
   });
   const { data: departmentsData, isLoading: loadingDepartments } = useDepartments();
+  const { data: attendancesData, isLoading: loadingAttendance } = useAttendances({
+    startDate: todayStr,
+    endDate: todayStr,
+    limit: 100,
+  });
 
   const totalActiveEmployees = employeesData?.meta?.total ?? 0;
   const pendingLeaves = leavesData?.meta?.total ?? 0;
   const draftPayrolls = payrollsData?.meta?.total ?? 0;
   const departments = departmentsData?.data || [];
+
+  const attendanceList = attendancesData?.data || [];
+  const presentCount = attendanceList.filter(
+    (a) => a.status === 'PRESENT' || a.status === 'LATE',
+  ).length;
+  const attendancePercentage =
+    totalActiveEmployees > 0
+      ? Math.round((presentCount / totalActiveEmployees) * 100)
+      : 0;
 
   return (
     <div className="space-y-6">
@@ -205,6 +222,51 @@ function HRAdminDashboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Kehadiran Karyawan Hari Ini (Enterprise Overview) */}
+      <Card className="border-neutral-200 dark:border-neutral-800 shadow-xs">
+        <CardHeader className="pb-3 flex flex-row items-center justify-between">
+          <div className="space-y-0.5">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <CalendarCheck2 className="w-4 h-4 text-emerald-600" />
+              Tingkat Kehadiran Karyawan Hari Ini
+            </CardTitle>
+            <CardDescription className="text-xs">
+              Persentase absensi aktif di seluruh divisi pada {todayStr}.
+            </CardDescription>
+          </div>
+          <Link
+            href="/attendances"
+            className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'text-xs h-8')}
+          >
+            Lihat Rekap
+          </Link>
+        </CardHeader>
+        <CardContent>
+          {loadingAttendance || loadingEmployees ? (
+            <div className="py-4 flex items-center justify-center text-xs text-neutral-400">
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Memuat metrik kehadiran...
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-medium text-neutral-700 dark:text-neutral-300">
+                  {presentCount} dari {totalActiveEmployees} karyawan hadir hari ini ({attendancePercentage}%)
+                </span>
+                <span className="font-bold text-neutral-900 dark:text-neutral-100">
+                  {attendancePercentage}%
+                </span>
+              </div>
+              <Progress
+                value={attendancePercentage}
+                aria-label={`Tingkat kehadiran karyawan hari ini ${attendancePercentage}%`}
+                className="h-2.5 w-full bg-neutral-100 dark:bg-neutral-800"
+              />
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Ringkasan Departemen & Modul Cepat */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -411,18 +473,38 @@ function ManagerDashboard({ departmentId }: { departmentId?: string | null }) {
               <CalendarCheck2 className="w-4 h-4" />
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3">
             <div className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-              {loadingAttendance ? (
+              {loadingAttendance || loadingTeam ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 `${presentCount + lateCount} / ${totalTeamMembers}`
               )}
             </div>
-            <p className="text-[11px] text-neutral-500 mt-1">Anggota tim sudah check-in hari ini</p>
+            {!loadingAttendance && !loadingTeam && (
+              <div className="space-y-1.5 pt-1">
+                <div className="flex justify-between text-[11px] text-neutral-500">
+                  <span>Kehadiran Tim</span>
+                  <span className="font-semibold text-neutral-800 dark:text-neutral-200">
+                    {totalTeamMembers > 0
+                      ? Math.round(((presentCount + lateCount) / totalTeamMembers) * 100)
+                      : 0}%
+                  </span>
+                </div>
+                <Progress
+                  value={
+                    totalTeamMembers > 0
+                      ? Math.round(((presentCount + lateCount) / totalTeamMembers) * 100)
+                      : 0
+                  }
+                  aria-label="Tingkat kehadiran tim hari ini"
+                  className="h-2 w-full bg-neutral-100 dark:bg-neutral-800"
+                />
+              </div>
+            )}
             <Link
               href="/attendances"
-              className="text-xs text-emerald-600 dark:text-emerald-400 font-medium inline-flex items-center gap-1 mt-3 hover:underline"
+              className="text-xs text-emerald-600 dark:text-emerald-400 font-medium inline-flex items-center gap-1 mt-1 hover:underline"
             >
               Rekap Kehadiran <ArrowRight className="w-3 h-3" />
             </Link>
@@ -478,6 +560,30 @@ function ManagerDashboard({ departmentId }: { departmentId?: string | null }) {
                 </span>
               </div>
             </div>
+
+            {!loadingAttendance && !loadingTeam && (
+              <div className="space-y-1.5 pt-1">
+                <div className="flex justify-between text-xs text-neutral-600 dark:text-neutral-400">
+                  <span>
+                    {presentCount + lateCount} dari {totalTeamMembers} karyawan hadir hari ini
+                  </span>
+                  <span className="font-bold text-neutral-900 dark:text-neutral-100">
+                    {totalTeamMembers > 0
+                      ? Math.round(((presentCount + lateCount) / totalTeamMembers) * 100)
+                      : 0}%
+                  </span>
+                </div>
+                <Progress
+                  value={
+                    totalTeamMembers > 0
+                      ? Math.round(((presentCount + lateCount) / totalTeamMembers) * 100)
+                      : 0
+                  }
+                  aria-label="Tingkat kehadiran tim hari ini"
+                  className="h-2 w-full bg-neutral-100 dark:bg-neutral-800"
+                />
+              </div>
+            )}
 
             <Link
               href="/attendances"
