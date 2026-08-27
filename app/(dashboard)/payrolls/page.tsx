@@ -316,7 +316,17 @@ export default function PayrollsPage() {
           }}
         >
           <SelectTrigger className="w-[140px] h-8.5 text-xs bg-card border-border rounded-md font-mono">
-            <SelectValue placeholder={tCommon('allStatus')} />
+            <SelectValue placeholder={tCommon('allStatus')}>
+              {selectedStatus === 'ALL'
+                ? tCommon('allStatus')
+                : selectedStatus === 'DRAFT'
+                ? t('statusDraft')
+                : selectedStatus === 'PROCESSED'
+                ? t('statusProcessed')
+                : selectedStatus === 'PAID'
+                ? t('statusPaid')
+                : tCommon('allStatus')}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="ALL" className="text-xs">{tCommon('allStatus')}</SelectItem>
@@ -337,7 +347,11 @@ export default function PayrollsPage() {
             }}
           >
             <SelectTrigger className="w-[180px] h-8.5 text-xs bg-card border-border rounded-md font-mono">
-              <SelectValue placeholder={tCommon('allDepartments')} />
+              <SelectValue placeholder={tCommon('allDepartments')}>
+                {selectedDept === 'ALL'
+                  ? tCommon('allDepartments')
+                  : departments.find((d) => d.id === selectedDept)?.name || tCommon('allDepartments')}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL" className="text-xs">{tCommon('allDepartments')}</SelectItem>

@@ -293,7 +293,11 @@ export default function EmployeesPage() {
           }}
         >
           <SelectTrigger className="w-[180px] h-8.5 text-xs bg-card border-border rounded-md font-mono">
-            <SelectValue placeholder={tCommon('allDepartments')} />
+            <SelectValue placeholder={tCommon('allDepartments')}>
+              {selectedDept === 'ALL'
+                ? tCommon('allDepartments')
+                : departments.find((d) => d.id === selectedDept)?.name || tCommon('allDepartments')}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="ALL" className="text-xs">{tCommon('allDepartments')}</SelectItem>
@@ -314,8 +318,18 @@ export default function EmployeesPage() {
             }
           }}
         >
-          <SelectTrigger className="w-[140px] h-8.5 text-xs bg-card border-border rounded-md font-mono">
-            <SelectValue placeholder={tCommon('allStatus')} />
+          <SelectTrigger className="w-[160px] h-8.5 text-xs bg-card border-border rounded-md font-mono">
+            <SelectValue placeholder={tCommon('allStatus')}>
+              {selectedStatus === 'ALL'
+                ? tCommon('allStatus')
+                : selectedStatus === 'ACTIVE'
+                ? t('statusActive')
+                : selectedStatus === 'INACTIVE'
+                ? t('statusInactive')
+                : selectedStatus === 'TERMINATED'
+                ? t('statusTerminated')
+                : tCommon('allStatus')}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="ALL" className="text-xs">{tCommon('allStatus')}</SelectItem>

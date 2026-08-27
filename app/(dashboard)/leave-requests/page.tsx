@@ -349,7 +349,17 @@ export default function LeaveRequestsPage() {
             }}
           >
             <SelectTrigger className="w-[140px] h-8.5 text-xs bg-card border-border rounded-md font-mono">
-              <SelectValue placeholder={tCommon('allStatus')} />
+              <SelectValue placeholder={tCommon('allStatus')}>
+                {selectedStatus === 'ALL'
+                  ? tCommon('allStatus')
+                  : selectedStatus === 'PENDING'
+                  ? t('statusPending')
+                  : selectedStatus === 'APPROVED'
+                  ? t('statusApproved')
+                  : selectedStatus === 'REJECTED'
+                  ? t('statusRejected')
+                  : tCommon('allStatus')}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL" className="text-xs">{tCommon('allStatus')}</SelectItem>
@@ -370,7 +380,19 @@ export default function LeaveRequestsPage() {
           }}
         >
           <SelectTrigger className="w-[150px] h-8.5 text-xs bg-card border-border rounded-md font-mono">
-            <SelectValue placeholder={tCommon('allTypes')} />
+            <SelectValue placeholder={tCommon('allTypes')}>
+              {selectedLeaveType === 'ALL'
+                ? tCommon('allTypes')
+                : selectedLeaveType === 'ANNUAL'
+                ? t('annual')
+                : selectedLeaveType === 'SICK'
+                ? t('sick')
+                : selectedLeaveType === 'UNPAID'
+                ? t('unpaid')
+                : selectedLeaveType === 'MATERNITY'
+                ? t('maternity')
+                : tCommon('allTypes')}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="ALL" className="text-xs">{tCommon('allTypes')}</SelectItem>
@@ -392,7 +414,11 @@ export default function LeaveRequestsPage() {
             }}
           >
             <SelectTrigger className="w-[170px] h-8.5 text-xs bg-card border-border rounded-md font-mono">
-              <SelectValue placeholder={tCommon('allDepartments')} />
+              <SelectValue placeholder={tCommon('allDepartments')}>
+                {selectedDept === 'ALL'
+                  ? tCommon('allDepartments')
+                  : departments.find((d) => d.id === selectedDept)?.name || tCommon('allDepartments')}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL" className="text-xs">{tCommon('allDepartments')}</SelectItem>
