@@ -14,6 +14,7 @@ import {
   Building2,
   Filter,
   RefreshCw,
+  UserX,
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useEmployees } from '@/hooks/use-employees';
@@ -40,6 +41,7 @@ import {
 } from '@/components/ui/select';
 import { EmployeeFormDialog } from '@/components/employees/employee-form-dialog';
 import { EmployeeDeleteDialog } from '@/components/employees/employee-delete-dialog';
+import { EmployeeTerminateDialog } from '@/components/employees/employee-terminate-dialog';
 import { EmployeeReactivateDialog } from '@/components/employees/employee-reactivate-dialog';
 
 export default function EmployeesPage() {
@@ -60,6 +62,8 @@ export default function EmployeesPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [employeeToEdit, setEmployeeToEdit] = useState<Employee | null>(null);
   const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
+  const [employeeToTerminate, setEmployeeToTerminate] =
+    useState<Employee | null>(null);
   const [employeeToReactivate, setEmployeeToReactivate] =
     useState<Employee | null>(null);
 
@@ -147,20 +151,22 @@ export default function EmployeesPage() {
       header: 'Status',
       cell: ({ row }) => {
         const status = row.original.status;
-        const isDeleted = !!row.original.deletedAt;
 
-        if (isDeleted || status === 'INACTIVE') {
+        if (status === 'INACTIVE') {
           return (
-            <Badge variant="outline" className="text-[11px] bg-neutral-100 dark:bg-neutral-800 text-neutral-600 border-neutral-300">
-              Nonaktif
+            <Badge
+              variant="outline"
+              className="text-[11px] bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800"
+            >
+              Nonaktif (Sementara)
             </Badge>
           );
         }
 
         if (status === 'TERMINATED') {
           return (
-            <Badge variant="destructive" className="text-[11px]">
-              Diberhentikan
+            <Badge variant="destructive" className="text-[11px] bg-rose-600 dark:bg-rose-700">
+              Diberhentikan (Permanen)
             </Badge>
           );
         }
@@ -182,7 +188,7 @@ export default function EmployeesPage() {
             <DropdownMenuTrigger className="p-1 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 hover:text-neutral-800 outline-none cursor-pointer">
               <MoreHorizontal className="h-4 w-4" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuContent align="end" className="w-52">
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="text-xs font-semibold text-neutral-400">
                   Pilihan Tindakan
@@ -197,7 +203,7 @@ export default function EmployeesPage() {
 
                 {isHrAdmin && (
                   <>
-                    {emp.status === 'ACTIVE' ? (
+                    {emp.status === 'ACTIVE' && (
                       <>
                         <DropdownMenuItem
                           onClick={() => handleEditClick(emp)}
@@ -209,13 +215,22 @@ export default function EmployeesPage() {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => handleDeleteClick(emp)}
-                          className="flex items-center gap-2 text-red-600 dark:text-red-400 cursor-pointer focus:bg-red-50 dark:focus:bg-red-950/40"
+                          className="flex items-center gap-2 text-amber-600 dark:text-amber-400 cursor-pointer focus:bg-amber-50 dark:focus:bg-amber-950/40"
                         >
                           <Trash2 className="h-4 w-4" />
-                          <span>Nonaktifkan</span>
+                          <span>Nonaktifkan (Sementara)</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => setEmployeeToTerminate(emp)}
+                          className="flex items-center gap-2 text-red-600 dark:text-red-400 cursor-pointer focus:bg-red-50 dark:focus:bg-red-950/40"
+                        >
+                          <UserX className="h-4 w-4" />
+                          <span>Berhentikan (Permanen)</span>
                         </DropdownMenuItem>
                       </>
-                    ) : (
+                    )}
+
+                    {emp.status === 'INACTIVE' && (
                       <>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
@@ -224,6 +239,13 @@ export default function EmployeesPage() {
                         >
                           <RefreshCw className="h-4 w-4" />
                           <span>Aktifkan Kembali</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => setEmployeeToTerminate(emp)}
+                          className="flex items-center gap-2 text-red-600 dark:text-red-400 cursor-pointer focus:bg-red-50 dark:focus:bg-red-950/40"
+                        >
+                          <UserX className="h-4 w-4" />
+                          <span>Berhentikan (Permanen)</span>
                         </DropdownMenuItem>
                       </>
                     )}
@@ -371,6 +393,13 @@ export default function EmployeesPage() {
         open={!!employeeToDelete}
         onOpenChange={(open) => !open && setEmployeeToDelete(null)}
         employee={employeeToDelete}
+      />
+
+      {/* Terminate Confirmation Dialog */}
+      <EmployeeTerminateDialog
+        open={!!employeeToTerminate}
+        onOpenChange={(open) => !open && setEmployeeToTerminate(null)}
+        employee={employeeToTerminate}
       />
 
       {/* Reactivate Confirmation Dialog */}

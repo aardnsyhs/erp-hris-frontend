@@ -65,14 +65,27 @@ export default function LoginPage() {
       router.push('/');
     } catch (err: any) {
       if (err?.response?.status === 429) {
-        setErrorMessage('Terlalu banyak percobaan login. Silakan tunggu 1 menit.');
+        setErrorMessage(
+          'Terlalu banyak percobaan login. Silakan tunggu 1 menit.',
+        );
         toast.error('Batas percobaan login terlampaui (Rate limit 429)');
       } else if (err?.response?.status === 401) {
-        setErrorMessage('Email atau password salah / Akun dinonaktifkan.');
-        toast.error('Kredensial tidak valid');
+        const rawMessage =
+          err?.response?.data?.message || 'Email atau password tidak valid';
+        const displayMsg = Array.isArray(rawMessage)
+          ? rawMessage.join(', ')
+          : rawMessage;
+        setErrorMessage(displayMsg);
+        toast.error(displayMsg);
       } else {
-        setErrorMessage('Terjadi kesalahan jaringan saat login. Pastikan server aktif.');
-        toast.error('Gagal terhubung ke server');
+        const rawMessage =
+          err?.response?.data?.message ||
+          'Terjadi kesalahan jaringan saat login. Pastikan server aktif.';
+        const displayMsg = Array.isArray(rawMessage)
+          ? rawMessage.join(', ')
+          : rawMessage;
+        setErrorMessage(displayMsg);
+        toast.error(displayMsg);
       }
     } finally {
       setIsLoading(false);

@@ -107,11 +107,40 @@ export function useDeleteEmployee() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
-      toast.success(`Karyawan "${data.fullName}" berhasil dinonaktifkan (soft delete).`);
+      toast.success(
+        `Karyawan "${data.fullName}" berhasil dinonaktifkan (sementara).`,
+      );
     },
     onError: (error: any) => {
       const message =
         error?.response?.data?.message || 'Gagal menonaktifkan karyawan.';
+      toast.error(Array.isArray(message) ? message.join(', ') : message);
+    },
+  });
+}
+
+export function useTerminateEmployee() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { data } = await apiClient.patch<Employee>(
+        `/employees/${id}/terminate`,
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.employees.detail(data.id),
+      });
+      toast.success(
+        `Karyawan "${data.fullName}" telah berhasil diberhentikan secara permanen (TERMINATED).`,
+      );
+    },
+    onError: (error: any) => {
+      const message =
+        error?.response?.data?.message || 'Gagal memberhentikan karyawan.';
       toast.error(Array.isArray(message) ? message.join(', ') : message);
     },
   });
