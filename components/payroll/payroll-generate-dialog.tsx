@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { AlertCircle, Calculator, Loader2, Sparkles } from 'lucide-react';
 import {
   createPayrollSchema,
@@ -32,6 +33,10 @@ export function PayrollGenerateDialog({
   open,
   onOpenChange,
 }: PayrollGenerateDialogProps) {
+  const t = useTranslations('payroll');
+  const tCommon = useTranslations('common');
+  const tEmp = useTranslations('employees');
+
   const createMutation = useCreatePayroll();
   const isSubmitting = createMutation.isPending;
   const [conflictError, setConflictError] = useState<string | null>(null);
@@ -97,24 +102,23 @@ export function PayrollGenerateDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader className="gap-2 shrink-0 pr-10 sm:pr-12">
-          <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
-            <div className="p-2 rounded-xl bg-indigo-100 dark:bg-indigo-950">
+          <div className="flex items-center gap-2 text-primary">
+            <div className="p-2 rounded-xl bg-primary/10">
               <Calculator className="w-5 h-5" />
             </div>
-            <DialogTitle>Generate Draft Payroll</DialogTitle>
+            <DialogTitle>{t('generateDraft')}</DialogTitle>
           </div>
           <DialogDescription>
-            Buat draft payroll baru untuk karyawan. Gaji pokok akan di-snapshot otomatis dari data karyawan aktif.
+            {t('subtitle')}
           </DialogDescription>
         </DialogHeader>
 
         {/* 409 Conflict Alert Box */}
         {conflictError && (
-          <div className="p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 flex items-start gap-2.5 text-xs text-red-700 dark:text-red-300 shrink-0">
+          <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/30 flex items-start gap-2.5 text-xs text-destructive shrink-0">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <div>
-              <p className="font-semibold">Duplikasi Periode Payroll Terdeteksi</p>
-              <p className="mt-0.5">{conflictError}</p>
+              <p className="font-semibold">{conflictError}</p>
             </div>
           </div>
         )}
@@ -124,8 +128,8 @@ export function PayrollGenerateDialog({
             <div className="space-y-4 py-2">
               {/* Employee Selection */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                  Pilih Karyawan Penerima Gaji <span className="text-red-500">*</span>
+                <label className="text-xs font-semibold text-foreground">
+                  {tEmp('fullName')} <span className="text-destructive">*</span>
                 </label>
                 <EmployeeCombobox
                   value={selectedEmployeeId}
@@ -136,14 +140,14 @@ export function PayrollGenerateDialog({
                   disabled={isSubmitting}
                 />
                 {errors.employeeId && (
-                  <p className="text-xs text-red-500">{errors.employeeId.message}</p>
+                  <p className="text-xs text-destructive">{errors.employeeId.message}</p>
                 )}
               </div>
 
               {/* Period Range */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                  Periode Penggajian <span className="text-red-500">*</span>
+                <label className="text-xs font-semibold text-foreground">
+                  {t('period')} <span className="text-destructive">*</span>
                 </label>
                 <DateRangePicker
                   from={periodStart}
@@ -154,10 +158,10 @@ export function PayrollGenerateDialog({
                     setConflictError(null);
                   }}
                   disabled={isSubmitting}
-                  placeholder="Pilih awal s/d akhir periode gaji"
+                  placeholder={t('period')}
                 />
                 {(errors.periodStart || errors.periodEnd) && (
-                  <p className="text-xs text-red-500">
+                  <p className="text-xs text-destructive">
                     {errors.periodStart?.message || errors.periodEnd?.message}
                   </p>
                 )}
@@ -166,8 +170,8 @@ export function PayrollGenerateDialog({
               {/* Financial Adjustments: Allowances & Deductions */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                    Tunjangan Tambahan (Rp)
+                  <label className="text-xs font-semibold text-foreground">
+                    {t('allowances')} (Rp)
                   </label>
                   <Input
                     type="text"
@@ -176,13 +180,13 @@ export function PayrollGenerateDialog({
                     disabled={isSubmitting}
                   />
                   {errors.allowances && (
-                    <p className="text-xs text-red-500">{errors.allowances.message}</p>
+                    <p className="text-xs text-destructive">{errors.allowances.message}</p>
                   )}
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                    Potongan Gaji (Rp)
+                  <label className="text-xs font-semibold text-foreground">
+                    {t('deductions')} (Rp)
                   </label>
                   <Input
                     type="text"
@@ -191,16 +195,16 @@ export function PayrollGenerateDialog({
                     disabled={isSubmitting}
                   />
                   {errors.deductions && (
-                    <p className="text-xs text-red-500">{errors.deductions.message}</p>
+                    <p className="text-xs text-destructive">{errors.deductions.message}</p>
                   )}
                 </div>
               </div>
 
               {/* Snapshot Info Box */}
-              <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 flex items-start gap-2 text-xs text-neutral-500">
-                <Sparkles className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
+              <div className="p-3 rounded-xl bg-muted/40 border border-border flex items-start gap-2 text-xs text-muted-foreground">
+                <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                 <span>
-                  <strong>Gaji Pokok (basicSalary)</strong> akan di-snapshot otomatis oleh sistem dari data profil karyawan saat draft dibuat, dan <strong>Gaji Bersih (netSalary)</strong> dihitung otomatis.
+                  <strong>{t('basicSalary')}</strong> di-snapshot otomatis, dan <strong>{t('netSalary')}</strong> dihitung otomatis.
                 </span>
               </div>
             </div>
@@ -212,21 +216,22 @@ export function PayrollGenerateDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
+              className="cursor-pointer"
             >
-              Batal
+              {tCommon('cancel')}
             </Button>
             <Button
               type="submit"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold cursor-pointer"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Memproses...
+                  {tCommon('processing')}
                 </>
               ) : (
-                'Generate Draft Payroll'
+                t('generateDraft')
               )}
             </Button>
           </DialogFooter>

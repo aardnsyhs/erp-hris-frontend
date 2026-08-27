@@ -3,6 +3,7 @@
 import React, { use, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   ArrowLeft,
   Building2,
@@ -51,6 +52,11 @@ interface PageProps {
 export default function EmployeeDetailPage({ params }: PageProps) {
   const { id } = use(params);
   const router = useRouter();
+  const t = useTranslations('employees');
+  const tCommon = useTranslations('common');
+  const tNav = useTranslations('navigation');
+  const tPayroll = useTranslations('payroll');
+  const locale = useLocale();
 
   const currentUser = useAuthStore((state) => state.user);
   const isHrAdmin = currentUser?.role === 'HR_ADMIN';
@@ -65,7 +71,7 @@ export default function EmployeeDetailPage({ params }: PageProps) {
   // Format currency helper
   const formatCurrency = (val: string | number | undefined) => {
     if (!val) return 'Rp 0';
-    return new Intl.NumberFormat('id-ID', {
+    return new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'id-ID', {
       style: 'currency',
       currency: 'IDR',
       maximumFractionDigits: 0,
@@ -75,7 +81,7 @@ export default function EmployeeDetailPage({ params }: PageProps) {
   // Format date helper
   const formatDate = (dateString?: string | null) => {
     if (!dateString) return '-';
-    return new Intl.DateTimeFormat('id-ID', {
+    return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
@@ -85,9 +91,9 @@ export default function EmployeeDetailPage({ params }: PageProps) {
   // Format date time helper
   const formatDateTime = (dateString?: string | null) => {
     if (!dateString) return '-';
-    return new Intl.DateTimeFormat('id-ID', {
+    return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
       day: 'numeric',
-      month: 'long',
+      month: 'short',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
@@ -103,9 +109,11 @@ export default function EmployeeDetailPage({ params }: PageProps) {
     const years = Math.floor(diffMonths / 12);
     const months = diffMonths % 12;
 
-    if (years === 0) {
-      return `${months} bulan`;
+    if (locale === 'en') {
+      if (years === 0) return `${months} months`;
+      return `${years} years ${months > 0 ? `${months} months` : ''}`;
     }
+    if (years === 0) return `${months} bulan`;
     return `${years} tahun ${months > 0 ? `${months} bulan` : ''}`;
   };
 
@@ -113,28 +121,28 @@ export default function EmployeeDetailPage({ params }: PageProps) {
   if (isError && (error as any)?.response?.status === 403) {
     return (
       <div className="max-w-xl mx-auto py-12">
-        <Card className="border-red-200 dark:border-red-900 bg-red-50/50 dark:bg-red-950/20 text-center p-6 space-y-4">
-          <div className="mx-auto w-12 h-12 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center text-red-600 dark:text-red-400">
+        <Card className="border-destructive/30 bg-destructive/10 text-center p-6 space-y-4">
+          <div className="mx-auto w-12 h-12 rounded-full bg-destructive/20 flex items-center justify-center text-destructive">
             <ShieldAlert className="w-6 h-6" />
           </div>
           <div className="space-y-1">
-            <h2 className="text-lg font-bold text-red-900 dark:text-red-200">
+            <h2 className="text-lg font-bold text-destructive">
               Akses Ditolak (403 Forbidden)
             </h2>
-            <p className="text-sm text-red-700 dark:text-red-300">
-              Anda tidak memiliki izin untuk melihat profil karyawan ini. Anda hanya dapat melihat profil pribadi Anda sendiri atau anggota tim dalam departemen Anda.
+            <p className="text-sm text-muted-foreground">
+              Anda tidak memiliki izin untuk melihat profil karyawan ini.
             </p>
           </div>
           <div className="pt-2 flex justify-center gap-3">
-            <Button variant="outline" onClick={() => router.back()}>
+            <Button variant="outline" onClick={() => router.back()} className="cursor-pointer">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Kembali
+              {tCommon('back')}
             </Button>
             <Link
               href="/"
               className={cn(buttonVariants({ variant: 'destructive' }))}
             >
-              Ke Dashboard
+              {tNav('dashboard')}
             </Link>
           </div>
         </Card>
@@ -147,16 +155,13 @@ export default function EmployeeDetailPage({ params }: PageProps) {
     return (
       <div className="max-w-xl mx-auto py-12">
         <Card className="text-center p-6 space-y-4">
-          <div className="mx-auto w-12 h-12 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center text-neutral-500">
+          <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
             <AlertCircle className="w-6 h-6" />
           </div>
           <div className="space-y-1">
-            <h2 className="text-lg font-bold text-neutral-900 dark:text-neutral-100">
-              Karyawan Tidak Ditemukan (404)
+            <h2 className="text-lg font-bold text-foreground">
+              {t('noEmployeesFound')}
             </h2>
-            <p className="text-sm text-neutral-500">
-              Data karyawan dengan ID tersebut tidak ditemukan dalam sistem.
-            </p>
           </div>
           <div className="pt-2 flex justify-center">
             <Link
@@ -164,7 +169,7 @@ export default function EmployeeDetailPage({ params }: PageProps) {
               className={cn(buttonVariants({ variant: 'outline' }))}
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Kembali ke Daftar Karyawan
+              {t('backToList')}
             </Link>
           </div>
         </Card>
@@ -200,11 +205,11 @@ export default function EmployeeDetailPage({ params }: PageProps) {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink render={<Link href="/" />}>Dashboard</BreadcrumbLink>
+            <BreadcrumbLink render={<Link href="/" />}>{tNav('dashboard')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink render={<Link href="/employees" />}>Karyawan</BreadcrumbLink>
+            <BreadcrumbLink render={<Link href="/employees" />}>{tNav('employees')}</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
@@ -223,28 +228,28 @@ export default function EmployeeDetailPage({ params }: PageProps) {
             className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))}
           >
             <ArrowLeft className="w-4 h-4 mr-1.5" />
-            Kembali
+            {tCommon('back')}
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
+              <h1 className="text-xl font-bold tracking-tight text-foreground">
                 {employee.fullName}
               </h1>
               {isInactive ? (
-                <Badge variant="outline" className="bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-300">
-                  Nonaktif (INACTIVE)
+                <Badge variant="outline" className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30">
+                  {t('statusInactive')}
                 </Badge>
               ) : isTerminated ? (
-                <Badge variant="destructive" className="bg-red-600">
-                  Diberhentikan (TERMINATED)
+                <Badge variant="destructive">
+                  {t('statusTerminated')}
                 </Badge>
               ) : (
                 <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
-                  Aktif
+                  {t('statusActive')}
                 </Badge>
               )}
             </div>
-            <p className="text-xs font-mono text-neutral-400 mt-0.5">
+            <p className="text-xs font-mono text-muted-foreground mt-0.5">
               NIP: {employee.nip} • ID: {employee.id}
             </p>
           </div>
@@ -257,10 +262,10 @@ export default function EmployeeDetailPage({ params }: PageProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => setIsReactivateOpen(true)}
-                className="border-emerald-500 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 text-xs"
+                className="border-emerald-500 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/10 text-xs cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-                Aktifkan Kembali
+                {t('reactivate')}
               </Button>
             )}
 
@@ -269,10 +274,10 @@ export default function EmployeeDetailPage({ params }: PageProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => setIsDeactivateOpen(true)}
-                className="text-amber-700 dark:text-amber-400 border-amber-300 hover:bg-amber-50 text-xs"
+                className="text-amber-700 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/10 text-xs cursor-pointer"
               >
                 <UserMinus className="w-3.5 h-3.5 mr-1.5" />
-                Nonaktifkan
+                {t('deactivateTitle')}
               </Button>
             )}
 
@@ -281,92 +286,69 @@ export default function EmployeeDetailPage({ params }: PageProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => setIsTerminateOpen(true)}
-                className="text-red-600 dark:text-red-400 border-red-200 hover:bg-red-50 dark:hover:bg-red-950/30 text-xs"
+                className="text-destructive border-destructive/30 hover:bg-destructive/10 text-xs cursor-pointer"
               >
                 <UserX className="w-3.5 h-3.5 mr-1.5" />
-                Berhentikan
+                {t('terminate')}
               </Button>
             )}
 
             <Button
               size="sm"
               onClick={() => setIsEditOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs cursor-pointer"
             >
               <Edit2 className="w-3.5 h-3.5 mr-1.5" />
-              Edit Profil
+              {t('editEmployee')}
             </Button>
           </div>
         )}
       </div>
 
-      {/* Lifecycle Status Banner for Inactive & Terminated Employees */}
-      {isInactive && (
-        <Alert variant="warning">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Karyawan Berstatus Nonaktif (INACTIVE)</AlertTitle>
-          <AlertDescription>
-            Karyawan ini telah dinonaktifkan sementara pada{' '}
-            <span className="font-semibold">{formatDateTime(employee.deletedAt)}</span>. Akun pengguna terkait tidak dapat login ke sistem. Anda dapat memulihkan status keaktifannya dengan menekan tombol <strong>Aktifkan Kembali</strong>.
-          </AlertDescription>
-        </Alert>
-      )}
-
-      {isTerminated && (
-        <Alert variant="destructive">
-          <UserX className="h-4 w-4" />
-          <AlertTitle>Karyawan Telah Diberhentikan Permanen (TERMINATED)</AlertTitle>
-          <AlertDescription>
-            Karyawan ini diberhentikan permanen pada{' '}
-            <span className="font-semibold">{formatDateTime(employee.deletedAt)}</span>. Catatan riwayat tetap disimpan untuk kebutuhan audit kepatuhan, namun status ini <strong>tidak dapat diaktifkan kembali</strong> melalui sistem.
-          </AlertDescription>
-        </Alert>
-      )}
-
       {/* Main Details Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Card 1: Informasi Kontak & Akun */}
-        <Card className="border-neutral-200 dark:border-neutral-800">
+        <Card className="border-border bg-card">
           <CardHeader className="pb-3">
-            <div className="flex items-center gap-2 text-blue-600">
+            <div className="flex items-center gap-2 text-primary">
               <User className="w-4 h-4" />
               <CardTitle className="text-base font-semibold">
-                Informasi Pribadi & Kontak
+                {t('personalInfo')}
               </CardTitle>
             </div>
             <CardDescription>
-              Detail kontak dan akun login karyawan
+              {t('detailSubtitle')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-sm">
-            <div className="grid grid-cols-3 gap-2 py-2 border-b border-neutral-100 dark:border-neutral-800">
-              <span className="text-neutral-500 text-xs">Nama Lengkap</span>
-              <span className="col-span-2 font-medium text-neutral-900 dark:text-neutral-100">
+            <div className="grid grid-cols-3 gap-2 py-2 border-b border-border">
+              <span className="text-muted-foreground text-xs">{t('fullName')}</span>
+              <span className="col-span-2 font-medium text-foreground">
                 {employee.fullName}
               </span>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 py-2 border-b border-neutral-100 dark:border-neutral-800">
-              <span className="text-neutral-500 text-xs flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5" /> Email
+            <div className="grid grid-cols-3 gap-2 py-2 border-b border-border">
+              <span className="text-muted-foreground text-xs flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5" /> {t('email')}
               </span>
-              <span className="col-span-2 font-medium text-neutral-900 dark:text-neutral-100">
+              <span className="col-span-2 font-medium text-foreground">
                 {employee.email}
               </span>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 py-2 border-b border-neutral-100 dark:border-neutral-800">
-              <span className="text-neutral-500 text-xs flex items-center gap-1.5">
-                <Phone className="w-3.5 h-3.5" /> Telepon
+            <div className="grid grid-cols-3 gap-2 py-2 border-b border-border">
+              <span className="text-muted-foreground text-xs flex items-center gap-1.5">
+                <Phone className="w-3.5 h-3.5" /> {t('phone')}
               </span>
-              <span className="col-span-2 font-medium text-neutral-900 dark:text-neutral-100">
+              <span className="col-span-2 font-medium text-foreground">
                 {employee.phone || '-'}
               </span>
             </div>
 
             <div className="grid grid-cols-3 gap-2 py-2">
-              <span className="text-neutral-500 text-xs flex items-center gap-1.5">
-                <Shield className="w-3.5 h-3.5" /> Akun User
+              <span className="text-muted-foreground text-xs flex items-center gap-1.5">
+                <Shield className="w-3.5 h-3.5" /> {t('role')}
               </span>
               <div className="col-span-2 flex items-center gap-2">
                 {employee.user ? (
@@ -374,7 +356,7 @@ export default function EmployeeDetailPage({ params }: PageProps) {
                     {employee.user.role}
                   </Badge>
                 ) : (
-                  <span className="text-xs text-neutral-400">Belum terhubung akun login</span>
+                  <span className="text-xs text-muted-foreground">-</span>
                 )}
               </div>
             </div>
@@ -382,54 +364,54 @@ export default function EmployeeDetailPage({ params }: PageProps) {
         </Card>
 
         {/* Card 2: Informasi Kepegawaian */}
-        <Card className="border-neutral-200 dark:border-neutral-800">
+        <Card className="border-border bg-card">
           <CardHeader className="pb-3">
-            <div className="flex items-center gap-2 text-indigo-600">
+            <div className="flex items-center gap-2 text-primary">
               <Briefcase className="w-4 h-4" />
               <CardTitle className="text-base font-semibold">
-                Penempatan & Jabatan
+                {t('employmentInfo')}
               </CardTitle>
             </div>
             <CardDescription>
-              Struktur departemen dan masa kerja
+              {t('subtitle')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-sm">
-            <div className="grid grid-cols-3 gap-2 py-2 border-b border-neutral-100 dark:border-neutral-800">
-              <span className="text-neutral-500 text-xs flex items-center gap-1.5">
-                <Building2 className="w-3.5 h-3.5" /> Departemen
+            <div className="grid grid-cols-3 gap-2 py-2 border-b border-border">
+              <span className="text-muted-foreground text-xs flex items-center gap-1.5">
+                <Building2 className="w-3.5 h-3.5" /> {t('department')}
               </span>
-              <span className="col-span-2 font-medium text-neutral-900 dark:text-neutral-100">
+              <span className="col-span-2 font-medium text-foreground">
                 {employee.department?.name || '-'}{' '}
                 {employee.department?.code && (
-                  <span className="text-xs text-neutral-400">
+                  <span className="text-xs text-muted-foreground">
                     ({employee.department.code})
                   </span>
                 )}
               </span>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 py-2 border-b border-neutral-100 dark:border-neutral-800">
-              <span className="text-neutral-500 text-xs">Jabatan</span>
-              <span className="col-span-2 font-medium text-neutral-900 dark:text-neutral-100">
+            <div className="grid grid-cols-3 gap-2 py-2 border-b border-border">
+              <span className="text-muted-foreground text-xs">{t('jobTitle')}</span>
+              <span className="col-span-2 font-medium text-foreground">
                 {employee.jobTitle}
               </span>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 py-2 border-b border-neutral-100 dark:border-neutral-800">
-              <span className="text-neutral-500 text-xs flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5" /> Mulai Bekerja
+            <div className="grid grid-cols-3 gap-2 py-2 border-b border-border">
+              <span className="text-muted-foreground text-xs flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5" /> {t('hireDate')}
               </span>
-              <span className="col-span-2 font-medium text-neutral-900 dark:text-neutral-100">
+              <span className="col-span-2 font-medium text-foreground">
                 {formatDate(employee.hireDate)}
               </span>
             </div>
 
             <div className="grid grid-cols-3 gap-2 py-2">
-              <span className="text-neutral-500 text-xs flex items-center gap-1.5">
+              <span className="text-muted-foreground text-xs flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5" /> Masa Kerja
               </span>
-              <span className="col-span-2 font-medium text-neutral-900 dark:text-neutral-100">
+              <span className="col-span-2 font-medium text-foreground">
                 {calculateTenure(employee.hireDate)}
               </span>
             </div>
@@ -437,42 +419,39 @@ export default function EmployeeDetailPage({ params }: PageProps) {
         </Card>
 
         {/* Card 3: Kompensasi & Gaji Pokok */}
-        <Card className="border-neutral-200 dark:border-neutral-800">
+        <Card className="border-border bg-card">
           <CardHeader className="pb-3">
-            <div className="flex items-center gap-2 text-emerald-600">
+            <div className="flex items-center gap-2 text-primary">
               <CreditCard className="w-4 h-4" />
               <CardTitle className="text-base font-semibold">
-                Kompensasi Finansial
+                {t('basicSalary')}
               </CardTitle>
             </div>
             <CardDescription>
-              Besaran gaji pokok dasar karyawan
+              {tPayroll('basicSalary')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-sm">
             {employee.baseSalary !== undefined ? (
-              <div className="p-4 rounded-xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-800/40">
-                <span className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">
-                  Gaji Pokok Bulanan (Base Salary)
+              <div className="p-4 rounded-xl bg-primary/10 border border-primary/20">
+                <span className="text-xs text-primary font-medium">
+                  {t('basicSalary')}
                 </span>
-                <div className="text-2xl font-bold text-emerald-900 dark:text-emerald-100 mt-1">
+                <div className="text-2xl font-bold text-foreground mt-1">
                   {formatCurrency(employee.baseSalary)}
                 </div>
-                <p className="text-[11px] text-emerald-600 dark:text-emerald-400/80 mt-1">
-                  Nilai ini menjadi dasar perhitungan slip gaji bulanan pada modul Payroll.
-                </p>
               </div>
             ) : (
-              <div className="p-4 rounded-xl bg-neutral-100/70 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700/60 flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-neutral-200 dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 shrink-0 mt-0.5">
+              <div className="p-4 rounded-xl bg-muted border border-border flex items-start gap-3">
+                <div className="p-2 rounded-lg bg-muted text-muted-foreground shrink-0 mt-0.5">
                   <Shield className="w-4 h-4" />
                 </div>
                 <div className="space-y-1">
-                  <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">
-                    Informasi Gaji Dilindungi
+                  <span className="text-xs font-semibold text-foreground">
+                    {tPayroll('protectedInfo')}
                   </span>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
-                    Data nominal gaji pokok bersifat rahasia dan hanya dapat diakses oleh HR Admin atau karyawan pemilik akun.
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {tPayroll('protectedDesc')}
                   </p>
                 </div>
               </div>
@@ -481,31 +460,31 @@ export default function EmployeeDetailPage({ params }: PageProps) {
         </Card>
 
         {/* Card 4: Metadata & Audit Trail */}
-        <Card className="border-neutral-200 dark:border-neutral-800">
+        <Card className="border-border bg-card">
           <CardHeader className="pb-3">
-            <CardTitle className="text-base font-semibold text-neutral-700 dark:text-neutral-300">
-              Audit & Metadata Sistem
+            <CardTitle className="text-base font-semibold text-foreground">
+              Audit & Metadata
             </CardTitle>
             <CardDescription>
-              Catatan riwayat pembuatan, perubahan, dan penonaktifan data
+              {t('subtitle')}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3 text-xs text-neutral-600 dark:text-neutral-400">
-            <div className="flex justify-between py-1.5 border-b border-neutral-100 dark:border-neutral-800">
-              <span>Waktu Pembuatan (Created At):</span>
-              <span className="font-mono text-neutral-900 dark:text-neutral-200">
+          <CardContent className="space-y-3 text-xs text-muted-foreground">
+            <div className="flex justify-between py-1.5 border-b border-border">
+              <span>Created At:</span>
+              <span className="font-mono text-foreground">
                 {formatDateTime(employee.createdAt)}
               </span>
             </div>
-            <div className="flex justify-between py-1.5 border-b border-neutral-100 dark:border-neutral-800">
-              <span>Terakhir Diperbarui:</span>
-              <span className="font-mono text-neutral-900 dark:text-neutral-200">
+            <div className="flex justify-between py-1.5 border-b border-border">
+              <span>Updated At:</span>
+              <span className="font-mono text-foreground">
                 {formatDateTime(employee.updatedAt)}
               </span>
             </div>
             {employee.deletedAt && (
-              <div className="flex justify-between py-1.5 text-red-600 dark:text-red-400 font-semibold">
-                <span>Waktu Dinonaktifkan (deletedAt):</span>
+              <div className="flex justify-between py-1.5 text-destructive font-semibold">
+                <span>Deleted At:</span>
                 <span className="font-mono">{formatDateTime(employee.deletedAt)}</span>
               </div>
             )}

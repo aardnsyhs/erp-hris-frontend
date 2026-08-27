@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   User,
   Shield,
@@ -37,6 +38,12 @@ import {
 } from '@/components/ui/tooltip';
 
 export default function ProfilePage() {
+  const t = useTranslations('profile');
+  const tCommon = useTranslations('common');
+  const tEmp = useTranslations('employees');
+  const tAuth = useTranslations('auth');
+  const locale = useLocale();
+
   const { data: user, isLoading } = useUserProfile();
   const changePasswordMutation = useChangePassword();
 
@@ -72,7 +79,7 @@ export default function ProfilePage() {
 
   const formatDate = (dateStr?: string | null) => {
     if (!dateStr) return '-';
-    return new Intl.DateTimeFormat('id-ID', {
+    return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
       timeZone: 'Asia/Jakarta',
       day: 'numeric',
       month: 'long',
@@ -84,20 +91,20 @@ export default function ProfilePage() {
     switch (role) {
       case 'HR_ADMIN':
         return (
-          <Badge className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2.5 py-0.5">
+          <Badge className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs px-2.5 py-0.5">
             HR Administrator
           </Badge>
         );
       case 'MANAGER':
         return (
           <Badge className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-2.5 py-0.5">
-            Departemen Manager
+            Manager
           </Badge>
         );
       default:
         return (
-          <Badge variant="outline" className="text-xs px-2.5 py-0.5 bg-neutral-100 dark:bg-neutral-800">
-            Karyawan (Employee)
+          <Badge variant="outline" className="text-xs px-2.5 py-0.5 bg-muted text-muted-foreground">
+            Employee
           </Badge>
         );
     }
@@ -111,24 +118,24 @@ export default function ProfilePage() {
         {/* Page Header */}
         <div>
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary">
               <User className="w-5 h-5" />
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
-              Profil Pengguna & Keamanan
+            <h1 className="text-xl font-bold tracking-tight text-foreground">
+              {t('title')}
             </h1>
           </div>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-            Informasi akun terdaftar, data kepegawaian, dan pengaturan keamanan kata sandi.
+          <p className="text-sm text-muted-foreground mt-1">
+            {t('subtitle')}
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Kolom Kiri: Ringkasan Akun */}
           <div className="lg:col-span-1 space-y-6">
-            <Card className="border-neutral-200 dark:border-neutral-800 shadow-xs">
+            <Card className="border-border bg-card shadow-2xs">
               <CardHeader className="text-center pb-4">
-                <div className="mx-auto w-20 h-20 rounded-full bg-linear-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-2xl font-bold shadow-md mb-3">
+                <div className="mx-auto w-20 h-20 rounded-full bg-linear-to-br from-primary to-indigo-600 flex items-center justify-center text-primary-foreground text-2xl font-bold shadow-md mb-3">
                   {emp?.fullName
                     ? emp.fullName
                         .split(' ')
@@ -138,7 +145,7 @@ export default function ProfilePage() {
                         .toUpperCase()
                     : user?.email?.[0]?.toUpperCase() || 'U'}
                 </div>
-                <CardTitle className="text-lg font-bold">
+                <CardTitle className="text-lg font-bold text-foreground">
                   {emp?.fullName || user?.email}
                 </CardTitle>
                 <CardDescription className="text-xs font-mono">
@@ -147,39 +154,39 @@ export default function ProfilePage() {
                 <div className="pt-2 flex justify-center">{getRoleBadge(user?.role)}</div>
               </CardHeader>
 
-              <CardContent className="border-t border-neutral-100 dark:border-neutral-800 pt-4 space-y-3 text-xs">
-                <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400">
+              <CardContent className="border-t border-border pt-4 space-y-3 text-xs">
+                <div className="flex items-center justify-between text-muted-foreground">
                   <span className="flex items-center gap-1.5">
-                    <Mail className="w-3.5 h-3.5 text-neutral-400" />
-                    Email Login:
+                    <Mail className="w-3.5 h-3.5 text-muted-foreground" />
+                    {tEmp('email')}:
                   </span>
-                  <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                  <span className="font-medium text-foreground">
                     {user?.email}
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400">
+                <div className="flex items-center justify-between text-muted-foreground">
                   <span className="flex items-center gap-1.5">
-                    <Shield className="w-3.5 h-3.5 text-neutral-400" />
-                    Status Akun:
+                    <Shield className="w-3.5 h-3.5 text-muted-foreground" />
+                    {tEmp('status')}:
                   </span>
                   {user?.isActive ? (
                     <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 text-[10px]">
-                      Aktif
+                      {tEmp('statusActive')}
                     </Badge>
                   ) : (
                     <Badge variant="destructive" className="text-[10px]">
-                      Dinonaktifkan
+                      {tEmp('statusInactive')}
                     </Badge>
                   )}
                 </div>
 
-                <div className="flex items-center justify-between text-neutral-600 dark:text-neutral-400">
+                <div className="flex items-center justify-between text-muted-foreground">
                   <span className="flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-neutral-400" />
-                    Terdaftar Sejak:
+                    <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                    Registered:
                   </span>
-                  <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                  <span className="font-medium text-foreground">
                     {formatDate(user?.createdAt)}
                   </span>
                 </div>
@@ -190,90 +197,90 @@ export default function ProfilePage() {
           {/* Kolom Kanan: Rincian Kepegawaian & Ganti Password */}
           <div className="lg:col-span-2 space-y-6">
             {/* Section 1: Data Profil Kepegawaian */}
-            <Card className="border-neutral-200 dark:border-neutral-800 shadow-xs">
+            <Card className="border-border bg-card shadow-2xs">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base font-semibold flex items-center gap-2">
-                  <BadgeCheck className="w-4 h-4 text-blue-600" />
-                  Data Kepegawaian
+                <CardTitle className="text-base font-semibold flex items-center gap-2 text-foreground">
+                  <BadgeCheck className="w-4 h-4 text-primary" />
+                  {t('personalInfo')}
                 </CardTitle>
                 <CardDescription className="text-xs">
-                  Informasi posisi, departemen, dan masa kerja yang terhubung dengan akun Anda.
+                  {t('subtitle')}
                 </CardDescription>
               </CardHeader>
 
               <CardContent>
                 {isLoading ? (
-                  <div className="py-6 flex items-center justify-center text-xs text-neutral-400">
+                  <div className="py-6 flex items-center justify-center text-xs text-muted-foreground">
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Memuat data kepegawaian...
+                    {tCommon('loading')}
                   </div>
                 ) : emp ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                    <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 space-y-1">
-                      <span className="text-[11px] font-semibold text-neutral-400 block">
-                        Nama Lengkap
+                    <div className="p-3 rounded-xl bg-muted/40 border border-border space-y-1">
+                      <span className="text-[11px] font-semibold text-muted-foreground block">
+                        {tEmp('fullName')}
                       </span>
-                      <p className="font-medium text-neutral-900 dark:text-neutral-100 text-sm">
+                      <p className="font-medium text-foreground text-sm">
                         {emp.fullName}
                       </p>
                     </div>
 
-                    <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 space-y-1">
-                      <span className="text-[11px] font-semibold text-neutral-400 block">
-                        Nomor Induk Pegawai (NIP)
+                    <div className="p-3 rounded-xl bg-muted/40 border border-border space-y-1">
+                      <span className="text-[11px] font-semibold text-muted-foreground block">
+                        {tEmp('nip')}
                       </span>
-                      <p className="font-mono font-medium text-neutral-900 dark:text-neutral-100 text-sm">
+                      <p className="font-mono font-medium text-foreground text-sm">
                         {emp.nip}
                       </p>
                     </div>
 
-                    <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 space-y-1">
-                      <span className="text-[11px] font-semibold text-neutral-400 block">
-                        Departemen
+                    <div className="p-3 rounded-xl bg-muted/40 border border-border space-y-1">
+                      <span className="text-[11px] font-semibold text-muted-foreground block">
+                        {tEmp('department')}
                       </span>
-                      <div className="flex items-center gap-1.5 font-medium text-neutral-900 dark:text-neutral-100">
-                        <Building2 className="w-3.5 h-3.5 text-blue-500" />
+                      <div className="flex items-center gap-1.5 font-medium text-foreground">
+                        <Building2 className="w-3.5 h-3.5 text-primary" />
                         <span>{emp.department?.name || '-'}</span>
                         {emp.department?.code && (
-                          <span className="text-[10px] text-neutral-400 font-mono">
+                          <span className="text-[10px] text-muted-foreground font-mono">
                             ({emp.department.code})
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 space-y-1">
-                      <span className="text-[11px] font-semibold text-neutral-400 block">
-                        Jabatan / Posisi
+                    <div className="p-3 rounded-xl bg-muted/40 border border-border space-y-1">
+                      <span className="text-[11px] font-semibold text-muted-foreground block">
+                        {tEmp('jobTitle')}
                       </span>
-                      <p className="font-medium text-neutral-900 dark:text-neutral-100">
+                      <p className="font-medium text-foreground">
                         {emp.jobTitle}
                       </p>
                     </div>
 
-                    <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 space-y-1">
-                      <span className="text-[11px] font-semibold text-neutral-400 block">
-                        Nomor Telepon
+                    <div className="p-3 rounded-xl bg-muted/40 border border-border space-y-1">
+                      <span className="text-[11px] font-semibold text-muted-foreground block">
+                        {tEmp('phone')}
                       </span>
-                      <div className="flex items-center gap-1.5 font-medium text-neutral-900 dark:text-neutral-100">
-                        <Phone className="w-3.5 h-3.5 text-neutral-400" />
+                      <div className="flex items-center gap-1.5 font-medium text-foreground">
+                        <Phone className="w-3.5 h-3.5 text-muted-foreground" />
                         <span>{emp.phone || '-'}</span>
                       </div>
                     </div>
 
-                    <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200/80 dark:border-neutral-800 space-y-1">
-                      <span className="text-[11px] font-semibold text-neutral-400 block">
-                        Tanggal Bergabung
+                    <div className="p-3 rounded-xl bg-muted/40 border border-border space-y-1">
+                      <span className="text-[11px] font-semibold text-muted-foreground block">
+                        {tEmp('hireDate')}
                       </span>
-                      <div className="flex items-center gap-1.5 font-medium text-neutral-900 dark:text-neutral-100">
-                        <Calendar className="w-3.5 h-3.5 text-neutral-400" />
+                      <div className="flex items-center gap-1.5 font-medium text-foreground">
+                        <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
                         <span>{formatDate(emp.hireDate)}</span>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 text-xs text-amber-800 dark:text-amber-300">
-                    Akun ini tidak ditautkan langsung dengan profil karyawan tertentu (Akun Administrator Sistem).
+                  <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-700 dark:text-amber-300">
+                    Administrator Account (No Employee profile attached).
                   </div>
                 )}
               </CardContent>
@@ -282,28 +289,28 @@ export default function ProfilePage() {
             <Separator className="my-2" />
 
             {/* Section 2: Form Ganti Password */}
-            <Card className="border-neutral-200 dark:border-neutral-800 shadow-xs">
+            <Card className="border-border bg-card shadow-2xs">
               <CardHeader className="pb-3">
-                <CardTitle className="text-base font-semibold flex items-center gap-2">
-                  <KeyRound className="w-4 h-4 text-blue-600" />
-                  Ganti Kata Sandi (Password)
+                <CardTitle className="text-base font-semibold flex items-center gap-2 text-foreground">
+                  <KeyRound className="w-4 h-4 text-primary" />
+                  {t('changePassword')}
                 </CardTitle>
                 <CardDescription className="text-xs">
-                  Perbarui kata sandi secara berkala untuk menjaga keamanan akun Anda.
+                  {t('changePasswordDesc')}
                 </CardDescription>
               </CardHeader>
 
               <CardContent>
                 <form onSubmit={handleSubmit(onSubmitPassword)} className="space-y-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                      Kata Sandi Saat Ini
+                    <label className="text-xs font-semibold text-foreground">
+                      {t('currentPassword')}
                     </label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
                         type={showCurrentPw ? 'text' : 'password'}
-                        placeholder="Masukkan kata sandi saat ini"
+                        placeholder={t('currentPassword')}
                         className="pl-9 pr-9 text-xs"
                         {...register('currentPassword')}
                       />
@@ -313,33 +320,33 @@ export default function ProfilePage() {
                             <button
                               type="button"
                               onClick={() => setShowCurrentPw(!showCurrentPw)}
-                              aria-label={showCurrentPw ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
+                              aria-label={showCurrentPw ? tAuth('hidePassword') : tAuth('showPassword')}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                             />
                           }
                         >
                           {showCurrentPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </TooltipTrigger>
                         <TooltipContent>
-                          {showCurrentPw ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                          {showCurrentPw ? tAuth('hidePassword') : tAuth('showPassword')}
                         </TooltipContent>
                       </Tooltip>
                     </div>
                     {errors.currentPassword && (
-                      <p className="text-[11px] text-red-500">{errors.currentPassword.message}</p>
+                      <p className="text-[11px] text-destructive">{errors.currentPassword.message}</p>
                     )}
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                        Kata Sandi Baru (Min. 8 karakter)
+                      <label className="text-xs font-semibold text-foreground">
+                        {t('newPassword')}
                       </label>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                           type={showNewPw ? 'text' : 'password'}
-                          placeholder="Minimal 8 karakter"
+                          placeholder={t('newPassword')}
                           className="pl-9 pr-9 text-xs"
                           {...register('newPassword')}
                         />
@@ -349,32 +356,32 @@ export default function ProfilePage() {
                               <button
                                 type="button"
                                 onClick={() => setShowNewPw(!showNewPw)}
-                                aria-label={showNewPw ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
+                                aria-label={showNewPw ? tAuth('hidePassword') : tAuth('showPassword')}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                               />
                             }
                           >
                             {showNewPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </TooltipTrigger>
                           <TooltipContent>
-                            {showNewPw ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                            {showNewPw ? tAuth('hidePassword') : tAuth('showPassword')}
                           </TooltipContent>
                         </Tooltip>
                       </div>
                       {errors.newPassword && (
-                        <p className="text-[11px] text-red-500">{errors.newPassword.message}</p>
+                        <p className="text-[11px] text-destructive">{errors.newPassword.message}</p>
                       )}
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                        Konfirmasi Kata Sandi Baru
+                      <label className="text-xs font-semibold text-foreground">
+                        {t('confirmPassword')}
                       </label>
                       <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                           type={showConfirmPw ? 'text' : 'password'}
-                          placeholder="Ulangi kata sandi baru"
+                          placeholder={t('confirmPassword')}
                           className="pl-9 pr-9 text-xs"
                           {...register('confirmPassword')}
                         />
@@ -384,20 +391,20 @@ export default function ProfilePage() {
                               <button
                                 type="button"
                                 onClick={() => setShowConfirmPw(!showConfirmPw)}
-                                aria-label={showConfirmPw ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
+                                aria-label={showConfirmPw ? tAuth('hidePassword') : tAuth('showPassword')}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                               />
                             }
                           >
                             {showConfirmPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </TooltipTrigger>
                           <TooltipContent>
-                            {showConfirmPw ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                            {showConfirmPw ? tAuth('hidePassword') : tAuth('showPassword')}
                           </TooltipContent>
                         </Tooltip>
                       </div>
                       {errors.confirmPassword && (
-                        <p className="text-[11px] text-red-500">{errors.confirmPassword.message}</p>
+                        <p className="text-[11px] text-destructive">{errors.confirmPassword.message}</p>
                       )}
                     </div>
                   </div>
@@ -406,17 +413,17 @@ export default function ProfilePage() {
                     <Button
                       type="submit"
                       disabled={isSubmitting || changePasswordMutation.isPending}
-                      className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium px-4"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-medium px-4 cursor-pointer"
                     >
                       {isSubmitting || changePasswordMutation.isPending ? (
                         <>
                           <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                          Menyimpan...
+                          {tCommon('saving')}
                         </>
                       ) : (
                         <>
                           <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
-                          Simpan Kata Sandi
+                          {t('savePassword')}
                         </>
                       )}
                     </Button>

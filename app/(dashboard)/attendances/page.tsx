@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { ColumnDef, PaginationState } from '@tanstack/react-table';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   Clock,
   Settings,
@@ -20,7 +21,6 @@ import { Attendance, AttendanceStatus } from '@/types/attendance';
 import { DataTable } from '@/components/shared/data-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -33,6 +33,11 @@ import { AttendanceWidget } from '@/components/attendance/attendance-widget';
 import { WorkScheduleDialog } from '@/components/attendance/work-schedule-dialog';
 
 export default function AttendancesPage() {
+  const t = useTranslations('attendance');
+  const tCommon = useTranslations('common');
+  const tEmp = useTranslations('employees');
+  const locale = useLocale();
+
   const currentUser = useAuthStore((state) => state.user);
   const isHrAdmin = currentUser?.role === 'HR_ADMIN';
   const isManager = currentUser?.role === 'MANAGER';
@@ -68,7 +73,7 @@ export default function AttendancesPage() {
 
   // Format date helper
   const formatDate = (dateStr: string) => {
-    return new Intl.DateTimeFormat('id-ID', {
+    return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
       timeZone: 'Asia/Jakarta',
       weekday: 'short',
       day: 'numeric',
@@ -80,7 +85,7 @@ export default function AttendancesPage() {
   // Format time helper
   const formatTime = (timeStr?: string | null) => {
     if (!timeStr) return '-';
-    return new Intl.DateTimeFormat('id-ID', {
+    return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
       timeZone: 'Asia/Jakarta',
       hour: '2-digit',
       minute: '2-digit',
@@ -97,6 +102,10 @@ export default function AttendancesPage() {
     const diffMinutes = Math.max(0, Math.floor((end - start) / (1000 * 60)));
     const h = Math.floor(diffMinutes / 60);
     const m = diffMinutes % 60;
+    if (locale === 'en') {
+      if (h === 0) return `${m}m`;
+      return `${h}h ${m > 0 ? `${m}m` : ''}`;
+    }
     if (h === 0) return `${m}m`;
     return `${h}j ${m > 0 ? `${m}m` : ''}`;
   };
@@ -105,9 +114,9 @@ export default function AttendancesPage() {
   const columns: ColumnDef<Attendance>[] = [
     {
       accessorKey: 'attendanceDate',
-      header: 'Tanggal',
+      header: tCommon('from'),
       cell: ({ row }) => (
-        <span className="font-medium text-xs text-neutral-800 dark:text-neutral-200">
+        <span className="font-medium text-xs text-foreground">
           {formatDate(row.original.attendanceDate)}
         </span>
       ),
@@ -116,15 +125,15 @@ export default function AttendancesPage() {
       ? [
           {
             accessorKey: 'employee',
-            header: 'Karyawan',
+            header: tEmp('fullName'),
             cell: ({ row }: { row: { original: Attendance } }) => {
               const emp = row.original.employee;
               return (
                 <div className="flex flex-col">
-                  <span className="font-semibold text-xs text-neutral-900 dark:text-neutral-100">
+                  <span className="font-semibold text-xs text-foreground">
                     {emp?.fullName || '-'}
                   </span>
-                  <div className="flex items-center gap-1.5 text-[10px] text-neutral-400">
+                  <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
                     <span className="font-mono">{emp?.nip}</span>
                     {emp?.department?.name && (
                       <>
@@ -141,41 +150,41 @@ export default function AttendancesPage() {
       : []),
     {
       accessorKey: 'checkIn',
-      header: 'Jam Masuk',
+      header: t('checkInTime'),
       cell: ({ row }) => (
-        <span className="font-mono text-xs text-neutral-700 dark:text-neutral-300">
+        <span className="font-mono text-xs text-foreground">
           {formatTime(row.original.checkIn)}
         </span>
       ),
     },
     {
       accessorKey: 'checkOut',
-      header: 'Jam Pulang',
+      header: t('checkOutTime'),
       cell: ({ row }) => (
-        <span className="font-mono text-xs text-neutral-700 dark:text-neutral-300">
+        <span className="font-mono text-xs text-foreground">
           {formatTime(row.original.checkOut)}
         </span>
       ),
     },
     {
       id: 'duration',
-      header: 'Total Durasi',
+      header: t('duration'),
       cell: ({ row }) => (
-        <span className="text-xs text-neutral-600 dark:text-neutral-400 font-medium">
+        <span className="text-xs text-muted-foreground font-medium">
           {formatDuration(row.original.checkIn, row.original.checkOut)}
         </span>
       ),
     },
     {
       accessorKey: 'status',
-      header: 'Status',
+      header: tCommon('status'),
       cell: ({ row }) => {
         const status = row.original.status;
         if (status === 'PRESENT') {
           return (
             <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-[11px] gap-1">
               <CheckCircle2 className="w-3.5 h-3.5" />
-              Tepat Waktu
+              {t('statusPresent')}
             </Badge>
           );
         }
@@ -183,25 +192,25 @@ export default function AttendancesPage() {
           return (
             <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30 text-[11px] gap-1">
               <AlertTriangle className="w-3.5 h-3.5" />
-              Terlambat
+              {t('statusLate')}
             </Badge>
           );
         }
         return (
           <Badge variant="destructive" className="text-[11px] gap-1">
             <XCircle className="w-3.5 h-3.5" />
-            Tidak Hadir
+            {t('statusAbsent')}
           </Badge>
         );
       },
     },
     {
       accessorKey: 'notes',
-      header: 'Catatan',
+      header: t('notes'),
       cell: ({ row }) => {
         const notes = row.original.notes;
         return (
-          <span className="text-xs text-neutral-500 truncate max-w-50 block">
+          <span className="text-xs text-muted-foreground truncate max-w-50 block">
             {notes || '-'}
           </span>
         );
@@ -215,19 +224,15 @@ export default function AttendancesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-emerald-100 dark:bg-emerald-950 text-emerald-600">
+            <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
               <Clock className="w-5 h-5" />
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
-              Presensi & Kehadiran
+            <h1 className="text-xl font-bold tracking-tight text-foreground">
+              {t('title')}
             </h1>
           </div>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-            {isEmployee
-              ? 'Lakukan check-in/out harian dan pantau riwayat kehadiran Anda.'
-              : isManager
-              ? 'Pantau catatan absensi, keterlambatan, dan jam kerja anggota tim Anda.'
-              : 'Manajemen pencatatan kehadiran karyawan dan konfigurasi jadwal kerja perusahaan.'}
+          <p className="text-sm text-muted-foreground mt-1">
+            {t('subtitle')}
           </p>
         </div>
 
@@ -235,10 +240,10 @@ export default function AttendancesPage() {
           <Button
             variant="outline"
             onClick={() => setIsScheduleOpen(true)}
-            className="border-neutral-300 dark:border-neutral-700 shrink-0"
+            className="border-border shrink-0 cursor-pointer"
           >
-            <Settings className="w-4 h-4 mr-2 text-neutral-500" />
-            Jadwal Kerja
+            <Settings className="w-4 h-4 mr-2 text-muted-foreground" />
+            {t('workSchedule')}
           </Button>
         )}
       </div>
@@ -247,10 +252,10 @@ export default function AttendancesPage() {
       <AttendanceWidget />
 
       {/* Filter Toolbar */}
-      <div className="flex flex-wrap items-center gap-3 p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-2xs">
-        <div className="flex items-center gap-2 text-xs font-semibold text-neutral-500">
+      <div className="flex flex-wrap items-center gap-3 p-4 rounded-xl border border-border bg-card shadow-2xs">
+        <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
           <Filter className="w-3.5 h-3.5" />
-          <span>Filter:</span>
+          <span>{tCommon('filter')}:</span>
         </div>
 
         {/* Status Filter */}
@@ -264,24 +269,24 @@ export default function AttendancesPage() {
               }
             }}
           >
-            <SelectTrigger className="h-9 text-xs w-full">
-              <SelectValue placeholder="Semua Status">
+            <SelectTrigger className="h-9 text-xs w-full bg-card">
+              <SelectValue placeholder={tCommon('allStatus')}>
                 {selectedStatus === 'ALL'
-                  ? 'Semua Status'
+                  ? tCommon('allStatus')
                   : selectedStatus === 'PRESENT'
-                  ? 'Tepat Waktu'
+                  ? t('statusPresent')
                   : selectedStatus === 'LATE'
-                  ? 'Terlambat'
+                  ? t('statusLate')
                   : selectedStatus === 'ABSENT'
-                  ? 'Tidak Hadir'
+                  ? t('statusAbsent')
                   : undefined}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">Semua Status</SelectItem>
-              <SelectItem value="PRESENT">Tepat Waktu (PRESENT)</SelectItem>
-              <SelectItem value="LATE">Terlambat (LATE)</SelectItem>
-              <SelectItem value="ABSENT">Tidak Hadir (ABSENT)</SelectItem>
+              <SelectItem value="ALL">{tCommon('allStatus')}</SelectItem>
+              <SelectItem value="PRESENT">{t('statusPresent')}</SelectItem>
+              <SelectItem value="LATE">{t('statusLate')}</SelectItem>
+              <SelectItem value="ABSENT">{t('statusAbsent')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -298,15 +303,15 @@ export default function AttendancesPage() {
                 }
               }}
             >
-              <SelectTrigger className="h-9 text-xs w-full">
-                <SelectValue placeholder="Semua Departemen">
+              <SelectTrigger className="h-9 text-xs w-full bg-card">
+                <SelectValue placeholder={tCommon('allDepartments')}>
                   {selectedDept === 'ALL'
-                    ? 'Semua Departemen'
-                    : departments.find((d) => d.id === selectedDept)?.name || 'Semua Departemen'}
+                    ? tCommon('allDepartments')
+                    : departments.find((d) => d.id === selectedDept)?.name || tCommon('allDepartments')}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">Semua Departemen</SelectItem>
+                <SelectItem value="ALL">{tCommon('allDepartments')}</SelectItem>
                 {departments.map((dept) => (
                   <SelectItem key={dept.id} value={dept.id}>
                     {dept.name}
@@ -327,7 +332,7 @@ export default function AttendancesPage() {
               setEndDate(to);
               setPagination((prev) => ({ ...prev, pageIndex: 0 }));
             }}
-            placeholder="Rentang Tanggal Absensi"
+            placeholder={t('dateRangePlaceholder')}
             allowClear
           />
         </div>
@@ -343,9 +348,9 @@ export default function AttendancesPage() {
               setEndDate('');
               setPagination((prev) => ({ ...prev, pageIndex: 0 }));
             }}
-            className="text-xs text-neutral-500 h-9"
+            className="text-xs text-muted-foreground h-9 cursor-pointer"
           >
-            Reset Filter
+            {tCommon('resetFilter')}
           </Button>
         )}
       </div>
@@ -359,8 +364,8 @@ export default function AttendancesPage() {
         pageCount={meta?.totalPages}
         pagination={{ pageIndex, pageSize }}
         onPaginationChange={setPagination}
-        emptyTitle="Belum Ada Riwayat Absensi"
-        emptyDescription="Tidak ada data absensi yang tercatat untuk filter periode atau status ini."
+        emptyTitle={t('noAttendanceRecords')}
+        emptyDescription={t('noAttendanceRecords')}
       />
 
       {/* Work Schedule Dialog (HR_ADMIN only) */}

@@ -100,12 +100,12 @@ export function DataTable<TData, TValue>({
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {(searchKey || onSearchChange) && (
           <div className="relative max-w-sm w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder={searchPlaceholder}
               value={searchValue ?? (searchKey ? (table.getColumn(searchKey)?.getFilterValue() as string) ?? '' : clientSearch)}
               onChange={handleSearchInput}
-              className="pl-9 bg-white dark:bg-neutral-900"
+              className="pl-9 bg-card text-foreground"
             />
           </div>
         )}
@@ -116,13 +116,13 @@ export function DataTable<TData, TValue>({
       {isLoading ? (
         <DataTableSkeleton columnCount={columns.length} rowCount={pagination?.pageSize ?? 5} />
       ) : (
-        <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 overflow-hidden shadow-xs">
+        <div className="rounded-xl border border-border bg-card overflow-hidden shadow-2xs">
           <Table>
-            <TableHeader className="bg-neutral-50 dark:bg-neutral-800/60">
+            <TableHeader className="bg-muted/60">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="hover:bg-transparent">
                   {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="h-11 font-semibold text-neutral-700 dark:text-neutral-300">
+                    <TableHead key={header.id} className="h-11 font-semibold text-foreground">
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -140,10 +140,10 @@ export function DataTable<TData, TValue>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && 'selected'}
-                    className="hover:bg-neutral-50/80 dark:hover:bg-neutral-800/40 transition-colors"
+                    className="hover:bg-muted/40 transition-colors"
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="py-3 text-neutral-800 dark:text-neutral-200">
+                      <TableCell key={cell.id} className="py-3 text-foreground">
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext(),

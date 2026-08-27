@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { Loader2, RefreshCw, UserCheck } from 'lucide-react';
 import { useReactivateEmployee } from '@/hooks/use-employees';
 import { Employee } from '@/types/employee';
@@ -25,6 +26,8 @@ export function EmployeeReactivateDialog({
   open,
   onOpenChange,
 }: EmployeeReactivateDialogProps) {
+  const t = useTranslations('employees');
+  const tCommon = useTranslations('common');
   const reactivateMutation = useReactivateEmployee();
   const isPending = reactivateMutation.isPending;
 
@@ -43,18 +46,13 @@ export function EmployeeReactivateDialog({
       <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
         <DialogHeader className="gap-2 pr-10 sm:pr-12">
           <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
-            <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950">
+            <div className="p-2 rounded-xl bg-emerald-500/10">
               <UserCheck className="w-5 h-5" />
             </div>
-            <DialogTitle>Aktifkan Kembali Karyawan</DialogTitle>
+            <DialogTitle>{t('reactivateTitle')}</DialogTitle>
           </div>
           <DialogDescription>
-            Apakah Anda yakin ingin mengaktifkan kembali karyawan{' '}
-            <strong className="text-neutral-900 dark:text-neutral-100">
-              {employee?.fullName}
-            </strong>{' '}
-            (NIP: {employee?.nip})? Status karyawan akan diubah kembali menjadi{' '}
-            <strong className="text-emerald-600">ACTIVE</strong>.
+            {t('reactivateDesc', { name: employee?.fullName ?? '', nip: employee?.nip ?? '' })}
           </DialogDescription>
         </DialogHeader>
 
@@ -64,24 +62,25 @@ export function EmployeeReactivateDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isPending}
+            className="cursor-pointer"
           >
-            Batal
+            {tCommon('cancel')}
           </Button>
           <Button
             type="button"
-            className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
             onClick={handleReactivate}
             disabled={isPending}
           >
             {isPending ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Mengaktifkan...
+                {tCommon('processing')}
               </>
             ) : (
               <>
                 <RefreshCw className="w-4 h-4 mr-2" />
-                Aktifkan Kembali
+                {t('reactivate')}
               </>
             )}
           </Button>

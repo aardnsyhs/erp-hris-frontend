@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { Loader2, LogIn, LogOut } from 'lucide-react';
 import {
   attendanceActionSchema,
@@ -31,6 +32,8 @@ export function AttendanceActionDialog({
   type,
 }: AttendanceActionDialogProps) {
   const isCheckIn = type === 'CHECK_IN';
+  const t = useTranslations('attendance');
+  const tCommon = useTranslations('common');
 
   const checkInMutation = useCheckIn();
   const checkOutMutation = useCheckOut();
@@ -81,8 +84,8 @@ export function AttendanceActionDialog({
             <div
               className={`p-2 rounded-xl ${
                 isCheckIn
-                  ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400'
-                  : 'bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400'
+                  ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                  : 'bg-primary/10 text-primary'
               }`}
             >
               {isCheckIn ? (
@@ -92,33 +95,27 @@ export function AttendanceActionDialog({
               )}
             </div>
             <DialogTitle>
-              {isCheckIn ? 'Konfirmasi Check-In' : 'Konfirmasi Check-Out'}
+              {isCheckIn ? t('confirmCheckInTitle') : t('confirmCheckOutTitle')}
             </DialogTitle>
           </div>
           <DialogDescription>
-            {isCheckIn
-              ? 'Catat kehadiran Anda hari ini. Waktu check-in akan otomatis dikonversikan ke zona waktu WIB (Asia/Jakarta).'
-              : 'Akhiri jam kerja Anda hari ini. Pastikan seluruh pekerjaan harian telah tersimpan dengan aman.'}
+            {isCheckIn ? t('confirmCheckInDesc') : t('confirmCheckOutDesc')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-              Catatan / Lokasi Kerja (Opsional)
+            <label className="text-xs font-semibold text-foreground">
+              {t('notes')} ({tCommon('optional')})
             </label>
             <textarea
-              className="flex w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-2xs placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 min-h-20 outline-none"
-              placeholder={
-                isCheckIn
-                  ? 'Contoh: WFO Lantai 3, Bertemu klien di Jakarta Selatan...'
-                  : 'Contoh: Selesai mereview pull request sprint 12...'
-              }
+              className="flex w-full rounded-lg border border-input bg-background text-foreground px-3 py-2 text-sm shadow-2xs placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 min-h-20 outline-none"
+              placeholder={t('notesPlaceholder')}
               {...register('notes')}
               disabled={isSubmitting}
             />
             {errors.notes && (
-              <p className="text-xs text-red-500">{errors.notes.message}</p>
+              <p className="text-xs text-destructive">{errors.notes.message}</p>
             )}
           </div>
 
@@ -128,27 +125,28 @@ export function AttendanceActionDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
+              className="cursor-pointer"
             >
-              Batal
+              {tCommon('cancel')}
             </Button>
             <Button
               type="submit"
-              className={
+              className={`cursor-pointer ${
                 isCheckIn
                   ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white'
-              }
+                  : 'bg-primary hover:bg-primary/90 text-primary-foreground'
+              }`}
               disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Memproses...
+                  {tCommon('processing')}
                 </>
               ) : isCheckIn ? (
-                'Check-In Sekarang'
+                t('checkIn')
               ) : (
-                'Check-Out Sekarang'
+                t('checkOut')
               )}
             </Button>
           </DialogFooter>

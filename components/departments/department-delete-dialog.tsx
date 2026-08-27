@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { Loader2, AlertTriangle, Users } from 'lucide-react';
 import { useDeleteDepartment } from '@/hooks/use-departments';
 import { Department } from '@/types/department';
@@ -25,6 +26,8 @@ export function DepartmentDeleteDialog({
   onOpenChange,
   department,
 }: DepartmentDeleteDialogProps) {
+  const t = useTranslations('departments');
+  const tCommon = useTranslations('common');
   const deleteMutation = useDeleteDepartment();
   const isDeleting = deleteMutation.isPending;
 
@@ -37,7 +40,7 @@ export function DepartmentDeleteDialog({
       await deleteMutation.mutateAsync(department.id);
       onOpenChange(false);
     } catch {
-      // Backend 400 Bad Request error toast is handled in useDeleteDepartment onError
+      // Backend error toast is handled in useDeleteDepartment onError
     }
   };
 
@@ -45,36 +48,25 @@ export function DepartmentDeleteDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
         <AlertDialogHeader className="gap-2 pr-10 sm:pr-12">
-          <div className="flex items-center gap-2 text-red-600">
-            <div className="p-2 rounded-full bg-red-100 dark:bg-red-950">
+          <div className="flex items-center gap-2 text-destructive">
+            <div className="p-2 rounded-full bg-destructive/10">
               <AlertTriangle className="h-5 w-5" />
             </div>
-            <AlertDialogTitle>Hapus Departemen</AlertDialogTitle>
+            <AlertDialogTitle>{t('deleteDepartment')}</AlertDialogTitle>
           </div>
-          <AlertDialogDescription className="pt-2 text-neutral-600 dark:text-neutral-300">
+          <AlertDialogDescription className="pt-2 text-muted-foreground">
             {hasEmployees ? (
               <div className="space-y-3">
-                <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 flex items-start gap-2 text-amber-800 dark:text-amber-200 text-xs">
+                <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-start gap-2 text-amber-700 dark:text-amber-300 text-xs">
                   <Users className="w-4 h-4 shrink-0 mt-0.5" />
                   <span>
-                    Departemen <strong>{department?.name} ({department?.code})</strong> saat ini masih memiliki{' '}
-                    <strong>{employeeCount} karyawan aktif</strong> terdaftar.
+                    {t('deleteWarningHasEmployees', { count: employeeCount })}
                   </span>
                 </div>
-                <p>
-                  Sistem melarang penghapusan departemen yang masih memiliki anggota. Pindahkan atau nonaktifkan seluruh karyawan dalam departemen ini terlebih dahulu.
-                </p>
               </div>
             ) : (
               <span>
-                Apakah Anda yakin ingin menghapus departemen{' '}
-                <strong className="text-neutral-900 dark:text-neutral-100 font-semibold">
-                  {department?.name} ({department?.code})
-                </strong>
-                ?
-                <br />
-                <br />
-                <strong>Konsekuensi:</strong> Data departemen akan dihapus secara permanen dari sistem dan tidak dapat dipulihkan.
+                {t('deleteConfirmDesc', { name: department?.name ?? '', code: department?.code ?? '' })}
               </span>
             )}
           </AlertDialogDescription>
@@ -87,8 +79,9 @@ export function DepartmentDeleteDialog({
             size="sm"
             onClick={() => onOpenChange(false)}
             disabled={isDeleting}
+            className="cursor-pointer"
           >
-            {hasEmployees ? 'Mengerti' : 'Batal'}
+            {hasEmployees ? tCommon('close') : tCommon('cancel')}
           </Button>
           {!hasEmployees && (
             <Button
@@ -97,14 +90,15 @@ export function DepartmentDeleteDialog({
               size="sm"
               onClick={handleDelete}
               disabled={isDeleting}
+              className="cursor-pointer"
             >
               {isDeleting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Menghapus...
+                  {tCommon('processing')}
                 </>
               ) : (
-                'Ya, Hapus Departemen'
+                t('deleteDepartment')
               )}
             </Button>
           )}

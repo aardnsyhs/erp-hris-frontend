@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ColumnDef, PaginationState } from '@tanstack/react-table';
+import { useTranslations } from 'next-intl';
 import {
   Users,
   Plus,
@@ -46,6 +47,9 @@ import { EmployeeReactivateDialog } from '@/components/employees/employee-reacti
 
 export default function EmployeesPage() {
   const router = useRouter();
+  const t = useTranslations('employees');
+  const tCommon = useTranslations('common');
+  const tNav = useTranslations('navigation');
   const currentUser = useAuthStore((state) => state.user);
   const isHrAdmin = currentUser?.role === 'HR_ADMIN';
 
@@ -100,37 +104,37 @@ export default function EmployeesPage() {
   const columns: ColumnDef<Employee>[] = [
     {
       accessorKey: 'nip',
-      header: 'NIP',
+      header: t('nip'),
       cell: ({ row }) => (
-        <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300">
+        <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded-md bg-muted text-muted-foreground">
           {row.original.nip}
         </span>
       ),
     },
     {
       accessorKey: 'fullName',
-      header: 'Nama Karyawan',
+      header: t('fullName'),
       cell: ({ row }) => (
         <div className="flex flex-col">
           <Link
             href={`/employees/${row.original.id}`}
-            className="font-medium text-neutral-900 dark:text-neutral-100 hover:text-blue-600 dark:hover:text-blue-400 hover:underline"
+            className="font-medium text-foreground hover:text-primary hover:underline"
           >
             {row.original.fullName}
           </Link>
-          <span className="text-xs text-neutral-400">{row.original.email}</span>
+          <span className="text-xs text-muted-foreground">{row.original.email}</span>
         </div>
       ),
     },
     {
       accessorKey: 'department',
-      header: 'Departemen',
+      header: t('department'),
       cell: ({ row }) => (
-        <div className="flex items-center gap-1.5 text-xs text-neutral-700 dark:text-neutral-300">
-          <Building2 className="w-3.5 h-3.5 text-neutral-400" />
+        <div className="flex items-center gap-1.5 text-xs text-foreground">
+          <Building2 className="w-3.5 h-3.5 text-muted-foreground" />
           <span>{row.original.department?.name || '-'}</span>
           {row.original.department?.code && (
-            <span className="text-[10px] text-neutral-400 font-mono">
+            <span className="text-[10px] text-muted-foreground font-mono">
               ({row.original.department.code})
             </span>
           )}
@@ -139,16 +143,16 @@ export default function EmployeesPage() {
     },
     {
       accessorKey: 'jobTitle',
-      header: 'Jabatan',
+      header: t('jobTitle'),
       cell: ({ row }) => (
-        <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+        <span className="text-xs font-medium text-foreground">
           {row.original.jobTitle}
         </span>
       ),
     },
     {
       accessorKey: 'status',
-      header: 'Status',
+      header: tCommon('status'),
       cell: ({ row }) => {
         const status = row.original.status;
 
@@ -156,52 +160,52 @@ export default function EmployeesPage() {
           return (
             <Badge
               variant="outline"
-              className="text-[11px] bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800"
+              className="text-[11px] bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30"
             >
-              Nonaktif (Sementara)
+              {t('statusInactive')}
             </Badge>
           );
         }
 
         if (status === 'TERMINATED') {
           return (
-            <Badge variant="destructive" className="text-[11px] bg-rose-600 dark:bg-rose-700">
-              Diberhentikan (Permanen)
+            <Badge variant="destructive" className="text-[11px]">
+              {t('statusTerminated')}
             </Badge>
           );
         }
 
         return (
           <Badge className="text-[11px] bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
-            Aktif
+            {t('statusActive')}
           </Badge>
         );
       },
     },
     {
       id: 'actions',
-      header: 'Aksi',
+      header: tCommon('actions'),
       cell: ({ row }) => {
         const emp = row.original;
         return (
           <DropdownMenu>
             <DropdownMenuTrigger
-              aria-label="Menu aksi karyawan"
-              className="p-1 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 hover:text-neutral-800 outline-none cursor-pointer"
+              aria-label={tNav('menuAction')}
+              className="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground outline-none cursor-pointer"
             >
               <MoreHorizontal className="h-4 w-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52">
               <DropdownMenuGroup>
-                <DropdownMenuLabel className="text-xs font-semibold text-neutral-400">
-                  Pilihan Tindakan
+                <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">
+                  {tCommon('actions')}
                 </DropdownMenuLabel>
                 <DropdownMenuItem
                   onClick={() => router.push(`/employees/${emp.id}`)}
                   className="flex items-center gap-2 cursor-pointer"
                 >
-                  <Eye className="h-4 w-4 text-neutral-500" />
-                  <span>Lihat Profil</span>
+                  <Eye className="h-4 w-4 text-muted-foreground" />
+                  <span>{tCommon('detail')}</span>
                 </DropdownMenuItem>
 
                 {isHrAdmin && (
@@ -212,23 +216,23 @@ export default function EmployeesPage() {
                           onClick={() => handleEditClick(emp)}
                           className="flex items-center gap-2 cursor-pointer"
                         >
-                          <Edit2 className="h-4 w-4 text-blue-500" />
-                          <span>Edit Data</span>
+                          <Edit2 className="h-4 w-4 text-primary" />
+                          <span>{tCommon('edit')}</span>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => handleDeleteClick(emp)}
-                          className="flex items-center gap-2 text-amber-600 dark:text-amber-400 cursor-pointer focus:bg-amber-50 dark:focus:bg-amber-950/40"
+                          className="flex items-center gap-2 text-amber-600 dark:text-amber-400 cursor-pointer focus:bg-amber-500/10"
                         >
                           <Trash2 className="h-4 w-4" />
-                          <span>Nonaktifkan (Sementara)</span>
+                          <span>{t('deactivateTitle')}</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => setEmployeeToTerminate(emp)}
-                          className="flex items-center gap-2 text-red-600 dark:text-red-400 cursor-pointer focus:bg-red-50 dark:focus:bg-red-950/40"
+                          className="flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/10"
                         >
                           <UserX className="h-4 w-4" />
-                          <span>Berhentikan (Permanen)</span>
+                          <span>{t('terminate')}</span>
                         </DropdownMenuItem>
                       </>
                     )}
@@ -238,17 +242,17 @@ export default function EmployeesPage() {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => setEmployeeToReactivate(emp)}
-                          className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 cursor-pointer focus:bg-emerald-50 dark:focus:bg-emerald-950/40"
+                          className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 cursor-pointer focus:bg-emerald-500/10"
                         >
                           <RefreshCw className="h-4 w-4" />
-                          <span>Aktifkan Kembali</span>
+                          <span>{t('reactivate')}</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => setEmployeeToTerminate(emp)}
-                          className="flex items-center gap-2 text-red-600 dark:text-red-400 cursor-pointer focus:bg-red-50 dark:focus:bg-red-950/40"
+                          className="flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/10"
                         >
                           <UserX className="h-4 w-4" />
-                          <span>Berhentikan (Permanen)</span>
+                          <span>{t('terminate')}</span>
                         </DropdownMenuItem>
                       </>
                     )}
@@ -268,36 +272,34 @@ export default function EmployeesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary">
               <Users className="w-5 h-5" />
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
-              {currentUser?.role === 'MANAGER' ? 'Daftar Anggota Tim' : 'Direktori Karyawan'}
+            <h1 className="text-xl font-bold tracking-tight text-foreground">
+              {t('title')}
             </h1>
           </div>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-            {currentUser?.role === 'MANAGER'
-              ? 'Pantau profil dan keanggotaan karyawan dalam departemen Anda.'
-              : 'Manajemen data profil, nomor induk pegawai (NIP), departemen, dan status kerja.'}
+          <p className="text-sm text-muted-foreground mt-1">
+            {t('subtitle')}
           </p>
         </div>
 
         {isHrAdmin && (
           <Button
             onClick={handleCreateClick}
-            className="bg-blue-600 hover:bg-blue-700 text-white shadow-xs shrink-0"
+            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs shrink-0 cursor-pointer"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Tambah Karyawan
+            {t('addEmployee')}
           </Button>
         )}
       </div>
 
       {/* Filter Toolbar */}
-      <div className="flex flex-wrap items-center gap-3 p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-2xs">
-        <div className="flex items-center gap-2 text-xs font-semibold text-neutral-500">
+      <div className="flex flex-wrap items-center gap-3 p-4 rounded-xl border border-border bg-card shadow-2xs">
+        <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
           <Filter className="w-3.5 h-3.5" />
-          <span>Filter:</span>
+          <span>{tCommon('filter')}:</span>
         </div>
 
         {/* Department Filter (Only useful if multiple depts visible, e.g. HR_ADMIN) */}
@@ -312,15 +314,15 @@ export default function EmployeesPage() {
                 }
               }}
             >
-              <SelectTrigger className="h-9 text-xs w-full">
-                <SelectValue placeholder="Semua Departemen">
+              <SelectTrigger className="h-9 text-xs w-full bg-card">
+                <SelectValue placeholder={tCommon('allDepartments')}>
                   {selectedDept === 'ALL'
-                    ? 'Semua Departemen'
-                    : departments.find((d) => d.id === selectedDept)?.name || 'Semua Departemen'}
+                    ? tCommon('allDepartments')
+                    : departments.find((d) => d.id === selectedDept)?.name || tCommon('allDepartments')}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">Semua Departemen</SelectItem>
+                <SelectItem value="ALL">{tCommon('allDepartments')}</SelectItem>
                 {departments.map((dept) => (
                   <SelectItem key={dept.id} value={dept.id}>
                     {dept.name}
@@ -342,24 +344,24 @@ export default function EmployeesPage() {
               }
             }}
           >
-            <SelectTrigger className="h-9 text-xs w-full">
-              <SelectValue placeholder="Semua Status">
+            <SelectTrigger className="h-9 text-xs w-full bg-card">
+              <SelectValue placeholder={tCommon('allStatus')}>
                 {selectedStatus === 'ALL'
-                  ? 'Semua Status'
+                  ? tCommon('allStatus')
                   : selectedStatus === 'ACTIVE'
-                  ? 'Aktif (ACTIVE)'
+                  ? t('statusActive')
                   : selectedStatus === 'INACTIVE'
-                  ? 'Nonaktif (INACTIVE)'
+                  ? t('statusInactive')
                   : selectedStatus === 'TERMINATED'
-                  ? 'Diberhentikan'
+                  ? t('statusTerminated')
                   : undefined}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">Semua Status</SelectItem>
-              <SelectItem value="ACTIVE">Aktif (ACTIVE)</SelectItem>
-              <SelectItem value="INACTIVE">Nonaktif (INACTIVE)</SelectItem>
-              <SelectItem value="TERMINATED">Diberhentikan</SelectItem>
+              <SelectItem value="ALL">{tCommon('allStatus')}</SelectItem>
+              <SelectItem value="ACTIVE">{t('statusActive')}</SelectItem>
+              <SelectItem value="INACTIVE">{t('statusInactive')}</SelectItem>
+              <SelectItem value="TERMINATED">{t('statusTerminated')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -379,9 +381,9 @@ export default function EmployeesPage() {
           setSearch(val);
           setPagination((prev) => ({ ...prev, pageIndex: 0 }));
         }}
-        searchPlaceholder="Cari nama, NIP, email, jabatan..."
-        emptyTitle="Karyawan Tidak Ditemukan"
-        emptyDescription="Tidak ada data karyawan yang sesuai dengan kriteria pencarian atau filter aktif."
+        searchPlaceholder={t('searchPlaceholder')}
+        emptyTitle={t('noEmployeesFound')}
+        emptyDescription={t('noEmployeesFound')}
       />
 
       {/* Form Dialog (Create / Edit) */}

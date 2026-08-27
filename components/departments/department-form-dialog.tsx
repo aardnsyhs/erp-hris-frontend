@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useTranslations } from 'next-intl';
 import { Loader2 } from 'lucide-react';
 import { departmentFormSchema, DepartmentFormValues } from '@/lib/validations/department';
 import { useCreateDepartment, useUpdateDepartment } from '@/hooks/use-departments';
@@ -29,6 +30,8 @@ export function DepartmentFormDialog({
   onOpenChange,
   departmentToEdit,
 }: DepartmentFormDialogProps) {
+  const t = useTranslations('departments');
+  const tCommon = useTranslations('common');
   const isEditMode = !!departmentToEdit;
 
   const createMutation = useCreateDepartment();
@@ -79,7 +82,6 @@ export function DepartmentFormDialog({
       }
       onOpenChange(false);
     } catch (error: any) {
-      // Specific handling for 409 Conflict on duplicate department code
       if (error?.response?.status === 409) {
         const errorMsg =
           error?.response?.data?.message ||
@@ -97,26 +99,23 @@ export function DepartmentFormDialog({
       <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
         <DialogHeader className="pr-10 sm:pr-12">
           <DialogTitle>
-            {isEditMode ? 'Edit Data Departemen' : 'Tambah Departemen Baru'}
+            {isEditMode ? t('editDepartment') : t('addDepartment')}
           </DialogTitle>
           <DialogDescription>
-            {isEditMode
-              ? 'Perbarui informasi kode atau nama departemen.'
-              : 'Tambahkan unit departemen atau divisi baru dalam struktur organisasi.'}
+            {t('subtitle')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
           {/* Field: Code */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-              Kode Departemen <span className="text-red-500">*</span>
+            <label className="text-xs font-semibold text-foreground">
+              {t('code')} <span className="text-destructive">*</span>
             </label>
             <Input
-              placeholder="Contoh: ENG, HRD, FIN"
+              placeholder="ENG, HRD, FIN"
               {...register('code', {
                 onChange: (e) => {
-                  // UX decision: Auto-uppercase input value for clean visual presentation. Backend accepts string as-is without case enforcement.
                   const upperVal = e.target.value.toUpperCase();
                   setValue('code', upperVal, { shouldValidate: true });
                 },
@@ -124,26 +123,26 @@ export function DepartmentFormDialog({
               disabled={isSubmitting}
             />
             {errors.code ? (
-              <p className="text-xs text-red-500">{errors.code.message}</p>
+              <p className="text-xs text-destructive">{errors.code.message}</p>
             ) : (
-              <p className="text-[11px] text-neutral-400">
-                Gunakan 2–20 karakter singkatan unik (contoh: ENG, MKT, HRD).
+              <p className="text-[11px] text-muted-foreground">
+                2–20 karakter unik (ENG, MKT, HRD).
               </p>
             )}
           </div>
 
           {/* Field: Name */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-              Nama Departemen <span className="text-red-500">*</span>
+            <label className="text-xs font-semibold text-foreground">
+              {t('name')} <span className="text-destructive">*</span>
             </label>
             <Input
-              placeholder="Contoh: Engineering, Human Resources"
+              placeholder="Engineering, Human Resources"
               {...register('name')}
               disabled={isSubmitting}
             />
             {errors.name && (
-              <p className="text-xs text-red-500">{errors.name.message}</p>
+              <p className="text-xs text-destructive">{errors.name.message}</p>
             )}
           </div>
 
@@ -153,23 +152,24 @@ export function DepartmentFormDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
+              className="cursor-pointer"
             >
-              Batal
+              {tCommon('cancel')}
             </Button>
             <Button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Menyimpan...
+                  {tCommon('saving')}
                 </>
               ) : isEditMode ? (
-                'Perbarui Departemen'
+                tCommon('save')
               ) : (
-                'Tambah Departemen'
+                tCommon('create')
               )}
             </Button>
           </DialogFooter>

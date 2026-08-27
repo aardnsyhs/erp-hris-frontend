@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { Loader2, Trash2 } from 'lucide-react';
 import { useDeletePayroll } from '@/hooks/use-payrolls';
 import { Payroll } from '@/types/payroll';
@@ -25,6 +26,8 @@ export function PayrollDeleteDialog({
   open,
   onOpenChange,
 }: PayrollDeleteDialogProps) {
+  const t = useTranslations('payroll');
+  const tCommon = useTranslations('common');
   const deleteMutation = useDeletePayroll();
   const isDeleting = deleteMutation.isPending;
 
@@ -42,21 +45,14 @@ export function PayrollDeleteDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
         <AlertDialogHeader className="gap-2 pr-10 sm:pr-12">
-          <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
-            <div className="p-2 rounded-xl bg-red-100 dark:bg-red-950">
+          <div className="flex items-center gap-2 text-destructive">
+            <div className="p-2 rounded-xl bg-destructive/10">
               <Trash2 className="w-5 h-5" />
             </div>
-            <AlertDialogTitle>Hapus Draft Payroll</AlertDialogTitle>
+            <AlertDialogTitle>{t('deleteDraft')}</AlertDialogTitle>
           </div>
           <AlertDialogDescription>
-            Apakah Anda yakin ingin menghapus draft payroll untuk karyawan{' '}
-            <strong className="text-neutral-900 dark:text-neutral-100">
-              {payroll?.employee?.fullName}
-            </strong>
-            ?
-            <br />
-            <br />
-            <strong>Konsekuensi:</strong> Data kalkulasi draft periode ini akan dihapus permanen. Anda dapat melakukan perhitungan ulang (generate) kembali sewaktu-waktu jika diperlukan.
+            {payroll?.employee?.fullName}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -67,8 +63,9 @@ export function PayrollDeleteDialog({
             size="sm"
             onClick={() => onOpenChange(false)}
             disabled={isDeleting}
+            className="cursor-pointer"
           >
-            Batal
+            {tCommon('cancel')}
           </Button>
           <Button
             type="button"
@@ -76,14 +73,15 @@ export function PayrollDeleteDialog({
             size="sm"
             onClick={handleDelete}
             disabled={isDeleting}
+            className="cursor-pointer"
           >
             {isDeleting ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Menghapus...
+                {tCommon('processing')}
               </>
             ) : (
-              'Ya, Hapus Draft Payroll'
+              t('deleteDraft')
             )}
           </Button>
         </AlertDialogFooter>

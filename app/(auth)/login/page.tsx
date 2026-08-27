@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   BriefcaseBusiness,
   Lock,
@@ -24,6 +25,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { ThemeToggle } from '@/components/shared/theme-toggle';
+import { LanguageSwitcher } from '@/components/shared/language-switcher';
 import { toast } from 'sonner';
 
 const demoAccounts = [
@@ -31,24 +34,26 @@ const demoAccounts = [
     role: 'HR_ADMIN',
     email: 'admin.hr@example.com',
     name: 'Budi Santoso (HR Admin)',
-    color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300',
+    color: 'bg-primary/10 text-primary',
   },
   {
     role: 'MANAGER',
     email: 'manager.eng@example.com',
     name: 'Hendra Pratama (Eng Manager)',
-    color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300',
+    color: 'bg-secondary text-secondary-foreground',
   },
   {
     role: 'EMPLOYEE',
     email: 'dev.andi@example.com',
     name: 'Andi Wijaya (Senior Dev)',
-    color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300',
+    color: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
   },
 ];
 
 export default function LoginPage() {
   const router = useRouter();
+  const t = useTranslations('auth');
+  const tCommon = useTranslations('common');
   const setAuth = useAuthStore((state) => state.setAuth);
 
   const [email, setEmail] = useState('');
@@ -60,7 +65,7 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setErrorMessage('Silakan lengkapi email dan password');
+      setErrorMessage(t('invalidCredentials'));
       return;
     }
 
@@ -76,7 +81,7 @@ export default function LoginPage() {
       const { user, accessToken } = response.data;
       setAuth(user, accessToken);
 
-      toast.success(`Selamat datang, ${user.employee?.fullName || user.email}!`);
+      toast.success(t('loginSuccess'));
       router.push('/');
     } catch (err: any) {
       if (err?.response?.status === 429) {
@@ -86,7 +91,7 @@ export default function LoginPage() {
         toast.error('Batas percobaan login terlampaui (Rate limit 429)');
       } else if (err?.response?.status === 401) {
         const rawMessage =
-          err?.response?.data?.message || 'Email atau password tidak valid';
+          err?.response?.data?.message || t('invalidCredentials');
         const displayMsg = Array.isArray(rawMessage)
           ? rawMessage.join(', ')
           : rawMessage;
@@ -94,8 +99,7 @@ export default function LoginPage() {
         toast.error(displayMsg);
       } else {
         const rawMessage =
-          err?.response?.data?.message ||
-          'Terjadi kesalahan jaringan saat login. Pastikan server aktif.';
+          err?.response?.data?.message || t('loginFailed');
         const displayMsg = Array.isArray(rawMessage)
           ? rawMessage.join(', ')
           : rawMessage;
@@ -114,44 +118,50 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center p-4 sm:p-6 bg-gradient-to-br from-neutral-100 via-neutral-50 to-blue-50/40 dark:from-neutral-950 dark:via-neutral-900 dark:to-blue-950/20">
+    <div className="min-h-screen flex flex-col justify-center items-center p-4 sm:p-6 bg-background text-foreground relative transition-colors">
+      {/* Top Right Utilities: Language & Theme */}
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        <LanguageSwitcher />
+        <ThemeToggle />
+      </div>
+
       <div className="w-full max-w-md space-y-6">
         {/* Brand Logo */}
         <div className="flex flex-col items-center text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-md">
+          <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground shadow-md font-bold">
             <BriefcaseBusiness className="w-6 h-6" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
-            HRIS & ERP Portal
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            {t('loginTitle')}
           </h1>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">
-            Masuk untuk mengakses sistem manajemen kepegawaian
+          <p className="text-sm text-muted-foreground">
+            {t('loginSubtitle')}
           </p>
         </div>
 
         {/* Login Card */}
-        <Card className="border-neutral-200/80 dark:border-neutral-800 shadow-lg bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md">
+        <Card className="border-border shadow-lg bg-card/90 backdrop-blur-md">
           <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-lg font-semibold">Autentikasi Akun</CardTitle>
-            <CardDescription>Masukkan email dan kata sandi terdaftar Anda</CardDescription>
+            <CardTitle className="text-lg font-semibold">{t('loginTitle')}</CardTitle>
+            <CardDescription>{t('loginSubtitle')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {errorMessage && (
-              <div className="p-3 rounded-lg bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800/60 text-xs font-medium text-red-700 dark:text-red-300">
+              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-xs font-medium text-destructive">
                 {errorMessage}
               </div>
             )}
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                  Alamat Email
+                <label className="text-xs font-semibold text-foreground">
+                  {t('emailLabel')}
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     type="email"
-                    placeholder="nama@example.com"
+                    placeholder={t('emailPlaceholder')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-9"
@@ -161,14 +171,14 @@ export default function LoginPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                  Kata Sandi (Password)
+                <label className="text-xs font-semibold text-foreground">
+                  {t('passwordLabel')}
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="••••••••"
+                    placeholder={t('passwordPlaceholder')}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-9 pr-9"
@@ -181,36 +191,36 @@ export default function LoginPage() {
                           <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
+                            aria-label={showPassword ? t('hidePassword') : t('showPassword')}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                           />
                         }
                       >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </TooltipTrigger>
                       <TooltipContent>
-                        {showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                        {showPassword ? t('hidePassword') : t('showPassword')}
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
                 </div>
               </div>
 
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
+              <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Memproses...
+                    {t('loggingIn')}
                   </>
                 ) : (
-                  'Masuk ke Sistem'
+                  t('submit')
                 )}
               </Button>
             </form>
 
             {/* Quick-Fill Demo Accounts Helper */}
-            <div className="pt-3 border-t border-neutral-100 dark:border-neutral-800">
-              <div className="flex items-center gap-1.5 mb-2 text-xs font-semibold text-neutral-500 dark:text-neutral-400">
+            <div className="pt-3 border-t border-border">
+              <div className="flex items-center gap-1.5 mb-2 text-xs font-semibold text-muted-foreground">
                 <KeyRound className="w-3.5 h-3.5" />
                 <span>Akun Uji Coba Cepat (Password: password123):</span>
               </div>
@@ -220,9 +230,9 @@ export default function LoginPage() {
                     key={acc.email}
                     type="button"
                     onClick={() => fillDemoAccount(acc.email)}
-                    className="w-full text-left px-2.5 py-1.5 rounded-lg border border-neutral-200/60 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800/60 transition-colors flex items-center justify-between text-xs"
+                    className="w-full text-left px-2.5 py-1.5 rounded-lg border border-border hover:bg-muted transition-colors flex items-center justify-between text-xs cursor-pointer"
                   >
-                    <span className="text-neutral-700 dark:text-neutral-300 truncate font-medium">
+                    <span className="text-foreground truncate font-medium">
                       {acc.name}
                     </span>
                     <Badge variant="outline" className={`text-[10px] uppercase font-bold py-0 ${acc.color}`}>

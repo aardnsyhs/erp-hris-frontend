@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, ShieldCheck, UserPlus } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Loader2, ShieldCheck } from 'lucide-react';
 import {
   employeeFormSchema,
   EmployeeFormValues,
@@ -43,6 +44,8 @@ export function EmployeeFormDialog({
   onOpenChange,
   employeeToEdit,
 }: EmployeeFormDialogProps) {
+  const t = useTranslations('employees');
+  const tCommon = useTranslations('common');
   const isEditMode = !!employeeToEdit;
 
   const createMutation = useCreateEmployee();
@@ -160,12 +163,10 @@ export function EmployeeFormDialog({
         <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-2xl max-h-[90vh] flex flex-col">
           <DialogHeader className="shrink-0 pr-10 sm:pr-12">
             <DialogTitle>
-              {isEditMode ? 'Edit Data Karyawan' : 'Tambah Karyawan & Akun Login'}
+              {isEditMode ? t('editEmployee') : t('addEmployee')}
             </DialogTitle>
             <DialogDescription>
-              {isEditMode
-                ? 'Perbarui informasi profil, jabatan, dan gaji karyawan.'
-                : 'Lengkapi formulir berikut untuk mendaftarkan karyawan baru sekaligus membuat akun login sistem secara otomatis.'}
+              {t('subtitle')}
             </DialogDescription>
           </DialogHeader>
 
@@ -174,10 +175,10 @@ export function EmployeeFormDialog({
               <div className="space-y-4 py-2">
                 {/* Row 0: Role Selection (Only in Create Mode) */}
                 {!isEditMode && (
-                  <div className="space-y-1.5 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-                    <label className="text-xs font-bold text-neutral-800 dark:text-neutral-200 flex items-center gap-1.5">
-                      <ShieldCheck className="w-4 h-4 text-indigo-600" />
-                      Role Akun Pengguna <span className="text-red-500">*</span>
+                  <div className="space-y-1.5 p-3 rounded-xl bg-muted/40 border border-border">
+                    <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-primary" />
+                      {t('role')} <span className="text-destructive">*</span>
                     </label>
                     <Select
                       value={selectedRole}
@@ -186,57 +187,54 @@ export function EmployeeFormDialog({
                       }}
                       disabled={isSubmitting}
                     >
-                      <SelectTrigger className="w-full h-9 bg-white dark:bg-neutral-950">
-                        <SelectValue placeholder="Pilih Role Akun">
+                      <SelectTrigger className="w-full h-9 bg-card text-foreground">
+                        <SelectValue placeholder={t('role')}>
                           {selectedRole === 'HR_ADMIN'
                             ? 'HR Administrator (HR_ADMIN)'
                             : selectedRole === 'MANAGER'
-                            ? 'Manager Departemen (MANAGER)'
-                            : 'Karyawan (EMPLOYEE)'}
+                            ? 'Manager (MANAGER)'
+                            : 'Employee (EMPLOYEE)'}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="EMPLOYEE">Karyawan (EMPLOYEE)</SelectItem>
-                        <SelectItem value="MANAGER">Manager Departemen (MANAGER)</SelectItem>
+                        <SelectItem value="EMPLOYEE">Employee (EMPLOYEE)</SelectItem>
+                        <SelectItem value="MANAGER">Manager (MANAGER)</SelectItem>
                         <SelectItem value="HR_ADMIN">HR Administrator (HR_ADMIN)</SelectItem>
                       </SelectContent>
                     </Select>
                     {errors.role && (
-                      <p className="text-xs text-red-500">{errors.role.message}</p>
+                      <p className="text-xs text-destructive">{errors.role.message}</p>
                     )}
-                    <p className="text-[11px] text-neutral-400">
-                      Password sementara akan digenerate otomatis dan ditampilkan setelah pendaftaran berhasil.
-                    </p>
                   </div>
                 )}
 
                 {/* Row 1: NIP & Full Name */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                      NIP (Nomor Induk Pegawai) <span className="text-red-500">*</span>
+                    <label className="text-xs font-semibold text-foreground">
+                      {t('nip')} <span className="text-destructive">*</span>
                     </label>
                     <Input
-                      placeholder="Contoh: EMP001"
+                      placeholder="EMP001"
                       {...register('nip')}
                       disabled={isSubmitting}
                     />
                     {errors.nip && (
-                      <p className="text-xs text-red-500">{errors.nip.message}</p>
+                      <p className="text-xs text-destructive">{errors.nip.message}</p>
                     )}
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                      Nama Lengkap <span className="text-red-500">*</span>
+                    <label className="text-xs font-semibold text-foreground">
+                      {t('fullName')} <span className="text-destructive">*</span>
                     </label>
                     <Input
-                      placeholder="Contoh: Budi Santoso, S.Kom"
+                      placeholder="Budi Santoso"
                       {...register('fullName')}
                       disabled={isSubmitting}
                     />
                     {errors.fullName && (
-                      <p className="text-xs text-red-500">{errors.fullName.message}</p>
+                      <p className="text-xs text-destructive">{errors.fullName.message}</p>
                     )}
                   </div>
                 </div>
@@ -244,8 +242,8 @@ export function EmployeeFormDialog({
                 {/* Row 2: Email & Phone */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                      Alamat Email (Username Login) <span className="text-red-500">*</span>
+                    <label className="text-xs font-semibold text-foreground">
+                      {t('email')} <span className="text-destructive">*</span>
                     </label>
                     <Input
                       type="email"
@@ -254,21 +252,21 @@ export function EmployeeFormDialog({
                       disabled={isSubmitting}
                     />
                     {errors.email && (
-                      <p className="text-xs text-red-500">{errors.email.message}</p>
+                      <p className="text-xs text-destructive">{errors.email.message}</p>
                     )}
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                      Nomor Telepon (Opsional)
+                    <label className="text-xs font-semibold text-foreground">
+                      {t('phone')} ({tCommon('optional')})
                     </label>
                     <Input
-                      placeholder="Contoh: 081234567890"
+                      placeholder="081234567890"
                       {...register('phone')}
                       disabled={isSubmitting}
                     />
                     {errors.phone && (
-                      <p className="text-xs text-red-500">{errors.phone.message}</p>
+                      <p className="text-xs text-destructive">{errors.phone.message}</p>
                     )}
                   </div>
                 </div>
@@ -276,8 +274,8 @@ export function EmployeeFormDialog({
                 {/* Row 3: Department & Job Title */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                      Departemen <span className="text-red-500">*</span>
+                    <label className="text-xs font-semibold text-foreground">
+                      {t('department')} <span className="text-destructive">*</span>
                     </label>
                     <Select
                       value={selectedDepartmentId}
@@ -287,7 +285,7 @@ export function EmployeeFormDialog({
                       disabled={isSubmitting || isLoadingDepts}
                     >
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder={isLoadingDepts ? 'Memuat departemen...' : 'Pilih Departemen'}>
+                        <SelectValue placeholder={isLoadingDepts ? tCommon('loading') : t('department')}>
                           {departments.find((d) => d.id === selectedDepartmentId)
                             ? `${departments.find((d) => d.id === selectedDepartmentId)?.name} (${departments.find((d) => d.id === selectedDepartmentId)?.code})`
                             : undefined}
@@ -302,21 +300,21 @@ export function EmployeeFormDialog({
                       </SelectContent>
                     </Select>
                     {errors.departmentId && (
-                      <p className="text-xs text-red-500">{errors.departmentId.message}</p>
+                      <p className="text-xs text-destructive">{errors.departmentId.message}</p>
                     )}
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                      Jabatan (Job Title) <span className="text-red-500">*</span>
+                    <label className="text-xs font-semibold text-foreground">
+                      {t('jobTitle')} <span className="text-destructive">*</span>
                     </label>
                     <Input
-                      placeholder="Contoh: Software Engineer"
+                      placeholder="Software Engineer"
                       {...register('jobTitle')}
                       disabled={isSubmitting}
                     />
                     {errors.jobTitle && (
-                      <p className="text-xs text-red-500">{errors.jobTitle.message}</p>
+                      <p className="text-xs text-destructive">{errors.jobTitle.message}</p>
                     )}
                   </div>
                 </div>
@@ -324,8 +322,8 @@ export function EmployeeFormDialog({
                 {/* Row 4: Hire Date & Base Salary */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                      Tanggal Mulai Kerja <span className="text-red-500">*</span>
+                    <label className="text-xs font-semibold text-foreground">
+                      {t('hireDate')} <span className="text-destructive">*</span>
                     </label>
                     <DatePicker
                       value={hireDate}
@@ -333,33 +331,33 @@ export function EmployeeFormDialog({
                         setValue('hireDate', val, { shouldValidate: true });
                       }}
                       disabled={isSubmitting}
-                      placeholder="Pilih tanggal mulai kerja"
+                      placeholder={t('hireDate')}
                     />
                     {errors.hireDate && (
-                      <p className="text-xs text-red-500">{errors.hireDate.message}</p>
+                      <p className="text-xs text-destructive">{errors.hireDate.message}</p>
                     )}
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                      Gaji Pokok (Rupiah) <span className="text-red-500">*</span>
+                    <label className="text-xs font-semibold text-foreground">
+                      {t('basicSalary')} (Rp) <span className="text-destructive">*</span>
                     </label>
                     <Input
                       type="text"
-                      placeholder="Contoh: 15000000"
+                      placeholder="15000000"
                       {...register('baseSalary')}
                       disabled={isSubmitting}
                     />
                     {errors.baseSalary && (
-                      <p className="text-xs text-red-500">{errors.baseSalary.message}</p>
+                      <p className="text-xs text-destructive">{errors.baseSalary.message}</p>
                     )}
                   </div>
                 </div>
 
                 {/* Row 5: Status */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                    Status Kepegawaian <span className="text-red-500">*</span>
+                  <label className="text-xs font-semibold text-foreground">
+                    {t('status')} <span className="text-destructive">*</span>
                   </label>
                   <Select
                     value={selectedStatus}
@@ -369,24 +367,24 @@ export function EmployeeFormDialog({
                     disabled={isSubmitting}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Pilih Status">
+                      <SelectValue placeholder={t('status')}>
                         {selectedStatus === 'ACTIVE'
-                          ? 'Aktif (ACTIVE)'
+                          ? t('statusActive')
                           : selectedStatus === 'INACTIVE'
-                          ? 'Nonaktif (INACTIVE)'
+                          ? t('statusInactive')
                           : selectedStatus === 'TERMINATED'
-                          ? 'Diberhentikan (TERMINATED)'
+                          ? t('statusTerminated')
                           : undefined}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ACTIVE">Aktif (ACTIVE)</SelectItem>
-                      <SelectItem value="INACTIVE">Nonaktif (INACTIVE)</SelectItem>
-                      <SelectItem value="TERMINATED">Diberhentikan (TERMINATED)</SelectItem>
+                      <SelectItem value="ACTIVE">{t('statusActive')}</SelectItem>
+                      <SelectItem value="INACTIVE">{t('statusInactive')}</SelectItem>
+                      <SelectItem value="TERMINATED">{t('statusTerminated')}</SelectItem>
                     </SelectContent>
                   </Select>
                   {errors.status && (
-                    <p className="text-xs text-red-500">{errors.status.message}</p>
+                    <p className="text-xs text-destructive">{errors.status.message}</p>
                   )}
                 </div>
               </div>
@@ -398,19 +396,24 @@ export function EmployeeFormDialog({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting}
+                className="cursor-pointer"
               >
-                Batal
+                {tCommon('cancel')}
               </Button>
-              <Button type="submit" className="bg-blue-600 hover:bg-blue-700" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Menyimpan...
+                    {tCommon('saving')}
                   </>
                 ) : isEditMode ? (
-                  'Perbarui Karyawan'
+                  tCommon('save')
                 ) : (
-                  'Tambah Karyawan & Buat Akun'
+                  tCommon('create')
                 )}
               </Button>
             </DialogFooter>

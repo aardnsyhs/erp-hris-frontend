@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useLocale, useTranslations } from 'next-intl';
 import { Edit2, Loader2 } from 'lucide-react';
 import {
   updatePayrollSchema,
@@ -32,6 +33,9 @@ export function PayrollEditDialog({
   open,
   onOpenChange,
 }: PayrollEditDialogProps) {
+  const t = useTranslations('payroll');
+  const tCommon = useTranslations('common');
+  const locale = useLocale();
   const updateMutation = useUpdatePayroll();
   const isSubmitting = updateMutation.isPending;
 
@@ -68,10 +72,11 @@ export function PayrollEditDialog({
   const estimatedNet = basic + allow - deduct;
 
   const formatCurrency = (val: number) => {
+    const formatted = Math.abs(val).toLocaleString(locale === 'en' ? 'en-US' : 'id-ID');
     if (val < 0) {
-      return `(Rp ${Math.abs(val).toLocaleString('id-ID')})`;
+      return `(Rp ${formatted})`;
     }
-    return `Rp ${val.toLocaleString('id-ID')}`;
+    return `Rp ${formatted}`;
   };
 
   const onSubmit = async (values: UpdatePayrollFormValues) => {
@@ -94,36 +99,32 @@ export function PayrollEditDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
         <DialogHeader className="gap-2 pr-10 sm:pr-12">
-          <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-            <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-950">
+          <div className="flex items-center gap-2 text-primary">
+            <div className="p-2 rounded-xl bg-primary/10">
               <Edit2 className="w-5 h-5" />
             </div>
-            <DialogTitle>Edit Draft Payroll</DialogTitle>
+            <DialogTitle>{t('editDraft')}</DialogTitle>
           </div>
           <DialogDescription>
-            Ubah tunjangan atau potongan gaji untuk{' '}
-            <strong className="text-neutral-900 dark:text-neutral-100">
-              {payroll?.employee?.fullName}
-            </strong>
-            .
+            {payroll?.employee?.fullName}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
           {/* Snapshotted Basic Salary (Read-only) */}
-          <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-1">
-            <span className="text-[11px] font-semibold text-neutral-400 block">
-              Gaji Pokok Snapshot (Terkunci)
+          <div className="p-3 rounded-xl bg-card border border-border space-y-1 shadow-2xs">
+            <span className="text-[11px] font-semibold text-muted-foreground block">
+              {t('basicSalary')}
             </span>
-            <p className="font-mono font-bold text-sm text-neutral-900 dark:text-neutral-100">
+            <p className="font-mono font-bold text-sm text-foreground">
               {formatCurrency(basic)}
             </p>
           </div>
 
           {/* Allowances */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-              Tunjangan Tambahan (Rp)
+            <label className="text-xs font-semibold text-foreground">
+              {t('allowances')} (Rp)
             </label>
             <Input
               type="text"
@@ -132,14 +133,14 @@ export function PayrollEditDialog({
               disabled={isSubmitting}
             />
             {errors.allowances && (
-              <p className="text-xs text-red-500">{errors.allowances.message}</p>
+              <p className="text-xs text-destructive">{errors.allowances.message}</p>
             )}
           </div>
 
           {/* Deductions */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-              Potongan Gaji (Rp)
+            <label className="text-xs font-semibold text-foreground">
+              {t('deductions')} (Rp)
             </label>
             <Input
               type="text"
@@ -148,19 +149,19 @@ export function PayrollEditDialog({
               disabled={isSubmitting}
             />
             {errors.deductions && (
-              <p className="text-xs text-red-500">{errors.deductions.message}</p>
+              <p className="text-xs text-destructive">{errors.deductions.message}</p>
             )}
           </div>
 
           {/* Estimated Net Salary Box */}
           <div
-            className={`p-3 rounded-xl border flex items-center justify-between text-xs ${
+            className={`p-3 rounded-xl border flex items-center justify-between text-xs shadow-2xs ${
               estimatedNet < 0
-                ? 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900 text-red-700 dark:text-red-300'
-                : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900 text-emerald-800 dark:text-emerald-300'
+                ? 'bg-destructive/10 border-destructive/30 text-destructive'
+                : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300'
             }`}
           >
-            <span className="font-semibold">Estimasi Gaji Bersih (Net):</span>
+            <span className="font-semibold">{t('netSalary')}:</span>
             <span className="font-mono font-bold text-sm">
               {formatCurrency(estimatedNet)}
             </span>
@@ -172,21 +173,22 @@ export function PayrollEditDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
+              className="cursor-pointer"
             >
-              Batal
+              {tCommon('cancel')}
             </Button>
             <Button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Menyimpan...
+                  {tCommon('saving')}
                 </>
               ) : (
-                'Simpan Perubahan'
+                tCommon('save')
               )}
             </Button>
           </DialogFooter>

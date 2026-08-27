@@ -1,5 +1,8 @@
+'use client';
+
 import React from 'react';
 import { Table } from '@tanstack/react-table';
+import { useTranslations } from 'next-intl';
 import {
   ChevronLeft,
   ChevronRight,
@@ -14,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
 import {
   Tooltip,
   TooltipContent,
@@ -31,6 +33,7 @@ export function DataTablePagination<TData>({
   table,
   totalRows,
 }: DataTablePaginationProps<TData>) {
+  const t = useTranslations('common');
   const pageIndex = table.getState().pagination.pageIndex;
   const pageSize = table.getState().pagination.pageSize;
   const pageCount = table.getPageCount();
@@ -40,22 +43,17 @@ export function DataTablePagination<TData>({
   const endRow = Math.min((pageIndex + 1) * pageSize, total);
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 px-1 text-sm text-neutral-500 dark:text-neutral-400">
-      <div className="flex items-center gap-1">
-        <span>Menampilkan</span>
-        <span className="font-medium text-neutral-900 dark:text-neutral-100">
-          {startRow}-{endRow}
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 px-1 text-sm text-muted-foreground">
+      <div className="flex items-center gap-1 text-xs sm:text-sm">
+        <span>{t('showing', { count: total })}</span>
+        <span className="font-semibold text-foreground">
+          ({startRow}-{endRow} {t('of')} {total})
         </span>
-        <span>dari</span>
-        <span className="font-medium text-neutral-900 dark:text-neutral-100">
-          {total}
-        </span>
-        <span>data</span>
       </div>
 
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2">
-          <span className="text-xs sm:text-sm">Baris per halaman:</span>
+          <span className="text-xs sm:text-sm">{t('rowsPerPage')}:</span>
           <Select
             value={`${pageSize}`}
             onValueChange={(value) => {
@@ -77,8 +75,8 @@ export function DataTablePagination<TData>({
 
         <TooltipProvider>
           <div className="flex items-center gap-1">
-            <span className="text-xs sm:text-sm mr-2">
-              Halaman {pageIndex + 1} dari {Math.max(pageCount, 1)}
+            <span className="text-xs sm:text-sm mr-2 text-foreground font-medium">
+              {t('page')} {pageIndex + 1} {t('of')} {Math.max(pageCount, 1)}
             </span>
 
             <Tooltip>
@@ -87,16 +85,16 @@ export function DataTablePagination<TData>({
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-8 w-8 cursor-pointer"
                     onClick={() => table.setPageIndex(0)}
                     disabled={!table.getCanPreviousPage()}
-                    aria-label="Halaman pertama"
+                    aria-label={t('firstPage')}
                   />
                 }
               >
                 <ChevronsLeft className="h-4 w-4" />
               </TooltipTrigger>
-              <TooltipContent>Halaman pertama</TooltipContent>
+              <TooltipContent>{t('firstPage')}</TooltipContent>
             </Tooltip>
 
             <Tooltip>
@@ -105,16 +103,16 @@ export function DataTablePagination<TData>({
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-8 w-8 cursor-pointer"
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
-                    aria-label="Halaman sebelumnya"
+                    aria-label={t('previousPage')}
                   />
                 }
               >
                 <ChevronLeft className="h-4 w-4" />
               </TooltipTrigger>
-              <TooltipContent>Halaman sebelumnya</TooltipContent>
+              <TooltipContent>{t('previousPage')}</TooltipContent>
             </Tooltip>
 
             <Tooltip>
@@ -123,16 +121,16 @@ export function DataTablePagination<TData>({
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-8 w-8 cursor-pointer"
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
-                    aria-label="Halaman berikutnya"
+                    aria-label={t('nextPage')}
                   />
                 }
               >
                 <ChevronRight className="h-4 w-4" />
               </TooltipTrigger>
-              <TooltipContent>Halaman berikutnya</TooltipContent>
+              <TooltipContent>{t('nextPage')}</TooltipContent>
             </Tooltip>
 
             <Tooltip>
@@ -141,16 +139,16 @@ export function DataTablePagination<TData>({
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-8 w-8 cursor-pointer"
                     onClick={() => table.setPageIndex(pageCount - 1)}
                     disabled={!table.getCanNextPage()}
-                    aria-label="Halaman terakhir"
+                    aria-label={t('lastPage')}
                   />
                 }
               >
                 <ChevronsRight className="h-4 w-4" />
               </TooltipTrigger>
-              <TooltipContent>Halaman terakhir</TooltipContent>
+              <TooltipContent>{t('lastPage')}</TooltipContent>
             </Tooltip>
           </div>
         </TooltipProvider>

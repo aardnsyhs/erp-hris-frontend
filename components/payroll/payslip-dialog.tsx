@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   Receipt,
   CheckCircle2,
@@ -34,10 +35,14 @@ export function PayslipDialog({
   open,
   onOpenChange,
 }: PayslipDialogProps) {
+  const t = useTranslations('payroll');
+  const tCommon = useTranslations('common');
+  const locale = useLocale();
+
   if (!payroll) return null;
 
   const formatDate = (dateStr: string) => {
-    return new Intl.DateTimeFormat('id-ID', {
+    return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
       timeZone: 'Asia/Jakarta',
       day: 'numeric',
       month: 'long',
@@ -55,10 +60,11 @@ export function PayslipDialog({
   const isNegativeNet = netSalary < 0;
 
   const formatCurrency = (val: number) => {
+    const formatted = Math.abs(val).toLocaleString(locale === 'en' ? 'en-US' : 'id-ID');
     if (val < 0) {
-      return `(Rp ${Math.abs(val).toLocaleString('id-ID')})`;
+      return `(Rp ${formatted})`;
     }
-    return `Rp ${val.toLocaleString('id-ID')}`;
+    return `Rp ${formatted}`;
   };
 
   return (
@@ -67,50 +73,50 @@ export function PayslipDialog({
         <DialogHeader className="gap-2 shrink-0 pr-10 sm:pr-12">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 shrink-0">
+              <div className="p-2 rounded-xl bg-primary/10 text-primary shrink-0">
                 <Receipt className="w-5 h-5" />
               </div>
-              <DialogTitle className="truncate text-base font-bold text-neutral-900 dark:text-neutral-100">
-                Slip Gaji Karyawan
+              <DialogTitle className="truncate text-base font-bold text-foreground">
+                {t('payslipTitle')}
               </DialogTitle>
             </div>
             <div className="shrink-0 self-start sm:self-auto">
               {payroll.status === 'PAID' ? (
                 <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 gap-1 text-xs whitespace-nowrap">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  Sudah Dibayar (PAID)
+                  {t('statusPaid')}
                 </Badge>
               ) : payroll.status === 'PROCESSED' ? (
-                <Badge className="bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30 gap-1 text-xs whitespace-nowrap">
+                <Badge className="bg-primary/10 text-primary border-primary/20 gap-1 text-xs whitespace-nowrap">
                   <Clock className="w-3.5 h-3.5" />
-                  Diproses (PROCESSED)
+                  {t('statusProcessed')}
                 </Badge>
               ) : (
-                <Badge variant="outline" className="bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-300 gap-1 text-xs whitespace-nowrap">
+                <Badge variant="outline" className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 gap-1 text-xs whitespace-nowrap">
                   <Clock className="w-3.5 h-3.5" />
-                  Draft (DRAFT)
+                  {t('statusDraft')}
                 </Badge>
               )}
             </div>
           </div>
-          <DialogDescription className="text-xs text-neutral-500">
-            Dokumen resmi rincian kompensasi dan pemotongan gaji karyawan.
+          <DialogDescription className="text-xs text-muted-foreground">
+            {t('payslipSubtitle')}
           </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="min-h-0 flex-1 -mr-2 pr-4 my-2">
           <div className="space-y-4 py-1 text-sm">
             {/* Section 1: Employee Header */}
-            <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-1">
-              <span className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider block">
-                Penerima Gaji
+            <div className="p-3 rounded-xl bg-card border border-border space-y-1 shadow-2xs">
+              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">
+                {t('recipient')}
               </span>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-bold text-neutral-900 dark:text-neutral-100">
+                  <p className="font-bold text-foreground">
                     {payroll.employee?.fullName || 'Karyawan'}
                   </p>
-                  <p className="text-xs text-neutral-500 font-mono">
+                  <p className="text-xs text-muted-foreground font-mono">
                     NIP: {payroll.employee?.nip} • {payroll.employee?.jobTitle}
                   </p>
                 </div>
@@ -126,21 +132,21 @@ export function PayslipDialog({
 
             {/* Section 2: Period & Payment Date */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-0.5">
-                <span className="text-[11px] font-semibold text-neutral-400 block">
-                  Periode Gaji
+              <div className="p-3 rounded-xl bg-card border border-border space-y-0.5 shadow-2xs">
+                <span className="text-[11px] font-semibold text-muted-foreground block">
+                  {t('period')}
                 </span>
-                <p className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">
-                  {formatDate(payroll.periodStart)} s/d {formatDate(payroll.periodEnd)}
+                <p className="text-xs font-semibold text-foreground">
+                  {formatDate(payroll.periodStart)} – {formatDate(payroll.periodEnd)}
                 </p>
               </div>
 
-              <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-0.5">
-                <span className="text-[11px] font-semibold text-neutral-400 block">
-                  Tanggal Pembayaran
+              <div className="p-3 rounded-xl bg-card border border-border space-y-0.5 shadow-2xs">
+                <span className="text-[11px] font-semibold text-muted-foreground block">
+                  {t('paymentDate')}
                 </span>
-                <p className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">
-                  {payroll.paymentDate ? formatDate(payroll.paymentDate) : 'Belum Ditransfer'}
+                <p className="text-xs font-semibold text-foreground">
+                  {payroll.paymentDate ? formatDate(payroll.paymentDate) : t('notPaidYet')}
                 </p>
               </div>
             </div>
@@ -154,32 +160,32 @@ export function PayslipDialog({
                 {isNegativeNet && (
                   <Alert variant="destructive">
                     <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>Perhatian: Gaji Bersih Bernilai Negatif</AlertTitle>
+                    <AlertTitle>{t('negativeNetWarningTitle')}</AlertTitle>
                     <AlertDescription>
-                      Total pemotongan melebihi jumlah pendapatan kotor (gaji pokok + tunjangan). Perlu peninjauan khusus oleh HR Administrator.
+                      {t('negativeNetWarningDesc')}
                     </AlertDescription>
                   </Alert>
                 )}
 
                 {/* Earnings & Deductions Breakdown */}
-                <div className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 space-y-2.5 bg-white dark:bg-neutral-900 shadow-2xs">
-                  <div className="flex justify-between items-center text-xs text-neutral-600 dark:text-neutral-400">
-                    <span>Gaji Pokok (Snapshot)</span>
-                    <span className="font-mono font-medium text-neutral-900 dark:text-neutral-100">
+                <div className="p-4 rounded-xl border border-border space-y-2.5 bg-card text-card-foreground shadow-2xs">
+                  <div className="flex justify-between items-center text-xs text-muted-foreground">
+                    <span>{t('basicSalary')}</span>
+                    <span className="font-mono font-medium text-foreground">
                       {formatCurrency(basic)}
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-center text-xs text-neutral-600 dark:text-neutral-400">
-                    <span>Tunjangan Tambahan (+)</span>
+                  <div className="flex justify-between items-center text-xs text-muted-foreground">
+                    <span>{t('allowances')}</span>
                     <span className="font-mono font-medium text-emerald-600 dark:text-emerald-400">
                       +{formatCurrency(allowances)}
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-center text-xs text-neutral-600 dark:text-neutral-400">
-                    <span>Potongan Gaji (-)</span>
-                    <span className="font-mono font-medium text-red-600 dark:text-red-400">
+                  <div className="flex justify-between items-center text-xs text-muted-foreground">
+                    <span>{t('deductions')}</span>
+                    <span className="font-mono font-medium text-destructive">
                       -{formatCurrency(deductions)}
                     </span>
                   </div>
@@ -187,13 +193,13 @@ export function PayslipDialog({
                   <Separator className="my-2" />
 
                   <div className="flex justify-between items-center">
-                    <span className="text-xs font-bold text-neutral-900 dark:text-neutral-100">
-                      Gaji Bersih (Take Home Pay)
+                    <span className="text-xs font-bold text-foreground">
+                      {t('netSalary')}
                     </span>
                     <span
                       className={`font-mono font-bold text-base ${
                         isNegativeNet
-                          ? 'text-red-600 dark:text-red-400'
+                          ? 'text-destructive'
                           : 'text-emerald-600 dark:text-emerald-400'
                       }`}
                     >
@@ -204,16 +210,16 @@ export function PayslipDialog({
               </div>
             ) : (
               /* Privacy Protection Card for Managers viewing team members */
-              <div className="p-4 rounded-xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/60 dark:border-blue-900 text-center space-y-2">
-                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto">
+              <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 text-center space-y-2">
+                <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center mx-auto">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-blue-900 dark:text-blue-200">
-                    Informasi Finansial Dilindungi
+                  <h4 className="text-xs font-bold text-foreground">
+                    {t('protectedInfo')}
                   </h4>
-                  <p className="text-[11px] text-blue-700/80 dark:text-blue-300/80 mt-1 max-w-sm mx-auto">
-                    Sesuai kebijakan kepatuhan data HRIS, nominal rincian gaji anggota tim dirahasiakan dan hanya dapat diakses oleh HR Administrator serta karyawan yang bersangkutan.
+                  <p className="text-[11px] text-muted-foreground mt-1 max-w-sm mx-auto">
+                    {t('protectedDesc')}
                   </p>
                 </div>
               </div>
@@ -221,14 +227,14 @@ export function PayslipDialog({
           </div>
         </ScrollArea>
 
-        <DialogFooter className="shrink-0 p-4 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50/90 dark:bg-neutral-900/90 flex flex-col sm:flex-row sm:justify-end -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 rounded-b-xl gap-2">
+        <DialogFooter className="shrink-0 p-4 border-t border-border bg-card flex flex-col sm:flex-row sm:justify-end -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 rounded-b-xl gap-2">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             className="w-full sm:w-auto min-h-11 px-6 text-sm font-medium cursor-pointer"
           >
-            Tutup
+            {tCommon('close')}
           </Button>
         </DialogFooter>
       </DialogContent>

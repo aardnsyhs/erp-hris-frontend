@@ -3,7 +3,8 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Clock, Loader2, Settings } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Loader2, Settings } from 'lucide-react';
 import {
   workScheduleSchema,
   WorkScheduleFormValues,
@@ -32,6 +33,8 @@ export function WorkScheduleDialog({
   open,
   onOpenChange,
 }: WorkScheduleDialogProps) {
+  const t = useTranslations('attendance');
+  const tCommon = useTranslations('common');
   const { data: schedule, isLoading: isLoadingSchedule } = useWorkSchedule();
   const updateMutation = useUpdateWorkSchedule();
   const isSubmitting = updateMutation.isPending;
@@ -73,22 +76,22 @@ export function WorkScheduleDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
         <DialogHeader className="gap-2 pr-10 sm:pr-12">
-          <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
-            <div className="p-2 rounded-xl bg-indigo-100 dark:bg-indigo-950">
+          <div className="flex items-center gap-2 text-primary">
+            <div className="p-2 rounded-xl bg-primary/10">
               <Settings className="w-5 h-5" />
             </div>
-            <DialogTitle>Pengaturan Jadwal Kerja Organisasi</DialogTitle>
+            <DialogTitle>{t('workSchedule')}</DialogTitle>
           </div>
           <DialogDescription>
-            Atur jam mulai kerja standar (WIB), batas menit toleransi keterlambatan, dan target jam kerja harian.
+            {t('subtitle')}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
           {/* Field: Start Time */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-              Jam Masuk Kerja (WIB / Asia/Jakarta) <span className="text-red-500">*</span>
+            <label className="text-xs font-semibold text-foreground">
+              {t('standardStartTime')} <span className="text-destructive">*</span>
             </label>
             <div className="relative">
               <Input
@@ -99,18 +102,18 @@ export function WorkScheduleDialog({
               />
             </div>
             {errors.startTime ? (
-              <p className="text-xs text-red-500">{errors.startTime.message}</p>
+              <p className="text-xs text-destructive">{errors.startTime.message}</p>
             ) : (
-              <p className="text-[11px] text-neutral-400">
-                Gunakan format 24 jam "HH:mm" (contoh: 08:30 atau 09:00).
+              <p className="text-[11px] text-muted-foreground">
+                Format 24 jam "HH:mm" (08:30, 09:00).
               </p>
             )}
           </div>
 
           {/* Field: Late Tolerance Minutes */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-              Toleransi Keterlambatan (Menit) <span className="text-red-500">*</span>
+            <label className="text-xs font-semibold text-foreground">
+              {t('gracePeriodMinutes')} <span className="text-destructive">*</span>
             </label>
             <Input
               type="number"
@@ -119,20 +122,20 @@ export function WorkScheduleDialog({
               disabled={isSubmitting || isLoadingSchedule}
             />
             {errors.lateToleranceMinutes ? (
-              <p className="text-xs text-red-500">
+              <p className="text-xs text-destructive">
                 {errors.lateToleranceMinutes.message}
               </p>
             ) : (
-              <p className="text-[11px] text-neutral-400">
-                Check-in setelah jam masuk + toleransi akan ditandai berstatus "LATE" (Terlambat).
+              <p className="text-[11px] text-muted-foreground">
+                {t('statusLate')} jika lewat dari batas ini.
               </p>
             )}
           </div>
 
           {/* Field: Standard Work Minutes */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-              Target Jam Kerja Standar (Menit) <span className="text-red-500">*</span>
+            <label className="text-xs font-semibold text-foreground">
+              {t('dailyTargetHours')} (Menit) <span className="text-destructive">*</span>
             </label>
             <Input
               type="number"
@@ -140,13 +143,9 @@ export function WorkScheduleDialog({
               {...register('standardWorkMinutes', { valueAsNumber: true })}
               disabled={isSubmitting || isLoadingSchedule}
             />
-            {errors.standardWorkMinutes ? (
-              <p className="text-xs text-red-500">
+            {errors.standardWorkMinutes && (
+              <p className="text-xs text-destructive">
                 {errors.standardWorkMinutes.message}
-              </p>
-            ) : (
-              <p className="text-[11px] text-neutral-400">
-                480 menit setara dengan 8 jam kerja reguler.
               </p>
             )}
           </div>
@@ -157,21 +156,22 @@ export function WorkScheduleDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
+              className="cursor-pointer"
             >
-              Batal
+              {tCommon('cancel')}
             </Button>
             <Button
               type="submit"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground cursor-pointer"
               disabled={isSubmitting || isLoadingSchedule}
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Menyimpan...
+                  {tCommon('saving')}
                 </>
               ) : (
-                'Simpan Pengaturan'
+                tCommon('save')
               )}
             </Button>
           </DialogFooter>

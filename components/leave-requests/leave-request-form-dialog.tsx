@@ -3,7 +3,8 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CalendarPlus, Loader2, Calendar, FileText } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { CalendarPlus, Loader2, Calendar } from 'lucide-react';
 import {
   leaveRequestFormSchema,
   LeaveRequestFormValues,
@@ -39,6 +40,8 @@ export function LeaveRequestFormDialog({
   open,
   onOpenChange,
 }: LeaveRequestFormDialogProps) {
+  const t = useTranslations('leave');
+  const tCommon = useTranslations('common');
   const createMutation = useCreateLeaveRequest();
   const isSubmitting = createMutation.isPending;
 
@@ -99,14 +102,14 @@ export function LeaveRequestFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[calc(100vw-2rem)] sm:max-w-xl max-h-[90vh] flex flex-col">
         <DialogHeader className="gap-2 shrink-0 pr-10 sm:pr-12">
-          <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-            <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-950">
+          <div className="flex items-center gap-2 text-primary">
+            <div className="p-2 rounded-xl bg-primary/10">
               <CalendarPlus className="w-5 h-5" />
             </div>
-            <DialogTitle>Ajukan Permohonan Cuti</DialogTitle>
+            <DialogTitle>{t('requestLeave')}</DialogTitle>
           </div>
           <DialogDescription>
-            Isi formulir pengajuan cuti Anda. Pengajuan akan diteruskan ke Manager departemen / HR Admin untuk diverifikasi.
+            {t('subtitleEmployee')}
           </DialogDescription>
         </DialogHeader>
 
@@ -115,8 +118,8 @@ export function LeaveRequestFormDialog({
             <div className="space-y-4 py-2">
               {/* Tipe Cuti */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                  Tipe Cuti <span className="text-red-500">*</span>
+                <label className="text-xs font-semibold text-foreground">
+                  {t('leaveType')} <span className="text-destructive">*</span>
                 </label>
                 <Select
                   value={selectedLeaveType}
@@ -126,34 +129,34 @@ export function LeaveRequestFormDialog({
                   disabled={isSubmitting}
                 >
                   <SelectTrigger className="w-full h-9">
-                    <SelectValue placeholder="Pilih Tipe Cuti">
+                    <SelectValue placeholder={t('leaveType')}>
                       {selectedLeaveType === 'ANNUAL'
-                        ? 'Cuti Tahunan (ANNUAL)'
+                        ? t('annual')
                         : selectedLeaveType === 'SICK'
-                        ? 'Cuti Sakit (SICK)'
+                        ? t('sick')
                         : selectedLeaveType === 'UNPAID'
-                        ? 'Cuti Tanpa Gaji (UNPAID)'
+                        ? t('unpaid')
                         : selectedLeaveType === 'MATERNITY'
-                        ? 'Cuti Melahirkan (MATERNITY)'
+                        ? t('maternity')
                         : undefined}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ANNUAL">Cuti Tahunan (ANNUAL)</SelectItem>
-                    <SelectItem value="SICK">Cuti Sakit (SICK)</SelectItem>
-                    <SelectItem value="UNPAID">Cuti Tanpa Gaji (UNPAID)</SelectItem>
-                    <SelectItem value="MATERNITY">Cuti Melahirkan (MATERNITY)</SelectItem>
+                    <SelectItem value="ANNUAL">{t('annual')}</SelectItem>
+                    <SelectItem value="SICK">{t('sick')}</SelectItem>
+                    <SelectItem value="UNPAID">{t('unpaid')}</SelectItem>
+                    <SelectItem value="MATERNITY">{t('maternity')}</SelectItem>
                   </SelectContent>
                 </Select>
                 {errors.leaveType && (
-                  <p className="text-xs text-red-500">{errors.leaveType.message}</p>
+                  <p className="text-xs text-destructive">{errors.leaveType.message}</p>
                 )}
               </div>
 
               {/* Date Range Picker */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                  Rentang Tanggal Cuti <span className="text-red-500">*</span>
+                <label className="text-xs font-semibold text-foreground">
+                  {t('period')} <span className="text-destructive">*</span>
                 </label>
                 <DateRangePicker
                   from={startDate}
@@ -163,10 +166,10 @@ export function LeaveRequestFormDialog({
                     setValue('endDate', to, { shouldValidate: true });
                   }}
                   disabled={isSubmitting}
-                  placeholder="Pilih tanggal mulai s/d selesai"
+                  placeholder={t('period')}
                 />
                 {(errors.startDate || errors.endDate) && (
-                  <p className="text-xs text-red-500">
+                  <p className="text-xs text-destructive">
                     {errors.startDate?.message || errors.endDate?.message}
                   </p>
                 )}
@@ -174,30 +177,30 @@ export function LeaveRequestFormDialog({
 
               {/* Duration Summary Badge */}
               {dayCount > 0 && (
-                <div className="p-3 rounded-xl bg-blue-50/60 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-900 flex items-center justify-between text-xs text-blue-700 dark:text-blue-300">
+                <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-between text-xs text-primary">
                   <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                    <span>Estimasi Durasi Pengajuan:</span>
+                    <Calendar className="w-4 h-4 text-primary" />
+                    <span>{t('duration')}:</span>
                   </div>
-                  <Badge className="bg-blue-600 text-white font-semibold">
-                    {dayCount} Hari
+                  <Badge className="bg-primary text-primary-foreground font-semibold">
+                    {t('calendarDays', { count: dayCount })}
                   </Badge>
                 </div>
               )}
 
               {/* Reason */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-                  Alasan Pengajuan Cuti <span className="text-red-500">*</span>
+                <label className="text-xs font-semibold text-foreground">
+                  {t('reason')} <span className="text-destructive">*</span>
                 </label>
                 <textarea
-                  className="flex w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-2xs placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 min-h-22.5 outline-none"
-                  placeholder="Contoh: Mengambil cuti tahunan untuk keperluan keluarga ke luar kota..."
+                  className="flex w-full rounded-lg border border-input bg-background text-foreground px-3 py-2 text-sm shadow-2xs placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 min-h-22.5 outline-none"
+                  placeholder={t('reasonPlaceholder')}
                   {...register('reason')}
                   disabled={isSubmitting}
                 />
                 {errors.reason && (
-                  <p className="text-xs text-red-500">{errors.reason.message}</p>
+                  <p className="text-xs text-destructive">{errors.reason.message}</p>
                 )}
               </div>
             </div>
@@ -209,21 +212,22 @@ export function LeaveRequestFormDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
+              className="cursor-pointer"
             >
-              Batal
+              {tCommon('cancel')}
             </Button>
             <Button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold cursor-pointer"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Mengirimkan...
+                  {tCommon('processing')}
                 </>
               ) : (
-                'Kirim Pengajuan Cuti'
+                t('requestLeave')
               )}
             </Button>
           </DialogFooter>

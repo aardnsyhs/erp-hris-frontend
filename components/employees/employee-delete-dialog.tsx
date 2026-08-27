@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { Loader2, AlertTriangle } from 'lucide-react';
 import { useDeleteEmployee } from '@/hooks/use-employees';
 import { Employee } from '@/types/employee';
@@ -25,6 +26,8 @@ export function EmployeeDeleteDialog({
   onOpenChange,
   employee,
 }: EmployeeDeleteDialogProps) {
+  const t = useTranslations('employees');
+  const tCommon = useTranslations('common');
   const deleteMutation = useDeleteEmployee();
   const isDeleting = deleteMutation.isPending;
 
@@ -43,20 +46,13 @@ export function EmployeeDeleteDialog({
       <AlertDialogContent className="w-[calc(100vw-2rem)] sm:max-w-md max-h-[90vh]">
         <AlertDialogHeader className="gap-2 pr-10 sm:pr-12">
           <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
-            <div className="p-2 rounded-full bg-amber-100 dark:bg-amber-950">
+            <div className="p-2 rounded-full bg-amber-500/10">
               <AlertTriangle className="h-5 w-5" />
             </div>
-            <AlertDialogTitle>Nonaktifkan Karyawan</AlertDialogTitle>
+            <AlertDialogTitle>{t('deactivateTitle')}</AlertDialogTitle>
           </div>
-          <AlertDialogDescription className="pt-2 text-neutral-600 dark:text-neutral-300">
-            Apakah Anda yakin ingin menonaktifkan akun karyawan{' '}
-            <strong className="text-neutral-900 dark:text-neutral-100 font-semibold">
-              {employee?.fullName}
-            </strong>{' '}
-            ({employee?.nip})?
-            <br />
-            <br />
-            <strong>Konsekuensi:</strong> Status karyawan akan berubah menjadi <code>INACTIVE</code> dan akun login terkait akan dinonaktifkan. Karyawan tidak dapat login ke sistem, namun riwayat absensi, cuti, dan payroll tetap tersimpan dan dapat direaktivasi di kemudian hari.
+          <AlertDialogDescription className="pt-2 text-muted-foreground">
+            {t('deactivateDesc', { name: employee?.fullName ?? '', nip: employee?.nip ?? '' })}
           </AlertDialogDescription>
         </AlertDialogHeader>
 
@@ -67,8 +63,9 @@ export function EmployeeDeleteDialog({
             size="sm"
             onClick={() => onOpenChange(false)}
             disabled={isDeleting}
+            className="cursor-pointer"
           >
-            Batal
+            {tCommon('cancel')}
           </Button>
           <Button
             type="button"
@@ -76,14 +73,15 @@ export function EmployeeDeleteDialog({
             size="sm"
             onClick={handleDelete}
             disabled={isDeleting}
+            className="cursor-pointer"
           >
             {isDeleting ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Menonaktifkan...
+                {tCommon('processing')}
               </>
             ) : (
-              'Ya, Nonaktifkan Karyawan'
+              t('deactivateTitle')
             )}
           </Button>
         </AlertDialogFooter>

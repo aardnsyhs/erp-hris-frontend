@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Building2,
   CalendarCheck2,
@@ -19,53 +20,53 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { UserRole } from '@/types/auth';
 
-interface NavItem {
-  title: string;
+interface NavConfig {
+  key: string;
   href: string;
   icon: React.ElementType;
   roles: UserRole[];
   badge?: string;
 }
 
-const navItems: NavItem[] = [
+const navConfigs: NavConfig[] = [
   {
-    title: 'Dashboard',
+    key: 'dashboard',
     href: '/',
     icon: LayoutDashboard,
     roles: ['HR_ADMIN', 'MANAGER', 'EMPLOYEE'],
   },
   {
-    title: 'Departemen',
+    key: 'departments',
     href: '/departments',
     icon: Building2,
     roles: ['HR_ADMIN'],
   },
   {
-    title: 'Karyawan',
+    key: 'employees',
     href: '/employees',
     icon: Users,
     roles: ['HR_ADMIN', 'MANAGER'],
   },
   {
-    title: 'Absensi',
+    key: 'attendance',
     href: '/attendances',
     icon: CalendarCheck2,
     roles: ['HR_ADMIN', 'MANAGER', 'EMPLOYEE'],
   },
   {
-    title: 'Cuti & Izin',
+    key: 'leaveRequests',
     href: '/leave-requests',
     icon: CalendarDays,
     roles: ['HR_ADMIN', 'MANAGER', 'EMPLOYEE'],
   },
   {
-    title: 'Payroll',
+    key: 'payroll',
     href: '/payrolls',
     icon: CreditCard,
     roles: ['HR_ADMIN', 'MANAGER', 'EMPLOYEE'],
   },
   {
-    title: 'Profil Saya',
+    key: 'profile',
     href: '/profile',
     icon: User,
     roles: ['HR_ADMIN', 'MANAGER', 'EMPLOYEE'],
@@ -78,36 +79,37 @@ export function SidebarNavContent({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
+  const t = useTranslations('navigation');
   const user = useAuthStore((state) => state.user);
   const currentRole = user?.role || 'EMPLOYEE';
 
-  const filteredNavItems = navItems.filter((item) =>
+  const filteredNavItems = navConfigs.filter((item) =>
     item.roles.includes(currentRole as UserRole),
   );
 
   return (
-    <div className="flex flex-col h-full bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100">
+    <div className="flex flex-col h-full bg-card text-card-foreground">
       {/* Brand Header */}
-      <div className="h-16 flex items-center gap-3 px-6 border-b border-neutral-200 dark:border-neutral-800 shrink-0">
-        <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-xs font-bold text-lg">
+      <div className="h-16 flex items-center gap-3 px-6 border-b border-border shrink-0">
+        <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-xs font-bold text-lg">
           <BriefcaseBusiness className="w-5 h-5" />
         </div>
-        <div className="flex flex-col">
-          <span className="font-bold text-base tracking-tight text-neutral-900 dark:text-white">
-            HRIS Core
+        <div className="flex flex-col min-w-0">
+          <span className="font-bold text-base tracking-tight text-foreground truncate">
+            {t('systemTitle')}
           </span>
-          <span className="text-[11px] text-neutral-400 font-medium">
-            Enterprise Portal
+          <span className="text-[11px] text-muted-foreground font-medium truncate">
+            {t('systemSubtitle')}
           </span>
         </div>
       </div>
 
       {/* Role Badge Indicator */}
-      <div className="px-6 py-4 border-b border-neutral-100 dark:border-neutral-800/60 bg-neutral-50/50 dark:bg-neutral-800/20 shrink-0">
+      <div className="px-6 py-3.5 border-b border-border/70 bg-muted/40 shrink-0">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-neutral-500 font-medium flex items-center gap-1.5">
-            <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
-            Peran Aktif:
+          <span className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
+            <ShieldCheck className="w-3.5 h-3.5 text-primary" />
+            Role:
           </span>
           <Badge
             variant={
@@ -141,21 +143,19 @@ export function SidebarNavContent({
               className={cn(
                 'flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all duration-150',
                 isActive
-                  ? 'bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-400 font-semibold shadow-2xs'
-                  : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100/80 dark:hover:bg-neutral-800/50 hover:text-neutral-900 dark:hover:text-neutral-100',
+                  ? 'bg-primary/10 text-primary font-semibold shadow-2xs'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground',
               )}
             >
               <Icon
                 className={cn(
                   'w-4 h-4 shrink-0 transition-colors',
-                  isActive
-                    ? 'text-blue-600 dark:text-blue-400'
-                    : 'text-neutral-400 dark:text-neutral-500',
+                  isActive ? 'text-primary' : 'text-muted-foreground',
                 )}
               />
-              <span>{item.title}</span>
+              <span className="truncate">{t(item.key as any)}</span>
               {item.badge && (
-                <span className="ml-auto text-[10px] bg-neutral-200 dark:bg-neutral-700 px-1.5 py-0.5 rounded-md font-mono">
+                <span className="ml-auto text-[10px] bg-muted px-1.5 py-0.5 rounded-md font-mono">
                   {item.badge}
                 </span>
               )}
@@ -165,16 +165,16 @@ export function SidebarNavContent({
       </nav>
 
       {/* User Footer Summary */}
-      <div className="p-4 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 shrink-0">
+      <div className="p-4 border-t border-border bg-muted/30 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-200 flex items-center justify-center font-bold text-xs">
+          <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
             {user?.employee?.fullName?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
           </div>
           <div className="flex flex-col min-w-0 flex-1">
-            <span className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 truncate">
-              {user?.employee?.fullName || user?.email || 'Pengguna'}
+            <span className="text-xs font-semibold text-foreground truncate">
+              {user?.employee?.fullName || user?.email || 'User'}
             </span>
-            <span className="text-[11px] text-neutral-400 truncate">
+            <span className="text-[11px] text-muted-foreground truncate">
               {user?.employee?.jobTitle || user?.email}
             </span>
           </div>
@@ -186,7 +186,7 @@ export function SidebarNavContent({
 
 export function AppSidebar() {
   return (
-    <aside className="hidden md:flex w-64 border-r border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 flex-col h-screen shrink-0">
+    <aside className="hidden md:flex w-64 border-r border-border bg-card flex-col h-screen shrink-0">
       <SidebarNavContent />
     </aside>
   );

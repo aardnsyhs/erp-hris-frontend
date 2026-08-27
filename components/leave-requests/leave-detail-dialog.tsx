@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   Calendar,
   Clock,
@@ -33,10 +34,14 @@ export function LeaveDetailDialog({
   open,
   onOpenChange,
 }: LeaveDetailDialogProps) {
+  const t = useTranslations('leave');
+  const tCommon = useTranslations('common');
+  const locale = useLocale();
+
   if (!leaveRequest) return null;
 
   const formatDate = (dateStr: string) => {
-    return new Intl.DateTimeFormat('id-ID', {
+    return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
       timeZone: 'Asia/Jakarta',
       weekday: 'long',
       day: 'numeric',
@@ -47,7 +52,7 @@ export function LeaveDetailDialog({
 
   const formatDateTime = (dateStr?: string | null) => {
     if (!dateStr) return '-';
-    return new Intl.DateTimeFormat('id-ID', {
+    return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
       timeZone: 'Asia/Jakarta',
       day: 'numeric',
       month: 'short',
@@ -69,13 +74,13 @@ export function LeaveDetailDialog({
   const getLeaveTypeLabel = (type: string) => {
     switch (type) {
       case 'ANNUAL':
-        return 'Cuti Tahunan (ANNUAL)';
+        return t('annual');
       case 'SICK':
-        return 'Cuti Sakit (SICK)';
+        return t('sick');
       case 'UNPAID':
-        return 'Cuti Tanpa Gaji (UNPAID)';
+        return t('unpaid');
       case 'MATERNITY':
-        return 'Cuti Melahirkan (MATERNITY)';
+        return t('maternity');
       default:
         return type;
     }
@@ -87,50 +92,50 @@ export function LeaveDetailDialog({
         <DialogHeader className="gap-2 shrink-0 pr-10 sm:pr-12">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 shrink-0">
+              <div className="p-2 rounded-xl bg-primary/10 text-primary shrink-0">
                 <FileText className="w-5 h-5" />
               </div>
-              <DialogTitle className="truncate text-base font-bold text-neutral-900 dark:text-neutral-100">
-                Detail Permohonan Cuti
+              <DialogTitle className="truncate text-base font-bold text-foreground">
+                {t('detailTitle')}
               </DialogTitle>
             </div>
             <div className="shrink-0 self-start sm:self-auto">
               {leaveRequest.status === 'APPROVED' ? (
                 <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 gap-1 text-xs whitespace-nowrap">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  Disetujui (APPROVED)
+                  {t('statusApproved')}
                 </Badge>
               ) : leaveRequest.status === 'REJECTED' ? (
                 <Badge variant="destructive" className="gap-1 text-xs whitespace-nowrap">
                   <XCircle className="w-3.5 h-3.5" />
-                  Ditolak (REJECTED)
+                  {t('statusRejected')}
                 </Badge>
               ) : (
-                <Badge variant="outline" className="bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-300 gap-1 text-xs whitespace-nowrap">
+                <Badge variant="outline" className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 gap-1 text-xs whitespace-nowrap">
                   <Clock className="w-3.5 h-3.5" />
-                  Menunggu (PENDING)
+                  {t('statusPending')}
                 </Badge>
               )}
             </div>
           </div>
-          <DialogDescription className="text-xs text-neutral-500">
-            Rincian lengkap pengajuan cuti dan riwayat persetujuan.
+          <DialogDescription className="text-xs text-muted-foreground">
+            {t('detailSubtitle')}
           </DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="min-h-0 flex-1 -mr-2 pr-4 my-2">
           <div className="space-y-4 py-1 text-sm">
             {/* Section 1: Karyawan */}
-            <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-1.5">
-              <span className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider block">
-                Informasi Pemohon
+            <div className="p-3 rounded-xl bg-card border border-border space-y-1.5 shadow-2xs">
+              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider block">
+                {t('applicantInfo')}
               </span>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-bold text-neutral-900 dark:text-neutral-100">
+                  <p className="font-bold text-foreground">
                     {leaveRequest.employee?.fullName || 'Karyawan'}
                   </p>
-                  <p className="text-xs text-neutral-500 font-mono">
+                  <p className="text-xs text-muted-foreground font-mono">
                     NIP: {leaveRequest.employee?.nip} • {leaveRequest.employee?.jobTitle}
                   </p>
                 </div>
@@ -146,36 +151,36 @@ export function LeaveDetailDialog({
 
             {/* Section 2: Informasi Cuti */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-                <span className="text-[11px] font-semibold text-neutral-400 block">Tipe Cuti</span>
-                <p className="font-semibold text-neutral-800 dark:text-neutral-200 mt-0.5">
+              <div className="p-3 rounded-xl bg-card border border-border shadow-2xs">
+                <span className="text-[11px] font-semibold text-muted-foreground block">{t('leaveType')}</span>
+                <p className="font-semibold text-foreground mt-0.5 text-xs sm:text-sm">
                   {getLeaveTypeLabel(leaveRequest.leaveType)}
                 </p>
               </div>
 
-              <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-                <span className="text-[11px] font-semibold text-neutral-400 block">Total Durasi</span>
-                <p className="font-semibold text-neutral-800 dark:text-neutral-200 mt-0.5">
-                  {calculateDays()} Hari Kalender
+              <div className="p-3 rounded-xl bg-card border border-border shadow-2xs">
+                <span className="text-[11px] font-semibold text-muted-foreground block">{t('duration')}</span>
+                <p className="font-semibold text-foreground mt-0.5 text-xs sm:text-sm">
+                  {t('calendarDays', { count: calculateDays() })}
                 </p>
               </div>
             </div>
 
             {/* Section 3: Periode Cuti */}
-            <div className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-1">
-              <span className="text-[11px] font-semibold text-neutral-400 block">Periode Tanggal Cuti</span>
-              <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300 font-medium text-xs">
-                <Calendar className="w-4 h-4 text-blue-500 shrink-0" />
+            <div className="p-3 rounded-xl bg-card border border-border space-y-1 shadow-2xs">
+              <span className="text-[11px] font-semibold text-muted-foreground block">{t('period')}</span>
+              <div className="flex items-center gap-2 text-foreground font-medium text-xs">
+                <Calendar className="w-4 h-4 text-primary shrink-0" />
                 <span>{formatDate(leaveRequest.startDate)}</span>
-                <span>s/d</span>
+                <span>{tCommon('to')}</span>
                 <span>{formatDate(leaveRequest.endDate)}</span>
               </div>
             </div>
 
             {/* Section 4: Alasan Pengajuan */}
             <div className="space-y-1">
-              <span className="text-xs font-semibold text-neutral-500">Alasan Pengajuan:</span>
-              <p className="p-3 rounded-xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed">
+              <span className="text-xs font-semibold text-muted-foreground">{t('reason')}:</span>
+              <p className="p-3 rounded-xl bg-card border border-border text-xs text-foreground leading-relaxed shadow-2xs">
                 {leaveRequest.reason}
               </p>
             </div>
@@ -185,14 +190,14 @@ export function LeaveDetailDialog({
               <>
                 <Separator />
                 <div
-                  className={`p-3 rounded-xl border space-y-2 ${leaveRequest.status === 'APPROVED'
-                      ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200/70 dark:border-emerald-900 text-emerald-900 dark:text-emerald-200'
-                      : 'bg-red-50/50 dark:bg-red-950/20 border-red-200/70 dark:border-red-900 text-red-900 dark:text-red-200'
+                  className={`p-3 rounded-xl border space-y-2 shadow-2xs ${leaveRequest.status === 'APPROVED'
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-950 dark:text-emerald-200'
+                      : 'bg-destructive/10 border-destructive/30 text-destructive-foreground'
                     }`}
                 >
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-semibold">
-                      {leaveRequest.status === 'APPROVED' ? 'Disetujui Oleh:' : 'Ditolak Oleh:'}
+                      {leaveRequest.status === 'APPROVED' ? t('approvedBy') : t('rejectedBy')}
                     </span>
                     <span className="text-[11px] opacity-75">
                       {formatDateTime(leaveRequest.approvedAt || leaveRequest.updatedAt)}
@@ -204,11 +209,11 @@ export function LeaveDetailDialog({
                   </p>
 
                   {leaveRequest.status === 'REJECTED' && leaveRequest.rejectionReason && (
-                    <div className="pt-2 border-t border-red-200/60 dark:border-red-900/60">
-                      <span className="text-[11px] font-semibold block text-red-700 dark:text-red-300">
-                        Alasan Penolakan:
+                    <div className="pt-2 border-t border-destructive/30">
+                      <span className="text-[11px] font-semibold block text-destructive">
+                        {t('rejectionReason')}
                       </span>
-                      <p className="text-xs mt-0.5 text-red-800 dark:text-red-200">
+                      <p className="text-xs mt-0.5 text-foreground">
                         {leaveRequest.rejectionReason}
                       </p>
                     </div>
@@ -219,14 +224,14 @@ export function LeaveDetailDialog({
           </div>
         </ScrollArea>
 
-        <DialogFooter className="shrink-0 p-4 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50/90 dark:bg-neutral-900/90 flex flex-col sm:flex-row sm:justify-end -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 rounded-b-xl gap-2">
+        <DialogFooter className="shrink-0 p-4 border-t border-border bg-card flex flex-col sm:flex-row sm:justify-end -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 rounded-b-xl gap-2">
           <Button
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
             className="w-full sm:w-auto min-h-11 px-6 text-sm font-medium cursor-pointer"
           >
-            Tutup
+            {tCommon('close')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { LogOut, User as UserIcon, Shield, Menu } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { apiClient } from '@/lib/api/axios';
@@ -30,10 +31,14 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { SidebarNavContent } from '@/components/layout/app-sidebar';
+import { ThemeToggle } from '@/components/shared/theme-toggle';
+import { LanguageSwitcher } from '@/components/shared/language-switcher';
 import { toast } from 'sonner';
 
 export function AppHeader() {
   const router = useRouter();
+  const tNav = useTranslations('navigation');
+  const tAuth = useTranslations('auth');
   const { user, clearAuth } = useAuthStore();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -45,7 +50,7 @@ export function AppHeader() {
     } finally {
       clearAuth();
       setMobileOpen(false);
-      toast.success('Anda telah berhasil keluar (logout)');
+      toast.success(tNav('logout'));
       router.push('/login');
     }
   };
@@ -61,9 +66,9 @@ export function AppHeader() {
       : user?.email?.[0]?.toUpperCase() || 'U';
 
   return (
-    <header className="h-16 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 flex items-center justify-between px-4 sm:px-6 shrink-0">
+    <header className="h-16 border-b border-border bg-card text-card-foreground flex items-center justify-between px-4 sm:px-6 shrink-0 transition-colors">
       {/* Left Title / Mobile Hamburger + Context */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 min-w-0">
         {/* Mobile Navigation Trigger */}
         <div className="md:hidden">
           <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
@@ -75,9 +80,9 @@ export function AppHeader() {
                       render={
                         <Button
                           variant="ghost"
-                          size="icon"
-                          aria-label="Buka menu navigasi"
-                          className="h-9 w-9"
+                          size="icon-sm"
+                          aria-label={tNav('expandSidebar')}
+                          className="h-9 w-9 cursor-pointer"
                         />
                       }
                     />
@@ -85,40 +90,52 @@ export function AppHeader() {
                 >
                   <Menu className="h-5 w-5" />
                 </TooltipTrigger>
-                <TooltipContent side="bottom">Buka menu navigasi</TooltipContent>
+                <TooltipContent side="bottom">{tNav('expandSidebar')}</TooltipContent>
               </Tooltip>
             </TooltipProvider>
             <SheetContent
               side="left"
-              className="p-0 w-72 sm:w-80 border-r border-neutral-200 dark:border-neutral-800"
+              className="p-0 w-72 sm:w-80 border-r border-border"
             >
               <SheetHeader className="sr-only">
-                <SheetTitle>Menu Navigasi</SheetTitle>
+                <SheetTitle>{tNav('menuAction')}</SheetTitle>
               </SheetHeader>
               <SidebarNavContent onNavigate={() => setMobileOpen(false)} />
             </SheetContent>
           </Sheet>
         </div>
 
-        <h1 className="text-sm font-semibold text-neutral-800 dark:text-neutral-200 truncate">
-          Sistem Informasi Manajemen SDM & Penggajian
+        <h1 className="text-sm font-semibold text-foreground truncate">
+          {tNav('systemTitle')} – {tNav('systemSubtitle')}
         </h1>
       </div>
 
-      {/* Right User Actions */}
-      <div className="flex items-center gap-3">
+      {/* Right User & Utility Actions */}
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Language Switcher */}
+        <LanguageSwitcher />
+
+        {/* Theme Toggle (Light / Dark / System) */}
+        <ThemeToggle />
+
+        <div className="h-4 w-px bg-border mx-0.5" />
+
+        {/* User Account Menu */}
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-2.5 px-2 py-1.5 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors cursor-pointer outline-none">
-            <Avatar className="h-8 w-8 border border-neutral-200 dark:border-neutral-700">
-              <AvatarFallback className="bg-blue-600 text-white text-xs font-bold">
+          <DropdownMenuTrigger
+            aria-label={tNav('menuAction')}
+            className="flex items-center gap-2.5 px-2 py-1.5 rounded-full hover:bg-muted transition-colors cursor-pointer outline-none"
+          >
+            <Avatar className="h-8 w-8 border border-border">
+              <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
                 {initials}
               </AvatarFallback>
             </Avatar>
             <div className="hidden md:flex flex-col text-left">
-              <span className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 leading-none">
+              <span className="text-xs font-semibold text-foreground leading-none">
                 {user?.employee?.fullName || user?.email || 'User'}
               </span>
-              <span className="text-[10px] text-neutral-500 mt-0.5">
+              <span className="text-[10px] text-muted-foreground mt-0.5">
                 {user?.role?.replace('_', ' ')}
               </span>
             </div>
@@ -127,13 +144,13 @@ export function AppHeader() {
             <DropdownMenuGroup>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                    {user?.employee?.fullName || 'Akun Pengguna'}
+                  <p className="text-sm font-semibold text-foreground">
+                    {user?.employee?.fullName || tNav('profile')}
                   </p>
-                  <p className="text-xs text-neutral-500 truncate">
+                  <p className="text-xs text-muted-foreground truncate">
                     {user?.email}
                   </p>
-                  <div className="flex items-center gap-1.5 mt-1 text-[11px] text-blue-600 font-medium">
+                  <div className="flex items-center gap-1.5 mt-1 text-[11px] text-primary font-medium">
                     <Shield className="w-3 h-3" />
                     <span>Role: {user?.role}</span>
                   </div>
@@ -144,17 +161,17 @@ export function AppHeader() {
                 onClick={() => router.push('/profile')}
                 className="cursor-pointer"
               >
-                <UserIcon className="mr-2 h-4 w-4 text-neutral-500" />
-                <span>Profil Pengguna</span>
+                <UserIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+                <span>{tNav('profile')}</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={handleLogout}
-              className="text-red-600 dark:text-red-400 cursor-pointer focus:bg-red-50 dark:focus:bg-red-950/50"
+              className="text-destructive cursor-pointer focus:bg-destructive/10"
             >
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Keluar (Logout)</span>
+              <span>{tNav('logout')}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

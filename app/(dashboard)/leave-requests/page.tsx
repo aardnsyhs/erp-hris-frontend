@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { ColumnDef, PaginationState } from '@tanstack/react-table';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   CalendarDays,
   Plus,
@@ -30,7 +31,6 @@ import {
 import { DataTable } from '@/components/shared/data-table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -50,6 +50,11 @@ import { LeaveRejectDialog } from '@/components/leave-requests/leave-reject-dial
 import { LeaveDetailDialog } from '@/components/leave-requests/leave-detail-dialog';
 
 export default function LeaveRequestsPage() {
+  const t = useTranslations('leave');
+  const tCommon = useTranslations('common');
+  const tEmp = useTranslations('employees');
+  const locale = useLocale();
+
   const currentUser = useAuthStore((state) => state.user);
   const isHrAdmin = currentUser?.role === 'HR_ADMIN';
   const isManager = currentUser?.role === 'MANAGER';
@@ -111,7 +116,7 @@ export default function LeaveRequestsPage() {
 
   // Helper date & duration
   const formatDate = (dateStr: string) => {
-    return new Intl.DateTimeFormat('id-ID', {
+    return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
       timeZone: 'Asia/Jakarta',
       day: 'numeric',
       month: 'short',
@@ -130,26 +135,26 @@ export default function LeaveRequestsPage() {
     switch (type) {
       case 'ANNUAL':
         return (
-          <Badge variant="outline" className="bg-blue-50/60 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800 text-[11px]">
-            Tahunan
+          <Badge variant="outline" className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30 text-[11px]">
+            {t('annual')}
           </Badge>
         );
       case 'SICK':
         return (
-          <Badge variant="outline" className="bg-amber-50/60 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800 text-[11px]">
-            Sakit
+          <Badge variant="outline" className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[11px]">
+            {t('sick')}
           </Badge>
         );
       case 'MATERNITY':
         return (
-          <Badge variant="outline" className="bg-purple-50/60 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800 text-[11px]">
-            Melahirkan
+          <Badge variant="outline" className="bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/30 text-[11px]">
+            {t('maternity')}
           </Badge>
         );
       default:
         return (
           <Badge variant="outline" className="text-[11px]">
-            Tanpa Gaji
+            {t('unpaid')}
           </Badge>
         );
     }
@@ -161,21 +166,21 @@ export default function LeaveRequestsPage() {
         return (
           <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-[11px] gap-1">
             <CheckCircle2 className="w-3 h-3" />
-            Disetujui
+            {t('statusApproved')}
           </Badge>
         );
       case 'REJECTED':
         return (
           <Badge variant="destructive" className="text-[11px] gap-1">
             <XCircle className="w-3 h-3" />
-            Ditolak
+            {t('statusRejected')}
           </Badge>
         );
       default:
         return (
-          <Badge variant="outline" className="bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800 text-[11px] gap-1">
+          <Badge variant="outline" className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 text-[11px] gap-1">
             <Clock className="w-3 h-3" />
-            Menunggu
+            {t('statusPending')}
           </Badge>
         );
     }
@@ -195,23 +200,23 @@ export default function LeaveRequestsPage() {
       ? [
           {
             accessorKey: 'employee',
-            header: 'Karyawan',
+            header: tEmp('fullName'),
             cell: ({ row }: { row: { original: LeaveRequest } }) => {
               const emp = row.original.employee;
               const isSelf = emp?.id === currentEmployeeId;
               return (
                 <div className="flex flex-col">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-semibold text-xs text-neutral-900 dark:text-neutral-100">
+                    <span className="font-semibold text-xs text-foreground">
                       {emp?.fullName || '-'}
                     </span>
                     {isSelf && (
-                      <Badge variant="outline" className="text-[10px] px-1 py-0 bg-neutral-100 dark:bg-neutral-800">
-                        Saya
+                      <Badge variant="outline" className="text-[10px] px-1 py-0 bg-muted text-muted-foreground">
+                        {tCommon('you')}
                       </Badge>
                     )}
                   </div>
-                  <div className="flex items-center gap-1 text-[10px] text-neutral-400">
+                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
                     <span className="font-mono">{emp?.nip}</span>
                     {emp?.department?.name && (
                       <>
@@ -228,34 +233,34 @@ export default function LeaveRequestsPage() {
       : []),
     {
       accessorKey: 'leaveType',
-      header: 'Tipe Cuti',
+      header: t('leaveType'),
       cell: ({ row }) => getLeaveTypeBadge(row.original.leaveType),
     },
     {
       id: 'period',
-      header: 'Periode Cuti',
+      header: t('period'),
       cell: ({ row }) => (
-        <div className="flex items-center gap-1 text-xs text-neutral-800 dark:text-neutral-200">
+        <div className="flex items-center gap-1 text-xs text-foreground">
           <span>{formatDate(row.original.startDate)}</span>
-          <span className="text-neutral-400">-</span>
+          <span className="text-muted-foreground">–</span>
           <span>{formatDate(row.original.endDate)}</span>
         </div>
       ),
     },
     {
       id: 'duration',
-      header: 'Durasi',
+      header: t('duration'),
       cell: ({ row }) => (
-        <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
-          {calculateDays(row.original.startDate, row.original.endDate)} hari
+        <span className="text-xs font-semibold text-foreground">
+          {tCommon('days', { count: calculateDays(row.original.startDate, row.original.endDate) })}
         </span>
       ),
     },
     {
       accessorKey: 'reason',
-      header: 'Alasan',
+      header: t('reason'),
       cell: ({ row }) => (
-        <span className="text-xs text-neutral-500 truncate max-w-48 block">
+        <span className="text-xs text-muted-foreground truncate max-w-48 block">
           {row.original.reason}
         </span>
       ),
@@ -264,7 +269,7 @@ export default function LeaveRequestsPage() {
       ? [
           {
             accessorKey: 'status',
-            header: 'Status',
+            header: tCommon('status'),
             cell: ({ row }: { row: { original: LeaveRequest } }) =>
               getStatusBadge(row.original.status),
           },
@@ -272,7 +277,7 @@ export default function LeaveRequestsPage() {
       : []),
     {
       id: 'actions',
-      header: () => <div className="text-right">Aksi</div>,
+      header: () => <div className="text-right">{tCommon('actions')}</div>,
       cell: ({ row }) => {
         const leave = row.original;
         const isSelf = leave.employeeId === currentEmployeeId;
@@ -285,21 +290,23 @@ export default function LeaveRequestsPage() {
               <>
                 {isSelf ? (
                   <Tooltip>
-                    <TooltipTrigger>
-                      <span className="inline-block">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          disabled
-                          className="h-8 px-2 text-neutral-400 opacity-50 cursor-not-allowed"
-                        >
-                          <Check className="w-3.5 h-3.5 mr-1" />
-                          Setujui
-                        </Button>
-                      </span>
-                    </TooltipTrigger>
+                    <TooltipTrigger
+                      render={
+                        <span className="inline-block">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            disabled
+                            className="h-8 px-2 text-muted-foreground opacity-50 cursor-not-allowed"
+                          >
+                            <Check className="w-3.5 h-3.5 mr-1" />
+                            {t('approve')}
+                          </Button>
+                        </span>
+                      }
+                    />
                     <TooltipContent side="left" className="text-xs">
-                      Anda tidak dapat menyetujui pengajuan cuti Anda sendiri.
+                      {t('cannotApproveOwn')}
                     </TooltipContent>
                   </Tooltip>
                 ) : (
@@ -308,30 +315,32 @@ export default function LeaveRequestsPage() {
                     variant="outline"
                     onClick={() => handleApprove(leave)}
                     disabled={approveMutation.isPending}
-                    className="h-8 px-2.5 text-xs text-emerald-600 dark:text-emerald-400 border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 cursor-pointer"
+                    className="h-8 px-2.5 text-xs text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10 cursor-pointer"
                   >
                     <Check className="w-3.5 h-3.5 mr-1" />
-                    Setujui
+                    {t('approve')}
                   </Button>
                 )}
 
                 {isSelf ? (
                   <Tooltip>
-                    <TooltipTrigger>
-                      <span className="inline-block">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          disabled
-                          className="h-8 px-2 text-neutral-400 opacity-50 cursor-not-allowed"
-                        >
-                          <X className="w-3.5 h-3.5 mr-1" />
-                          Tolak
-                        </Button>
-                      </span>
-                    </TooltipTrigger>
+                    <TooltipTrigger
+                      render={
+                        <span className="inline-block">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            disabled
+                            className="h-8 px-2 text-muted-foreground opacity-50 cursor-not-allowed"
+                          >
+                            <X className="w-3.5 h-3.5 mr-1" />
+                            {t('reject')}
+                          </Button>
+                        </span>
+                      }
+                    />
                     <TooltipContent side="left" className="text-xs">
-                      Anda tidak dapat menolak pengajuan cuti Anda sendiri.
+                      {t('cannotRejectOwn')}
                     </TooltipContent>
                   </Tooltip>
                 ) : (
@@ -339,10 +348,10 @@ export default function LeaveRequestsPage() {
                     size="sm"
                     variant="outline"
                     onClick={() => setSelectedForReject(leave)}
-                    className="h-8 px-2.5 text-xs text-red-600 dark:text-red-400 border-red-300 hover:bg-red-50 dark:hover:bg-red-950/40 cursor-pointer"
+                    className="h-8 px-2.5 text-xs text-destructive border-destructive/30 hover:bg-destructive/10 cursor-pointer"
                   >
                     <X className="w-3.5 h-3.5 mr-1" />
-                    Tolak
+                    {t('reject')}
                   </Button>
                 )}
               </>
@@ -353,10 +362,10 @@ export default function LeaveRequestsPage() {
               size="sm"
               variant="ghost"
               onClick={() => setSelectedForDetail(leave)}
-              className="h-8 px-2 text-xs text-neutral-500 hover:text-neutral-800 cursor-pointer"
+              className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
             >
               <Eye className="w-3.5 h-3.5 mr-1" />
-              Detail
+              {tCommon('detail')}
             </Button>
           </div>
         );
@@ -370,26 +379,26 @@ export default function LeaveRequestsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary">
               <CalendarDays className="w-5 h-5" />
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
-              Pengajuan Cuti (Leave Requests)
+            <h1 className="text-xl font-bold tracking-tight text-foreground">
+              {t('title')}
             </h1>
           </div>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             {isApproverRole
-              ? 'Kelola pengajuan cuti tim dan pantau riwayat persetujuan kehadiran.'
-              : 'Ajukan permohonan cuti dan pantau status persetujuan atasan.'}
+              ? t('subtitleApprover')
+              : t('subtitleEmployee')}
           </p>
         </div>
 
         <Button
           onClick={() => setIsFormOpen(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm shrink-0 cursor-pointer"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs shrink-0 cursor-pointer"
         >
           <Plus className="w-4 h-4 mr-2" />
-          Ajukan Cuti Baru
+          {t('requestLeave')}
         </Button>
       </div>
 
@@ -406,13 +415,13 @@ export default function LeaveRequestsPage() {
           className="w-full"
         >
           <TabsList className="grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="PENDING_APPROVALS" className="gap-2">
+            <TabsTrigger value="PENDING_APPROVALS" className="gap-2 cursor-pointer">
               <Clock className="w-4 h-4" />
-              Perlu Persetujuan
+              {t('statusPending')}
             </TabsTrigger>
-            <TabsTrigger value="ALL_HISTORY" className="gap-2">
+            <TabsTrigger value="ALL_HISTORY" className="gap-2 cursor-pointer">
               <CalendarDays className="w-4 h-4" />
-              Semua Riwayat Cuti
+              {tCommon('all')}
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -420,10 +429,10 @@ export default function LeaveRequestsPage() {
 
       {/* Filter Toolbar (Rendered on History view) */}
       {(!isApproverRole || activeTab === 'ALL_HISTORY') && (
-        <div className="flex flex-wrap items-center gap-3 p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-2xs">
-          <div className="flex items-center gap-2 text-xs font-semibold text-neutral-500">
+        <div className="flex flex-wrap items-center gap-3 p-4 rounded-xl border border-border bg-card shadow-2xs">
+          <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
             <Filter className="w-3.5 h-3.5" />
-            <span>Filter:</span>
+            <span>{tCommon('filter')}:</span>
           </div>
 
           {/* Status Filter */}
@@ -437,30 +446,30 @@ export default function LeaveRequestsPage() {
                 }
               }}
             >
-              <SelectTrigger className="h-9 text-xs w-full">
-                <SelectValue placeholder="Semua Status">
+              <SelectTrigger className="h-9 text-xs w-full bg-card">
+                <SelectValue placeholder={tCommon('allStatus')}>
                   {selectedStatus === 'ALL'
-                    ? 'Semua Status'
+                    ? tCommon('allStatus')
                     : selectedStatus === 'PENDING'
-                    ? 'Menunggu'
+                    ? t('statusPending')
                     : selectedStatus === 'APPROVED'
-                    ? 'Disetujui'
+                    ? t('statusApproved')
                     : selectedStatus === 'REJECTED'
-                    ? 'Ditolak'
+                    ? t('statusRejected')
                     : undefined}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">Semua Status</SelectItem>
-                <SelectItem value="PENDING">Menunggu (PENDING)</SelectItem>
-                <SelectItem value="APPROVED">Disetujui (APPROVED)</SelectItem>
-                <SelectItem value="REJECTED">Ditolak (REJECTED)</SelectItem>
+                <SelectItem value="ALL">{tCommon('allStatus')}</SelectItem>
+                <SelectItem value="PENDING">{t('statusPending')}</SelectItem>
+                <SelectItem value="APPROVED">{t('statusApproved')}</SelectItem>
+                <SelectItem value="REJECTED">{t('statusRejected')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Leave Type Filter */}
-          <div className="w-44">
+          <div className="w-40">
             <Select
               value={selectedLeaveType}
               onValueChange={(val) => {
@@ -470,27 +479,27 @@ export default function LeaveRequestsPage() {
                 }
               }}
             >
-              <SelectTrigger className="h-9 text-xs w-full">
-                <SelectValue placeholder="Semua Tipe Cuti">
+              <SelectTrigger className="h-9 text-xs w-full bg-card">
+                <SelectValue placeholder={tCommon('allTypes')}>
                   {selectedLeaveType === 'ALL'
-                    ? 'Semua Tipe Cuti'
+                    ? tCommon('allTypes')
                     : selectedLeaveType === 'ANNUAL'
-                    ? 'Cuti Tahunan'
+                    ? t('annual')
                     : selectedLeaveType === 'SICK'
-                    ? 'Cuti Sakit'
+                    ? t('sick')
                     : selectedLeaveType === 'UNPAID'
-                    ? 'Tanpa Gaji'
+                    ? t('unpaid')
                     : selectedLeaveType === 'MATERNITY'
-                    ? 'Melahirkan'
+                    ? t('maternity')
                     : undefined}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">Semua Tipe Cuti</SelectItem>
-                <SelectItem value="ANNUAL">Cuti Tahunan</SelectItem>
-                <SelectItem value="SICK">Cuti Sakit</SelectItem>
-                <SelectItem value="UNPAID">Cuti Tanpa Gaji</SelectItem>
-                <SelectItem value="MATERNITY">Cuti Melahirkan</SelectItem>
+                <SelectItem value="ALL">{tCommon('allTypes')}</SelectItem>
+                <SelectItem value="ANNUAL">{t('annual')}</SelectItem>
+                <SelectItem value="SICK">{t('sick')}</SelectItem>
+                <SelectItem value="UNPAID">{t('unpaid')}</SelectItem>
+                <SelectItem value="MATERNITY">{t('maternity')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -507,15 +516,15 @@ export default function LeaveRequestsPage() {
                   }
                 }}
               >
-                <SelectTrigger className="h-9 text-xs w-full">
-                  <SelectValue placeholder="Semua Departemen">
+                <SelectTrigger className="h-9 text-xs w-full bg-card">
+                  <SelectValue placeholder={tCommon('allDepartments')}>
                     {selectedDept === 'ALL'
-                      ? 'Semua Departemen'
-                      : departments.find((d) => d.id === selectedDept)?.name || 'Semua Departemen'}
+                      ? tCommon('allDepartments')
+                      : departments.find((d) => d.id === selectedDept)?.name || tCommon('allDepartments')}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">Semua Departemen</SelectItem>
+                  <SelectItem value="ALL">{tCommon('allDepartments')}</SelectItem>
                   {departments.map((dept) => (
                     <SelectItem key={dept.id} value={dept.id}>
                       {dept.name}
@@ -536,7 +545,7 @@ export default function LeaveRequestsPage() {
                 setEndDate(to);
                 setPagination((prev) => ({ ...prev, pageIndex: 0 }));
               }}
-              placeholder="Rentang Tanggal Cuti"
+              placeholder={t('period')}
               allowClear
             />
           </div>
@@ -553,9 +562,9 @@ export default function LeaveRequestsPage() {
                 setEndDate('');
                 setPagination((prev) => ({ ...prev, pageIndex: 0 }));
               }}
-              className="text-xs text-neutral-500 h-9"
+              className="text-xs text-muted-foreground h-9 cursor-pointer"
             >
-              Reset Filter
+              {tCommon('resetFilter')}
             </Button>
           )}
         </div>
@@ -570,36 +579,28 @@ export default function LeaveRequestsPage() {
         pageCount={meta?.totalPages}
         pagination={{ pageIndex, pageSize }}
         onPaginationChange={setPagination}
-        emptyTitle={
-          isPendingTab
-            ? 'Tidak Ada Pengajuan Menunggu'
-            : 'Belum Ada Permohonan Cuti'
-        }
-        emptyDescription={
-          isPendingTab
-            ? 'Semua permohonan cuti dari anggota tim telah selesai diproses.'
-            : 'Tidak ada data permohonan cuti yang sesuai dengan kriteria filter.'
-        }
+        emptyTitle={isPendingTab ? tCommon('empty') : tCommon('noData')}
+        emptyDescription={isPendingTab ? tCommon('empty') : tCommon('noData')}
       />
 
-      {/* Form Submission Dialog */}
+      {/* Form Dialog */}
       <LeaveRequestFormDialog
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
       />
 
-      {/* Rejection Dialog */}
-      <LeaveRejectDialog
-        leaveRequest={selectedForReject}
-        open={!!selectedForReject}
-        onOpenChange={(open) => !open && setSelectedForReject(null)}
-      />
-
-      {/* Detail Inspection Dialog */}
+      {/* Detail Dialog */}
       <LeaveDetailDialog
         leaveRequest={selectedForDetail}
         open={!!selectedForDetail}
         onOpenChange={(open) => !open && setSelectedForDetail(null)}
+      />
+
+      {/* Reject Dialog */}
+      <LeaveRejectDialog
+        leaveRequest={selectedForReject}
+        open={!!selectedForReject}
+        onOpenChange={(open) => !open && setSelectedForReject(null)}
       />
     </div>
   );

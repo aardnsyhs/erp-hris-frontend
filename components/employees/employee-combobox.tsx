@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { Check, ChevronsUpDown, Loader2, Search, User } from 'lucide-react';
 import { useEmployees } from '@/hooks/use-employees';
 import { Employee } from '@/types/employee';
@@ -24,8 +25,12 @@ export function EmployeeCombobox({
   value,
   onChange,
   disabled = false,
-  placeholder = 'Cari dan pilih karyawan...',
+  placeholder,
 }: EmployeeComboboxProps) {
+  const t = useTranslations('employees');
+  const tCommon = useTranslations('common');
+  const resolvedPlaceholder = placeholder || t('searchPlaceholder');
+
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -53,8 +58,6 @@ export function EmployeeCombobox({
 
   // Fetch or find currently selected employee
   const selectedEmployee = activeEmployees.find((emp) => emp.id === value);
-
-  // If value is set but not in current search list, fetch all or retain
   const [cachedEmployee, setCachedEmployee] = useState<Employee | null>(null);
 
   useEffect(() => {
@@ -101,61 +104,61 @@ export function EmployeeCombobox({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            aria-label="Pilih karyawan penerima gaji"
+            aria-label={resolvedPlaceholder}
             disabled={disabled}
-            className="w-full justify-between font-normal text-xs h-9 bg-white dark:bg-neutral-900 px-3"
+            className="w-full justify-between font-normal text-xs h-9 bg-card text-foreground px-3 cursor-pointer"
           />
         }
       >
         <span className="truncate">
           {displayEmployee && displayEmployee.id === value ? (
-            <span className="flex items-center gap-1.5 text-neutral-900 dark:text-neutral-100 font-medium">
-              <User className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+            <span className="flex items-center gap-1.5 text-foreground font-medium">
+              <User className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               <span>{displayEmployee.fullName}</span>
-              <span className="font-mono text-neutral-400 text-[11px]">
+              <span className="font-mono text-muted-foreground text-[11px]">
                 ({displayEmployee.nip})
               </span>
               {displayEmployee.department?.name && (
-                <span className="text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-1.5 py-0.5 rounded ml-1 truncate">
+                <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded ml-1 truncate">
                   {displayEmployee.department.name}
                 </span>
               )}
             </span>
           ) : (
-            <span className="text-neutral-400">{placeholder}</span>
+            <span className="text-muted-foreground">{resolvedPlaceholder}</span>
           )}
         </span>
         <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
       </PopoverTrigger>
 
-      <PopoverContent className="w-[--anchor-width] p-2 bg-popover shadow-lg rounded-xl border border-neutral-200 dark:border-neutral-800" align="start">
+      <PopoverContent className="w-[--anchor-width] p-2 bg-popover shadow-lg rounded-xl border border-border" align="start">
         {/* Search input header */}
         <div className="relative mb-2">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-400" />
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <Input
             ref={inputRef}
-            placeholder="Cari nama atau NIP karyawan..."
+            placeholder={t('searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="pl-8 h-8 text-xs bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
+            className="pl-8 h-8 text-xs bg-muted border-border"
             autoFocus
           />
           {isLoading && (
-            <Loader2 className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 animate-spin text-neutral-400" />
+            <Loader2 className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 animate-spin text-muted-foreground" />
           )}
         </div>
 
         {/* Results List */}
         <div className="max-h-56 overflow-y-auto space-y-0.5 text-xs">
           {isLoading && activeEmployees.length === 0 ? (
-            <div className="py-4 text-center text-xs text-neutral-400 flex items-center justify-center gap-1.5">
+            <div className="py-4 text-center text-xs text-muted-foreground flex items-center justify-center gap-1.5">
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              <span>Mencari karyawan...</span>
+              <span>{tCommon('loading')}</span>
             </div>
           ) : activeEmployees.length === 0 ? (
-            <div className="py-4 text-center text-xs text-neutral-400">
-              Karyawan tidak ditemukan
+            <div className="py-4 text-center text-xs text-muted-foreground">
+              {t('noEmployeesFound')}
             </div>
           ) : (
             activeEmployees.map((emp, idx) => {
@@ -171,25 +174,25 @@ export function EmployeeCombobox({
                   className={cn(
                     'w-full text-left px-2.5 py-2 rounded-lg flex items-center justify-between transition-colors cursor-pointer',
                     isSelected
-                      ? 'bg-blue-50 dark:bg-blue-950/40 text-blue-900 dark:text-blue-200 font-medium'
+                      ? 'bg-primary/10 text-primary font-medium'
                       : isHighlighted
-                      ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100'
-                      : 'text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800/50',
+                      ? 'bg-muted text-foreground'
+                      : 'text-foreground hover:bg-muted',
                   )}
                 >
                   <div className="flex flex-col min-w-0 pr-2">
                     <div className="flex items-center gap-1.5">
                       <span className="font-medium truncate">{emp.fullName}</span>
-                      <span className="font-mono text-[10px] text-neutral-400">
+                      <span className="font-mono text-[10px] text-muted-foreground">
                         ({emp.nip})
                       </span>
                     </div>
-                    <span className="text-[10px] text-neutral-400 truncate">
-                      {emp.jobTitle} • {emp.department?.name || 'Tanpa Departemen'}
+                    <span className="text-[10px] text-muted-foreground truncate">
+                      {emp.jobTitle} • {emp.department?.name || '-'}
                     </span>
                   </div>
                   {isSelected && (
-                    <Check className="w-4 h-4 text-blue-600 shrink-0 ml-1" />
+                    <Check className="w-4 h-4 text-primary shrink-0 ml-1" />
                   )}
                 </button>
               );
