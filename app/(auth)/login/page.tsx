@@ -88,7 +88,7 @@ function LoginForm() {
       });
 
       if (!response?.data?.accessToken || !response?.data?.user) {
-        const internalErr = 'Respons server tidak valid. Silakan coba beberapa saat lagi.';
+        const internalErr = t('invalidResponse');
         setErrorMessage(internalErr);
         toast.error(internalErr);
         setIsLoading(false);
@@ -98,7 +98,7 @@ function LoginForm() {
       loginData = response.data;
     } catch (err: any) {
       if (err?.response?.status === 429) {
-        const msg = 'Terlalu banyak percobaan login. Silakan tunggu 1 menit.';
+        const msg = t('rateLimitError');
         setErrorMessage(msg);
         toast.error(msg);
       } else if (err?.response?.status === 401) {
@@ -111,19 +111,19 @@ function LoginForm() {
         toast.error(displayMsg);
       } else if (err?.response?.status === 400) {
         const rawMessage =
-          err?.response?.data?.message || 'Validasi login gagal';
+          err?.response?.data?.message || t('validationFailed');
         const displayMsg = Array.isArray(rawMessage)
           ? rawMessage.join(', ')
           : rawMessage;
         setErrorMessage(displayMsg);
         toast.error(displayMsg);
       } else if (!err?.response) {
-        const networkMsg = 'Tidak dapat terhubung ke server. Periksa koneksi Anda.';
+        const networkMsg = t('networkError');
         setErrorMessage(networkMsg);
         toast.error(networkMsg);
       } else {
         const serverMsg =
-          err?.response?.data?.message || 'Terjadi kesalahan sistem pada server.';
+          err?.response?.data?.message || t('serverError');
         const displayMsg = Array.isArray(serverMsg)
           ? serverMsg.join(', ')
           : serverMsg;
@@ -261,7 +261,7 @@ function LoginForm() {
             {/* Quick Demo Credentials Console Strip */}
             <div className="pt-3 border-t border-border/70 space-y-2">
               <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground block text-center sm:text-left">
-                Preset Demo Operators:
+                {t('demoOperators')}
               </span>
               <div className="grid grid-cols-3 gap-1.5 font-mono text-[10px]">
                 {demoAccounts.map((acc) => (

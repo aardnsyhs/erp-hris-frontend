@@ -193,16 +193,16 @@ export function EmployeeFormDialog({
                       <SelectTrigger className="w-full h-9 bg-card text-foreground">
                         <SelectValue placeholder={t('role')}>
                           {selectedRole === 'HR_ADMIN'
-                            ? 'HR Administrator (HR_ADMIN)'
+                            ? t('roleHrAdmin')
                             : selectedRole === 'MANAGER'
-                            ? 'Manager (MANAGER)'
-                            : 'Employee (EMPLOYEE)'}
+                            ? t('roleManager')
+                            : t('roleEmployee')}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="EMPLOYEE">Employee (EMPLOYEE)</SelectItem>
-                        <SelectItem value="MANAGER">Manager (MANAGER)</SelectItem>
-                        <SelectItem value="HR_ADMIN">HR Administrator (HR_ADMIN)</SelectItem>
+                        <SelectItem value="EMPLOYEE">{t('roleEmployee')}</SelectItem>
+                        <SelectItem value="MANAGER">{t('roleManager')}</SelectItem>
+                        <SelectItem value="HR_ADMIN">{t('roleHrAdmin')}</SelectItem>
                       </SelectContent>
                     </Select>
                     {errors.role && (
@@ -261,7 +261,7 @@ export function EmployeeFormDialog({
                       <p className="text-xs text-status-danger font-mono">{errors.email.message}</p>
                     ) : isEditMode ? (
                       <p className="text-[11px] text-muted-foreground font-mono">
-                        Email akun tidak dapat diubah di sini.
+                        {t('emailCannotBeChanged')}
                       </p>
                     ) : null}
                   </div>

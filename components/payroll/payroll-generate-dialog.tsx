@@ -94,8 +94,7 @@ export function PayrollGenerateDialog({
       onOpenChange(false);
     } catch (error: any) {
       if (error?.response?.status === 409) {
-        const msg =
-          'Payroll untuk karyawan ini pada periode tersebut sudah ada.';
+        const msg = t('conflictError');
         setConflictError(msg);
         setError('periodEnd', { message: msg });
       }
@@ -213,7 +212,7 @@ export function PayrollGenerateDialog({
             <div className="p-3 rounded-md bg-muted/40 border border-border flex items-start gap-2 text-xs text-muted-foreground font-mono">
               <Sparkles className="w-4 h-4 text-primary shrink-0 mt-0.5" />
               <span>
-                <strong>{t('basicSalary')}</strong> di-snapshot otomatis, dan <strong>{t('netSalary')}</strong> dihitung otomatis.
+                {t('snapshotHelp')}
               </span>
             </div>
           </LongDialogBody>

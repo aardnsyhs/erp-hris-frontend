@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import {
   ColumnDef,
   flexRender,
@@ -55,13 +56,18 @@ export function DataTable<TData, TValue>({
   searchKey,
   searchValue,
   onSearchChange,
-  searchPlaceholder = 'Cari data...',
+  searchPlaceholder,
   actions,
-  emptyTitle = 'Tidak ada data',
-  emptyDescription = 'Belum ada data yang tersimpan untuk kriteria ini.',
+  emptyTitle,
+  emptyDescription,
 }: DataTableProps<TData, TValue>) {
+  const tCommon = useTranslations('common');
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [clientSearch, setClientSearch] = React.useState('');
+
+  const resolvedSearchPlaceholder = searchPlaceholder ?? tCommon('searchData');
+  const resolvedEmptyTitle = emptyTitle ?? tCommon('noDataFound');
+  const resolvedEmptyDescription = emptyDescription ?? tCommon('noDataDescription');
 
   const isServerPagination = pagination !== undefined && onPaginationChange !== undefined;
 
@@ -102,7 +108,7 @@ export function DataTable<TData, TValue>({
           <div className="relative max-w-sm w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <Input
-              placeholder={searchPlaceholder}
+              placeholder={resolvedSearchPlaceholder}
               value={searchValue ?? (searchKey ? (table.getColumn(searchKey)?.getFilterValue() as string) ?? '' : clientSearch)}
               onChange={handleSearchInput}
               className="pl-8 text-xs bg-card text-foreground h-8.5 rounded-md border-border"
@@ -162,8 +168,8 @@ export function DataTable<TData, TValue>({
                     className="h-44 text-center p-0 border-0"
                   >
                     <EmptyState
-                      title={emptyTitle}
-                      description={emptyDescription}
+                      title={resolvedEmptyTitle}
+                      description={resolvedEmptyDescription}
                       className="border-0 rounded-none bg-transparent"
                     />
                   </TableCell>

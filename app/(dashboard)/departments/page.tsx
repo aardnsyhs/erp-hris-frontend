@@ -150,7 +150,7 @@ export default function DepartmentsPage() {
 
         if (!isHrAdmin) {
           return (
-            <span className="text-xs text-muted-foreground italic">Read-only</span>
+            <span className="text-xs text-muted-foreground italic">{tCommon('readOnly')}</span>
           );
         }
 

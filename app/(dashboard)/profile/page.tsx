@@ -120,12 +120,12 @@ export default function ProfilePage() {
           <DetailSection title={t('sessionSecurity')}>
             <div className="space-y-2 text-xs font-mono text-muted-foreground">
               <div className="flex items-center justify-between p-2 rounded bg-muted/20 border border-border">
-                <span>Account Identifier:</span>
+                <span>{t('accountIdentifier')}:</span>
                 <span className="font-semibold text-foreground">{user?.id}</span>
               </div>
               <div className="flex items-center justify-between p-2 rounded bg-muted/20 border border-border">
-                <span>Access Protocol:</span>
-                <span className="font-semibold text-foreground">RBAC Enforced</span>
+                <span>{t('accessProtocol')}:</span>
+                <span className="font-semibold text-foreground">{t('rbacEnforced')}</span>
               </div>
               <p className="text-[11px] text-muted-foreground pt-1">
                 {tAuth('securityNotice')}
@@ -268,7 +268,7 @@ export default function ProfilePage() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-primary hover:bg-[var(--primary-hover)] text-primary-foreground text-xs font-semibold h-9 rounded-md cursor-pointer"
+                  className="w-full bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-semibold h-9 rounded-md cursor-pointer"
                 >
                   {isSubmitting ? (
                     <>

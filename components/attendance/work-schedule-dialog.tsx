@@ -110,7 +110,7 @@ export function WorkScheduleDialog({
               <p className="text-xs text-status-danger font-mono">{errors.startTime.message}</p>
             ) : (
               <p className="text-[11px] text-muted-foreground font-mono">
-                Format 24 jam "HH:mm" (08:30, 09:00).
+                {t('formatTimeHelper')}
               </p>
             )}
           </div>
@@ -133,7 +133,7 @@ export function WorkScheduleDialog({
               </p>
             ) : (
               <p className="text-[11px] text-muted-foreground font-mono">
-                {t('statusLate')} jika lewat dari batas ini.
+                {t('gracePeriodHelper')}
               </p>
             )}
           </div>
@@ -141,7 +141,7 @@ export function WorkScheduleDialog({
           {/* Field: Standard Work Minutes */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-foreground">
-              {t('dailyTargetHours')} (Menit) <span className="text-destructive">*</span>
+              {t('dailyTargetMinutes')} <span className="text-destructive">*</span>
             </label>
             <Input
               type="number"

@@ -23,6 +23,7 @@ export function AuditMeta({
   compact = false,
 }: AuditMetaProps) {
   const locale = useLocale();
+  const tCommon = useTranslations('common');
 
   const formatDate = (dateStr?: string | null) => {
     if (!dateStr) return '-';
@@ -64,19 +65,19 @@ export function AuditMeta({
     >
       {createdAt && (
         <div className="flex items-center justify-between">
-          <span>Created:</span>
+          <span>{tCommon('created')}:</span>
           <span className="font-semibold text-foreground">{formatDate(createdAt)}</span>
         </div>
       )}
       {updatedAt && updatedAt !== createdAt && (
         <div className="flex items-center justify-between">
-          <span>Last Modified:</span>
+          <span>{tCommon('lastModified')}:</span>
           <span className="font-semibold text-foreground">{formatDate(updatedAt)}</span>
         </div>
       )}
       {actorName && (
         <div className="flex items-center justify-between">
-          <span>Operator:</span>
+          <span>{tCommon('operator')}:</span>
           <span className="font-semibold text-foreground">
             {actorName} {actorRole ? `[${actorRole}]` : ''}
           </span>

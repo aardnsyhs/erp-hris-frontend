@@ -105,7 +105,7 @@ export function AttendanceWidget() {
     return (
       <div className="rounded-md border border-(--status-warning)/30 bg-status-warning-bg p-3 text-xs flex items-center gap-2 text-status-warning">
         <AlertCircle className="w-4 h-4 shrink-0" />
-        <span>Akun login Anda belum terhubung ke data karyawan. Hubungi HR Administrator.</span>
+        <span>{t('unlinkedAccount')}</span>
       </div>
     );
   }
@@ -127,7 +127,7 @@ export function AttendanceWidget() {
           </div>
 
           <div className="text-[11px] text-muted-foreground font-mono">
-            {t('workSchedule')}: <strong className="text-foreground">{schedule?.startTime || '09:00'}</strong> ({schedule?.lateToleranceMinutes ?? 15}m grace)
+            {t('workSchedule')}: <strong className="text-foreground">{schedule?.startTime || '09:00'}</strong> ({schedule?.lateToleranceMinutes ?? 15}m {t('graceTolerance')})
           </div>
         </div>
 
