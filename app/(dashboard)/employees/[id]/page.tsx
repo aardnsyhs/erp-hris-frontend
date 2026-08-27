@@ -103,6 +103,11 @@ export default function EmployeeDetailPage({ params }: PageProps) {
     );
   }
 
+  const canReactivate = employee.status === 'INACTIVE';
+  const canDeactivate = employee.status === 'ACTIVE';
+  const canTerminate = employee.status === 'ACTIVE' || employee.status === 'INACTIVE';
+  const canEdit = isHrAdmin && employee.status !== 'TERMINATED';
+
   return (
     <div className="space-y-5">
       {/* Breadcrumb Navigation & PageHeader */}
@@ -120,62 +125,54 @@ export default function EmployeeDetailPage({ params }: PageProps) {
         description={`${employee.jobTitle || 'No position'} • ${employee.department?.name || 'Unassigned department'}`}
         badge={<StatusBadge status={employee.status} />}
         actions={
-          isHrAdmin && employee.status !== 'TERMINATED' ? (
+          isHrAdmin && (canEdit || canReactivate || canDeactivate || canTerminate) ? (
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsEditOpen(true)}
-                className="text-xs h-8.5 cursor-pointer font-mono"
-              >
-                <Edit2 className="w-3.5 h-3.5 mr-1.5 text-primary" />
-                {t('editEmployee')}
-              </Button>
-
-              {employee.status === 'ACTIVE' && (
-                <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsDeactivateOpen(true)}
-                    className="text-xs h-8.5 text-[var(--status-warning)] border-[var(--status-warning)]/30 hover:bg-[var(--status-warning-bg)] cursor-pointer font-mono"
-                  >
-                    <UserMinus className="w-3.5 h-3.5 mr-1.5" />
-                    {t('deactivate')}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsTerminateOpen(true)}
-                    className="text-xs h-8.5 text-[var(--status-danger)] border-[var(--status-danger)]/30 hover:bg-[var(--status-danger-bg)] cursor-pointer font-mono"
-                  >
-                    <UserX className="w-3.5 h-3.5 mr-1.5" />
-                    {t('terminate')}
-                  </Button>
-                </>
+              {canEdit && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEditOpen(true)}
+                  className="text-xs h-8.5 cursor-pointer font-mono"
+                >
+                  <Edit2 className="w-3.5 h-3.5 mr-1.5 text-primary" />
+                  {t('editEmployee')}
+                </Button>
               )}
 
-              {employee.status === 'INACTIVE' && (
-                <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsReactivateOpen(true)}
-                    className="text-xs h-8.5 text-[var(--status-success)] border-[var(--status-success)]/30 hover:bg-[var(--status-success-bg)] cursor-pointer font-mono"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-                    {t('reactivate')}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsTerminateOpen(true)}
-                    className="text-xs h-8.5 text-[var(--status-danger)] border-[var(--status-danger)]/30 hover:bg-[var(--status-danger-bg)] cursor-pointer font-mono"
-                  >
-                    <UserX className="w-3.5 h-3.5 mr-1.5" />
-                    {t('terminate')}
-                  </Button>
-                </>
+              {canReactivate && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsReactivateOpen(true)}
+                  className="text-xs h-8.5 text-[var(--status-success)] border-[var(--status-success)]/30 hover:bg-[var(--status-success-bg)] cursor-pointer font-mono"
+                >
+                  <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+                  {t('reactivate')}
+                </Button>
+              )}
+
+              {canDeactivate && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsDeactivateOpen(true)}
+                  className="text-xs h-8.5 text-[var(--status-warning)] border-[var(--status-warning)]/30 hover:bg-[var(--status-warning-bg)] cursor-pointer font-mono"
+                >
+                  <UserMinus className="w-3.5 h-3.5 mr-1.5" />
+                  {t('deactivate')}
+                </Button>
+              )}
+
+              {canTerminate && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsTerminateOpen(true)}
+                  className="text-xs h-8.5 text-[var(--status-danger)] border-[var(--status-danger)]/30 hover:bg-[var(--status-danger-bg)] cursor-pointer font-mono"
+                >
+                  <UserX className="w-3.5 h-3.5 mr-1.5" />
+                  {t('terminate')}
+                </Button>
               )}
             </div>
           ) : undefined
@@ -190,14 +187,14 @@ export default function EmployeeDetailPage({ params }: PageProps) {
         </div>
         <div className="p-2 space-y-1">
           <span className="text-[10px] text-muted-foreground uppercase">{t('department')}</span>
-          <p className="font-semibold text-foreground truncate">{employee.department?.name || '—'}</p>
+          <p className="font-semibold text-foreground truncate">{employee.department?.name || '-'}</p>
         </div>
         <div className="p-2 space-y-1">
           <span className="text-[10px] text-muted-foreground uppercase">{t('hireDate')}</span>
           <p className="font-semibold text-foreground">{formatDate(employee.hireDate)}</p>
         </div>
         <div className="p-2 space-y-1">
-          <span className="text-[10px] text-muted-foreground uppercase">Access Role</span>
+          <span className="text-[10px] text-muted-foreground uppercase">{t('role')}</span>
           <p className="font-semibold text-foreground">{employee.user?.role || 'EMPLOYEE'}</p>
         </div>
       </div>
@@ -227,10 +224,10 @@ export default function EmployeeDetailPage({ params }: PageProps) {
         {/* System Access Account */}
         <DetailSection title={t('accountInfo')}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <DetailGridItem label="System User ID" value={employee.user?.id || '—'} mono />
+            <DetailGridItem label={t('userId')} value={employee.user?.id || '-'} mono />
             <DetailGridItem label={t('role')} value={employee.user?.role || 'EMPLOYEE'} mono />
             <DetailGridItem
-              label="Account State"
+              label={t('accountState')}
               value={
                 <StatusBadge
                   status={employee.status === 'INACTIVE' ? 'INACTIVE' : employee.status}
@@ -262,7 +259,7 @@ export default function EmployeeDetailPage({ params }: PageProps) {
       {/* Lifecycle Audit Metadata */}
       <div className="space-y-2">
         <h2 className="text-xs font-semibold text-muted-foreground uppercase font-mono tracking-wider">
-          Audit Records & Timestamps
+          {t('auditRecords')}
         </h2>
         <AuditMeta
           createdAt={employee.createdAt}

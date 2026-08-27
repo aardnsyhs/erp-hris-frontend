@@ -114,7 +114,7 @@ export default function AttendancesPage() {
   const columns: ColumnDef<Attendance>[] = [
     {
       accessorKey: 'attendanceDate',
-      header: 'Shift Date',
+      header: t('shiftDate'),
       cell: ({ row }) => (
         <span className="font-mono text-xs font-semibold text-foreground whitespace-nowrap">
           {formatDate(row.original.attendanceDate)}
@@ -123,28 +123,28 @@ export default function AttendancesPage() {
     },
     ...(!isEmployee
       ? [
-          {
-            accessorKey: 'employee.fullName',
-            header: tEmp('fullName'),
-            cell: ({ row }: { row: { original: Attendance } }) => {
-              const emp = row.original.employee;
-              if (!emp) return <span className="text-muted-foreground">-</span>;
-              return (
-                <div className="flex flex-col min-w-0">
-                  <Link
-                    href={`/employees/${emp.id}`}
-                    className="font-semibold text-foreground text-xs hover:text-primary hover:underline transition-colors truncate"
-                  >
-                    {emp.fullName}
-                  </Link>
-                  <span className="text-[11px] font-mono text-muted-foreground truncate">
-                    {emp.nip} {emp.department?.name ? `• ${emp.department.name}` : ''}
-                  </span>
-                </div>
-              );
-            },
+        {
+          accessorKey: 'employee.fullName',
+          header: tEmp('fullName'),
+          cell: ({ row }: { row: { original: Attendance } }) => {
+            const emp = row.original.employee;
+            if (!emp) return <span className="text-muted-foreground">-</span>;
+            return (
+              <div className="flex flex-col min-w-0">
+                <Link
+                  href={`/employees/${emp.id}`}
+                  className="font-semibold text-foreground text-xs hover:text-primary hover:underline transition-colors truncate"
+                >
+                  {emp.fullName}
+                </Link>
+                <span className="text-[11px] font-mono text-muted-foreground truncate">
+                  {emp.nip} {emp.department?.name ? `• ${emp.department.name}` : ''}
+                </span>
+              </div>
+            );
           },
-        ]
+        },
+      ]
       : []),
     {
       accessorKey: 'checkIn',
@@ -183,7 +183,7 @@ export default function AttendancesPage() {
       header: t('notes'),
       cell: ({ row }) => (
         <span className="text-xs text-muted-foreground truncate max-w-44 block font-mono">
-          {row.original.notes || '—'}
+          {row.original.notes || '-'}
         </span>
       ),
     },

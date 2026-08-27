@@ -11,8 +11,8 @@ import {
   MoreHorizontal,
   Eye,
   Edit2,
-  Trash2,
-  RefreshCw,
+  RotateCcw,
+  UserMinus,
   UserX,
   X,
 } from 'lucide-react';
@@ -151,7 +151,7 @@ export default function EmployeesPage() {
       header: t('department'),
       cell: ({ row }) => (
         <span className="text-xs text-foreground font-medium truncate block max-w-40">
-          {row.original.department?.name || '—'}
+          {row.original.department?.name || '-'}
         </span>
       ),
     },
@@ -160,7 +160,7 @@ export default function EmployeesPage() {
       header: t('jobTitle'),
       cell: ({ row }) => (
         <span className="text-xs text-muted-foreground truncate block max-w-40">
-          {row.original.jobTitle || '—'}
+          {row.original.jobTitle || '-'}
         </span>
       ),
     },
@@ -174,6 +174,11 @@ export default function EmployeesPage() {
       header: tCommon('actions'),
       cell: ({ row }) => {
         const emp = row.original;
+        const canReactivate = emp.status === 'INACTIVE';
+        const canDeactivate = emp.status === 'ACTIVE';
+        const canTerminate = emp.status === 'ACTIVE' || emp.status === 'INACTIVE';
+        const canEdit = isHrAdmin && emp.status !== 'TERMINATED';
+
         return (
           <DropdownMenu>
             <DropdownMenuTrigger
@@ -182,7 +187,7 @@ export default function EmployeesPage() {
             >
               <MoreHorizontal className="h-4 w-4" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 font-sans">
+            <DropdownMenuContent align="end" className="w-52 font-sans">
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">
                   {tCommon('actions')}
@@ -195,7 +200,7 @@ export default function EmployeesPage() {
                   <span>{tCommon('detail')}</span>
                 </DropdownMenuItem>
 
-                {isHrAdmin && (
+                {canEdit && (
                   <DropdownMenuItem
                     onClick={() => handleEditClick(emp)}
                     className="flex items-center gap-2 cursor-pointer text-xs"
@@ -206,35 +211,39 @@ export default function EmployeesPage() {
                 )}
               </DropdownMenuGroup>
 
-              {isHrAdmin && (
+              {isHrAdmin && (canReactivate || canDeactivate || canTerminate) && (
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
-                    {emp.status === 'TERMINATED' ? (
+                    {canReactivate && (
                       <DropdownMenuItem
                         onClick={() => handleReactivateClick(emp)}
                         className="flex items-center gap-2 cursor-pointer text-xs text-[var(--status-success)] focus:bg-[var(--status-success-bg)]"
                       >
-                        <RefreshCw className="h-3.5 w-3.5" />
+                        <RotateCcw className="h-3.5 w-3.5" />
                         <span>{t('reactivate')}</span>
                       </DropdownMenuItem>
-                    ) : (
+                    )}
+
+                    {canDeactivate && (
+                      <DropdownMenuItem
+                        onClick={() => handleDeleteClick(emp)}
+                        className="flex items-center gap-2 cursor-pointer text-xs text-[var(--status-warning)] focus:bg-[var(--status-warning-bg)]"
+                      >
+                        <UserMinus className="h-3.5 w-3.5" />
+                        <span>{t('deactivate')}</span>
+                      </DropdownMenuItem>
+                    )}
+
+                    {canTerminate && (
                       <DropdownMenuItem
                         onClick={() => handleTerminateClick(emp)}
-                        className="flex items-center gap-2 cursor-pointer text-xs text-[var(--status-warning)] focus:bg-[var(--status-warning-bg)]"
+                        className="flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/10 text-xs"
                       >
                         <UserX className="h-3.5 w-3.5" />
                         <span>{t('terminate')}</span>
                       </DropdownMenuItem>
                     )}
-
-                    <DropdownMenuItem
-                      onClick={() => handleDeleteClick(emp)}
-                      className="flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/10 text-xs"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      <span>{tCommon('delete')}</span>
-                    </DropdownMenuItem>
                   </DropdownMenuGroup>
                 </>
               )}

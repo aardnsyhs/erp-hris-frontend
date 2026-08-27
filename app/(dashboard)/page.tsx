@@ -48,7 +48,7 @@ export default function DashboardPage() {
         title={emp?.fullName || user?.email || 'Operations Console'}
         description={
           emp?.jobTitle && emp?.department?.name
-            ? `${emp.jobTitle} • ${emp.department.name} — ${t('welcomeDesc')}`
+            ? `${emp.jobTitle} • ${emp.department.name} - ${t('welcomeDesc')}`
             : t('welcomeDesc')
         }
         badge={
@@ -117,7 +117,7 @@ function HRAdminDashboard() {
     {
       id: 'active_employees',
       label: t('activeEmployees'),
-      value: loadingEmployees ? '—' : totalActiveEmployees,
+      value: loadingEmployees ? '-' : totalActiveEmployees,
       description: t('activeEmployeesDesc'),
       icon: Users,
       action: (
@@ -129,7 +129,7 @@ function HRAdminDashboard() {
     {
       id: 'pending_leaves',
       label: t('pendingLeaves'),
-      value: loadingLeaves ? '—' : pendingLeaves,
+      value: loadingLeaves ? '-' : pendingLeaves,
       description: t('pendingLeavesDesc'),
       icon: Clock,
       badge: pendingLeaves > 0 ? (
@@ -146,7 +146,7 @@ function HRAdminDashboard() {
     {
       id: 'draft_payroll',
       label: t('draftPayroll'),
-      value: loadingPayrolls ? '—' : draftPayrolls,
+      value: loadingPayrolls ? '-' : draftPayrolls,
       description: t('draftPayrollDesc'),
       icon: CreditCard,
       badge: draftPayrolls > 0 ? (
@@ -163,7 +163,7 @@ function HRAdminDashboard() {
     {
       id: 'departments',
       label: t('totalDepartments'),
-      value: loadingDepartments ? '—' : departments.length,
+      value: loadingDepartments ? '-' : departments.length,
       description: t('totalDepartmentsDesc'),
       icon: Building2,
       action: (
@@ -383,7 +383,7 @@ function ManagerDashboard({ departmentId }: { departmentId?: string | null }) {
     {
       id: 'team_headcount',
       label: t('teamMembers'),
-      value: loadingTeam ? '—' : totalTeamMembers,
+      value: loadingTeam ? '-' : totalTeamMembers,
       description: t('teamMembersDesc'),
       icon: Users,
       action: (
@@ -395,7 +395,7 @@ function ManagerDashboard({ departmentId }: { departmentId?: string | null }) {
     {
       id: 'pending_team_leaves',
       label: t('teamLeaves'),
-      value: loadingLeaves ? '—' : pendingTeamLeaves,
+      value: loadingLeaves ? '-' : pendingTeamLeaves,
       description: t('teamLeavesDesc'),
       icon: Clock,
       badge: pendingTeamLeaves > 0 ? (
@@ -412,14 +412,14 @@ function ManagerDashboard({ departmentId }: { departmentId?: string | null }) {
     {
       id: 'on_time_today',
       label: t('onTime'),
-      value: loadingAttendance ? '—' : presentCount,
+      value: loadingAttendance ? '-' : presentCount,
       description: t('onScheduleToday'),
       icon: CheckCircle2,
     },
     {
       id: 'late_or_absent',
       label: t('late'),
-      value: loadingAttendance ? '—' : `${lateCount + absentCount}`,
+      value: loadingAttendance ? '-' : `${lateCount + absentCount}`,
       description: t('lateOrAbsentDesc', { late: lateCount, absent: absentCount }),
       icon: AlertCircle,
     },
@@ -609,10 +609,10 @@ function EmployeeDashboard({ employeeId }: { employeeId?: string | null }) {
                       {leave.leaveType === 'ANNUAL'
                         ? tLeave('annual')
                         : leave.leaveType === 'SICK'
-                        ? tLeave('sick')
-                        : leave.leaveType === 'MATERNITY'
-                        ? tLeave('maternity')
-                        : tLeave('unpaid')}
+                          ? tLeave('sick')
+                          : leave.leaveType === 'MATERNITY'
+                            ? tLeave('maternity')
+                            : tLeave('unpaid')}
                     </p>
                     <p className="text-[11px] text-muted-foreground font-mono">
                       {formatDate(leave.startDate)} – {formatDate(leave.endDate)}

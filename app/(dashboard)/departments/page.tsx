@@ -125,15 +125,14 @@ export default function DepartmentsPage() {
             className="inline-flex items-center gap-1.5 font-mono text-xs text-muted-foreground hover:text-foreground"
           >
             <Users className="w-3.5 h-3.5" />
-            <span className="font-semibold tabular-nums text-foreground">{count}</span>
-            <span className="text-[10px]">Headcount</span>
+            <span className="font-medium tabular-nums text-foreground">{t('headcount', { count })}</span>
           </Link>
         );
       },
     },
     {
       accessorKey: 'createdAt',
-      header: 'Registered Date',
+      header: t('registeredDate'),
       cell: ({ row }) => (
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-mono">
           <Calendar className="w-3.5 h-3.5" />
@@ -175,33 +174,18 @@ export default function DepartmentsPage() {
                   <Edit2 className="h-3.5 w-3.5 text-primary" />
                   <span>{t('editDepartment')}</span>
                 </DropdownMenuItem>
+              </DropdownMenuGroup>
 
-                <DropdownMenuSeparator />
-
-                {hasEmployees ? (
-                  <Tooltip>
-                    <TooltipTrigger render={<div className="w-full" />}>
-                      <DropdownMenuItem
-                        disabled
-                        className="flex items-center gap-2 text-muted-foreground opacity-50 cursor-not-allowed text-xs"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                        <span>{t('deleteDepartment')}</span>
-                      </DropdownMenuItem>
-                    </TooltipTrigger>
-                    <TooltipContent side="left" className="text-xs">
-                      {t('deleteWarningHasEmployees', { count: employeeCount })}
-                    </TooltipContent>
-                  </Tooltip>
-                ) : (
-                  <DropdownMenuItem
-                    onClick={() => handleDeleteClick(dept)}
-                    className="flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/10 text-xs"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    <span>{t('deleteDepartment')}</span>
-                  </DropdownMenuItem>
-                )}
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem
+                  onClick={() => handleDeleteClick(dept)}
+                  disabled={hasEmployees}
+                  className="flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/10 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  <span>{tCommon('delete')}</span>
+                </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -219,7 +203,7 @@ export default function DepartmentsPage() {
         badge={
           meta?.total !== undefined ? (
             <Badge variant="outline" className="font-mono text-xs px-2 py-0.5">
-              {meta.total} Units
+              {t('totalUnits', { count: meta.total })}
             </Badge>
           ) : undefined
         }
