@@ -35,6 +35,9 @@ import { EmployeeFormDialog } from '@/components/employees/employee-form-dialog'
 import { EmployeeDeleteDialog } from '@/components/employees/employee-delete-dialog';
 import { EmployeeReactivateDialog } from '@/components/employees/employee-reactivate-dialog';
 import { EmployeeTerminateDialog } from '@/components/employees/employee-terminate-dialog';
+import { EmergencyContactsTab } from '@/components/employees/emergency-contacts-tab';
+import { EmployeeDocumentsTab } from '@/components/employees/employee-documents-tab';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { Employee } from '@/types/employee';
 
@@ -48,10 +51,13 @@ export default function EmployeeDetailPage({ params }: PageProps) {
   const t = useTranslations('employees');
   const tCommon = useTranslations('common');
   const tPayroll = useTranslations('payroll');
+  const tEmergency = useTranslations('emergencyContacts');
+  const tDocs = useTranslations('employeeDocuments');
   const locale = useLocale();
 
   const currentUser = useAuthStore((state) => state.user);
   const isHrAdmin = currentUser?.role === 'HR_ADMIN';
+  const isSelf = currentUser?.employee?.id === id || currentUser?.employeeId === id;
 
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeactivateOpen, setIsDeactivateOpen] = useState(false);
@@ -179,93 +185,129 @@ export default function EmployeeDetailPage({ params }: PageProps) {
         }
       />
 
-      {/* Overview Console Strip */}
-      <div className="grid grid-cols-2 md:grid-cols-4 rounded-md border border-border bg-card divide-y md:divide-y-0 md:divide-x divide-border p-3 text-xs font-mono">
-        <div className="p-2 space-y-1">
-          <span className="text-[10px] text-muted-foreground uppercase">{t('nip')}</span>
-          <p className="font-semibold text-foreground">{employee.nip}</p>
-        </div>
-        <div className="p-2 space-y-1">
-          <span className="text-[10px] text-muted-foreground uppercase">{t('department')}</span>
-          <p className="font-semibold text-foreground truncate">{employee.department?.name || '-'}</p>
-        </div>
-        <div className="p-2 space-y-1">
-          <span className="text-[10px] text-muted-foreground uppercase">{t('hireDate')}</span>
-          <p className="font-semibold text-foreground">{formatDate(employee.hireDate)}</p>
-        </div>
-        <div className="p-2 space-y-1">
-          <span className="text-[10px] text-muted-foreground uppercase">{t('role')}</span>
-          <p className="font-semibold text-foreground">{employee.user?.role || 'EMPLOYEE'}</p>
-        </div>
-      </div>
+      {/* Tabs Navigation */}
+      <Tabs defaultValue="profile" className="w-full space-y-4">
+        <TabsList className="grid w-full grid-cols-3 max-w-md h-9 p-1 bg-muted/60">
+          <TabsTrigger value="profile" className="text-xs font-medium cursor-pointer">
+            {t('personalInfo')}
+          </TabsTrigger>
+          <TabsTrigger value="emergency" className="text-xs font-medium cursor-pointer">
+            {tEmergency('title')}
+          </TabsTrigger>
+          <TabsTrigger value="documents" className="text-xs font-medium cursor-pointer">
+            {tDocs('title')}
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Structured Sections */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {/* Personal & Contact Information */}
-        <DetailSection title={t('personalInfo')}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <DetailGridItem label={t('fullName')} value={employee.fullName} />
-            <DetailGridItem label={t('email')} value={employee.email} mono />
-            <DetailGridItem label={t('phone')} value={employee.phone} mono />
-            <DetailGridItem label={t('status')} value={<StatusBadge status={employee.status} showDot={false} />} />
+        {/* Tab 1: Profile & Employment Details */}
+        <TabsContent value="profile" className="space-y-5 mt-0">
+          {/* Overview Console Strip */}
+          <div className="grid grid-cols-2 md:grid-cols-4 rounded-md border border-border bg-card divide-y md:divide-y-0 md:divide-x divide-border p-3 text-xs font-mono">
+            <div className="p-2 space-y-1">
+              <span className="text-[10px] text-muted-foreground uppercase">{t('nip')}</span>
+              <p className="font-semibold text-foreground">{employee.nip}</p>
+            </div>
+            <div className="p-2 space-y-1">
+              <span className="text-[10px] text-muted-foreground uppercase">{t('department')}</span>
+              <p className="font-semibold text-foreground truncate">{employee.department?.name || '-'}</p>
+            </div>
+            <div className="p-2 space-y-1">
+              <span className="text-[10px] text-muted-foreground uppercase">{t('hireDate')}</span>
+              <p className="font-semibold text-foreground">{formatDate(employee.hireDate)}</p>
+            </div>
+            <div className="p-2 space-y-1">
+              <span className="text-[10px] text-muted-foreground uppercase">{t('role')}</span>
+              <p className="font-semibold text-foreground">{employee.user?.role || 'EMPLOYEE'}</p>
+            </div>
           </div>
-        </DetailSection>
 
-        {/* Employment & Placement Details */}
-        <DetailSection title={t('employmentInfo')}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <DetailGridItem label={t('nip')} value={employee.nip} mono />
-            <DetailGridItem label={t('jobTitle')} value={employee.jobTitle} />
-            <DetailGridItem label={t('department')} value={employee.department?.name} />
-            <DetailGridItem label={t('hireDate')} value={formatDate(employee.hireDate)} />
-          </div>
-        </DetailSection>
+          {/* Structured Sections */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Personal & Contact Information */}
+            <DetailSection title={t('personalInfo')}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <DetailGridItem label={t('fullName')} value={employee.fullName} />
+                <DetailGridItem label={t('email')} value={employee.email} mono />
+                <DetailGridItem label={t('phone')} value={employee.phone} mono />
+                <DetailGridItem label={t('status')} value={<StatusBadge status={employee.status} showDot={false} />} />
+              </div>
+            </DetailSection>
 
-        {/* System Access Account */}
-        <DetailSection title={t('accountInfo')}>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <DetailGridItem label={t('userId')} value={employee.user?.id || '-'} mono />
-            <DetailGridItem label={t('role')} value={employee.user?.role || 'EMPLOYEE'} mono />
-            <DetailGridItem
-              label={t('accountState')}
-              value={
-                <StatusBadge
-                  status={employee.status === 'INACTIVE' ? 'INACTIVE' : employee.status}
-                  showDot={false}
+            {/* Employment & Placement Details */}
+            <DetailSection title={t('employmentInfo')}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <DetailGridItem label={t('nip')} value={employee.nip} mono />
+                <DetailGridItem label={t('jobTitle')} value={employee.jobTitle} />
+                <DetailGridItem label={t('department')} value={employee.department?.name} />
+                <DetailGridItem label={t('hireDate')} value={formatDate(employee.hireDate)} />
+              </div>
+            </DetailSection>
+
+            {/* System Access Account */}
+            <DetailSection title={t('accountInfo')}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <DetailGridItem label={t('userId')} value={employee.user?.id || '-'} mono />
+                <DetailGridItem label={t('role')} value={employee.user?.role || 'EMPLOYEE'} mono />
+                <DetailGridItem
+                  label={t('accountState')}
+                  value={
+                    <StatusBadge
+                      status={employee.status === 'INACTIVE' ? 'INACTIVE' : employee.status}
+                      showDot={false}
+                    />
+                  }
                 />
-              }
+              </div>
+            </DetailSection>
+
+            {/* Compensation & Financial Snapshot */}
+            <DetailSection title={tPayroll('basicSalary')}>
+              {isHrAdmin || isSelf ? (
+                <div className="space-y-3">
+                  <DetailGridItem
+                    label={t('basicSalary')}
+                    value={<MoneyValue amount={employee.baseSalary} className="text-base font-bold" />}
+                  />
+                  <p className="text-[11px] text-muted-foreground font-mono">
+                    {tPayroll('protectedDesc')}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground italic">{tPayroll('protectedDesc')}</p>
+              )}
+            </DetailSection>
+          </div>
+
+          {/* Lifecycle Audit Metadata */}
+          <div className="space-y-2">
+            <h2 className="text-xs font-semibold text-muted-foreground uppercase font-mono tracking-wider">
+              {t('auditRecords')}
+            </h2>
+            <AuditMeta
+              createdAt={employee.createdAt}
+              updatedAt={employee.updatedAt}
             />
           </div>
-        </DetailSection>
+        </TabsContent>
 
-        {/* Compensation & Financial Snapshot */}
-        <DetailSection title={tPayroll('basicSalary')}>
-          {isHrAdmin || currentUser?.employee?.id === employee.id ? (
-            <div className="space-y-3">
-              <DetailGridItem
-                label={t('basicSalary')}
-                value={<MoneyValue amount={employee.baseSalary} className="text-base font-bold" />}
-              />
-              <p className="text-[11px] text-muted-foreground font-mono">
-                {tPayroll('protectedDesc')}
-              </p>
-            </div>
-          ) : (
-            <p className="text-xs text-muted-foreground italic">{tPayroll('protectedDesc')}</p>
-          )}
-        </DetailSection>
-      </div>
+        {/* Tab 2: Emergency Contacts */}
+        <TabsContent value="emergency" className="mt-0">
+          <EmergencyContactsTab
+            employeeId={employee.id}
+            isHrAdmin={isHrAdmin}
+            isSelf={isSelf}
+          />
+        </TabsContent>
 
-      {/* Lifecycle Audit Metadata */}
-      <div className="space-y-2">
-        <h2 className="text-xs font-semibold text-muted-foreground uppercase font-mono tracking-wider">
-          {t('auditRecords')}
-        </h2>
-        <AuditMeta
-          createdAt={employee.createdAt}
-          updatedAt={employee.updatedAt}
-        />
-      </div>
+        {/* Tab 3: Employee Documents */}
+        <TabsContent value="documents" className="mt-0">
+          <EmployeeDocumentsTab
+            employeeId={employee.id}
+            isHrAdmin={isHrAdmin}
+            isSelf={isSelf}
+          />
+        </TabsContent>
+      </Tabs>
 
       {/* Modals & Dialogs */}
       <EmployeeFormDialog

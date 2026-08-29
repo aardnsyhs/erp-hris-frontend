@@ -64,6 +64,12 @@ const navConfigs: NavConfig[] = [
     roles: ['HR_ADMIN', 'MANAGER', 'EMPLOYEE'],
   },
   {
+    key: 'auditLogs',
+    href: '/audit-logs',
+    icon: ShieldCheck,
+    roles: ['HR_ADMIN'],
+  },
+  {
     key: 'profile',
     href: '/profile',
     icon: User,

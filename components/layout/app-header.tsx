@@ -64,6 +64,7 @@ export function AppHeader() {
     if (pathname.startsWith('/attendances')) return tNav('attendance');
     if (pathname.startsWith('/leave-requests')) return tNav('leaveRequests');
     if (pathname.startsWith('/payrolls')) return tNav('payroll');
+    if (pathname.startsWith('/audit-logs')) return tNav('auditLogs');
     if (pathname.startsWith('/profile')) return tNav('profile');
     return tNav('dashboard');
   };
