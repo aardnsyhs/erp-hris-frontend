@@ -60,6 +60,7 @@ export function AppHeader() {
   const getPageTitle = () => {
     if (pathname === '/') return tNav('dashboard');
     if (pathname.startsWith('/employees')) return tNav('employees');
+    if (pathname.startsWith('/positions')) return tNav('positions');
     if (pathname.startsWith('/departments')) return tNav('departments');
     if (pathname.startsWith('/attendances')) return tNav('attendance');
     if (pathname.startsWith('/leave-requests')) return tNav('leaveRequests');

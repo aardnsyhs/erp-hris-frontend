@@ -15,6 +15,7 @@
   "navigation": {
     "dashboard": "Dashboard",
     "employees": "Employees",
+    "positions": "Positions & Roles",
     "departments": "Departments",
     "attendance": "Attendance",
     "leaveRequests": "Leave Requests",
@@ -204,6 +205,8 @@
     "roleEmployee": "Employee (EMPLOYEE)",
     "roleManager": "Manager (MANAGER)",
     "roleHrAdmin": "HR Administrator (HR_ADMIN)",
+    "active": "Active",
+    "inactive": "Inactive",
     "statusActive": "Active",
     "statusInactive": "Inactive (INACTIVE)",
     "statusTerminated": "Terminated (TERMINATED)",
@@ -453,7 +456,18 @@
     "pending": "Pending Scan",
     "uploadSuccess": "Document uploaded successfully.",
     "deleteSuccess": "Document deleted successfully.",
-    "noExpiry": "No Expiry",
+    "noExpiry": "No Expiration",
     "expired": "Expired"
+  },
+  "positions": {
+    "title": "Master Positions & Roles",
+    "subtitle": "Manage organizational position catalogs and hierarchy levels.",
+    "addPosition": "Add Position",
+    "editPosition": "Edit Position",
+    "code": "Position Code",
+    "positionTitle": "Position Title / Role",
+    "level": "Hierarchy Level",
+    "status": "Status",
+    "description": "Description"
   }
 }

@@ -46,5 +46,35 @@ export const queryKeys = {
     detail: (employeeId: string, id: string) =>
       ['employee-documents', 'detail', employeeId, id] as const,
   },
+  contracts: {
+    all: ['contracts'] as const,
+    list: (employeeId: string) => ['contracts', 'list', employeeId] as const,
+    detail: (employeeId: string, id: string) =>
+      ['contracts', 'detail', employeeId, id] as const,
+  },
+  positions: {
+    all: ['positions'] as const,
+    list: (params?: unknown) => ['positions', 'list', params] as const,
+    detail: (id: string) => ['positions', 'detail', id] as const,
+  },
+  positionAssignments: {
+    all: ['position-assignments'] as const,
+    list: (employeeId: string) =>
+      ['position-assignments', 'list', employeeId] as const,
+    current: (employeeId: string) =>
+      ['position-assignments', 'current', employeeId] as const,
+  },
+  reportingLines: {
+    all: ['reporting-lines'] as const,
+    list: (employeeId: string) =>
+      ['reporting-lines', 'list', employeeId] as const,
+    current: (employeeId: string) =>
+      ['reporting-lines', 'current', employeeId] as const,
+  },
+  movementHistories: {
+    all: ['movement-histories'] as const,
+    list: (employeeId: string) =>
+      ['movement-histories', 'list', employeeId] as const,
+  },
 };
 

@@ -77,14 +77,14 @@ export function DataTable<TData, TValue>({
     pageCount: isServerPagination ? (pageCount ?? -1) : undefined,
     state: {
       sorting,
-      pagination: isServerPagination ? pagination : undefined,
+      ...(isServerPagination ? { pagination } : {}),
       globalFilter: searchKey ? undefined : (searchValue ?? clientSearch),
     },
     onSortingChange: setSorting,
     onPaginationChange: isServerPagination ? onPaginationChange : undefined,
     manualPagination: isServerPagination,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: isServerPagination ? undefined : getPaginationRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   });

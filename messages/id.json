@@ -15,6 +15,7 @@
   "navigation": {
     "dashboard": "Dashboard",
     "employees": "Karyawan",
+    "positions": "Jabatan & Posisi",
     "departments": "Departemen",
     "attendance": "Absensi",
     "leaveRequests": "Pengajuan Cuti",
@@ -204,6 +205,8 @@
     "roleEmployee": "Karyawan (EMPLOYEE)",
     "roleManager": "Manajer (MANAGER)",
     "roleHrAdmin": "Administrator HR (HR_ADMIN)",
+    "active": "Aktif",
+    "inactive": "Nonaktif",
     "statusActive": "Aktif",
     "statusInactive": "Nonaktif (INACTIVE)",
     "statusTerminated": "Diberhentikan (TERMINATED)",
@@ -455,5 +458,16 @@
     "deleteSuccess": "Dokumen berhasil dihapus.",
     "noExpiry": "Tidak Ada Kedaluwarsa",
     "expired": "Kedaluwarsa"
+  },
+  "positions": {
+    "title": "Master Jabatan & Posisi",
+    "subtitle": "Kelola hierarki level jabatan dan katalog posisi seluruh organisasi.",
+    "addPosition": "Tambah Posisi",
+    "editPosition": "Edit Posisi",
+    "code": "Kode Posisi",
+    "positionTitle": "Nama Posisi / Jabatan",
+    "level": "Tingkat / Level",
+    "status": "Status",
+    "description": "Deskripsi"
   }
 }

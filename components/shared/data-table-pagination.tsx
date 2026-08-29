@@ -34,8 +34,9 @@ export function DataTablePagination<TData>({
   totalRows,
 }: DataTablePaginationProps<TData>) {
   const t = useTranslations('common');
-  const pageIndex = table.getState().pagination.pageIndex;
-  const pageSize = table.getState().pagination.pageSize;
+  const pagination = table.getState().pagination;
+  const pageIndex = pagination?.pageIndex ?? 0;
+  const pageSize = pagination?.pageSize ?? 10;
   const pageCount = table.getPageCount();
 
   const total = totalRows ?? table.getFilteredRowModel().rows.length;

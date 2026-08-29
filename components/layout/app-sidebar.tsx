@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
+  Briefcase,
   Building2,
   CalendarCheck2,
   CalendarDays,
@@ -38,6 +39,12 @@ const navConfigs: NavConfig[] = [
     href: '/employees',
     icon: Users,
     roles: ['HR_ADMIN', 'MANAGER'],
+  },
+  {
+    key: 'positions',
+    href: '/positions',
+    icon: Briefcase,
+    roles: ['HR_ADMIN'],
   },
   {
     key: 'departments',

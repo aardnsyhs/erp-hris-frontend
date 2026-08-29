@@ -37,6 +37,10 @@ import { EmployeeReactivateDialog } from '@/components/employees/employee-reacti
 import { EmployeeTerminateDialog } from '@/components/employees/employee-terminate-dialog';
 import { EmergencyContactsTab } from '@/components/employees/emergency-contacts-tab';
 import { EmployeeDocumentsTab } from '@/components/employees/employee-documents-tab';
+import { ContractsTab } from '@/components/employees/contracts-tab';
+import { PositionAssignmentsTab } from '@/components/employees/position-assignments-tab';
+import { ReportingLinesTab } from '@/components/employees/reporting-lines-tab';
+import { MovementHistoryTab } from '@/components/employees/movement-history-tab';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { Employee } from '@/types/employee';
@@ -184,18 +188,30 @@ export default function EmployeeDetailPage({ params }: PageProps) {
           ) : undefined
         }
       />
-
-      {/* Tabs Navigation */}
       <Tabs defaultValue="profile" className="w-full space-y-4">
-        <TabsList className="grid w-full grid-cols-3 max-w-md h-9 p-1 bg-muted/60">
+        <TabsList className="flex flex-wrap h-auto p-1 bg-muted/60 gap-1 w-full justify-start">
           <TabsTrigger value="profile" className="text-xs font-medium cursor-pointer">
             {t('personalInfo')}
           </TabsTrigger>
-          <TabsTrigger value="emergency" className="text-xs font-medium cursor-pointer">
-            {tEmergency('title')}
+          {(isHrAdmin || isSelf) && (
+            <TabsTrigger value="contracts" className="text-xs font-medium cursor-pointer">
+              Kontrak Kerja
+            </TabsTrigger>
+          )}
+          <TabsTrigger value="positions" className="text-xs font-medium cursor-pointer">
+            Riwayat Posisi
+          </TabsTrigger>
+          <TabsTrigger value="reporting" className="text-xs font-medium cursor-pointer">
+            Garis Pelaporan
+          </TabsTrigger>
+          <TabsTrigger value="movements" className="text-xs font-medium cursor-pointer">
+            Riwayat Perpindahan
           </TabsTrigger>
           <TabsTrigger value="documents" className="text-xs font-medium cursor-pointer">
             {tDocs('title')}
+          </TabsTrigger>
+          <TabsTrigger value="emergency" className="text-xs font-medium cursor-pointer">
+            {tEmergency('title')}
           </TabsTrigger>
         </TabsList>
 
@@ -249,12 +265,19 @@ export default function EmployeeDetailPage({ params }: PageProps) {
                 <DetailGridItem label={t('userId')} value={employee.user?.id || '-'} mono />
                 <DetailGridItem label={t('role')} value={employee.user?.role || 'EMPLOYEE'} mono />
                 <DetailGridItem
-                  label={t('accountState')}
+                  label={t('accountStatus')}
                   value={
-                    <StatusBadge
-                      status={employee.status === 'INACTIVE' ? 'INACTIVE' : employee.status}
-                      showDot={false}
-                    />
+                    employee.user?.isActive ? (
+                      <span className="text-status-success font-semibold flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-status-success inline-block" />
+                        {t('active')}
+                      </span>
+                    ) : (
+                      <span className="text-status-danger font-semibold flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-status-danger inline-block" />
+                        {t('inactive')}
+                      </span>
+                    )
                   }
                 />
               </div>
@@ -290,18 +313,51 @@ export default function EmployeeDetailPage({ params }: PageProps) {
           </div>
         </TabsContent>
 
-        {/* Tab 2: Emergency Contacts */}
-        <TabsContent value="emergency" className="mt-0">
-          <EmergencyContactsTab
+        {/* Tab 2: Contracts */}
+        {(isHrAdmin || isSelf) && (
+          <TabsContent value="contracts" className="mt-0">
+            <ContractsTab
+              employeeId={employee.id}
+              isHrAdmin={isHrAdmin}
+              isSelf={isSelf}
+            />
+          </TabsContent>
+        )}
+
+        {/* Tab 3: Position Assignments */}
+        <TabsContent value="positions" className="mt-0">
+          <PositionAssignmentsTab
+            employeeId={employee.id}
+            isHrAdmin={isHrAdmin}
+            currentDepartmentId={employee.departmentId}
+          />
+        </TabsContent>
+
+        {/* Tab 4: Reporting Lines */}
+        <TabsContent value="reporting" className="mt-0">
+          <ReportingLinesTab
+            employeeId={employee.id}
+            isHrAdmin={isHrAdmin}
+          />
+        </TabsContent>
+
+        {/* Tab 5: Movement History */}
+        <TabsContent value="movements" className="mt-0">
+          <MovementHistoryTab employeeId={employee.id} />
+        </TabsContent>
+
+        {/* Tab 6: Employee Documents */}
+        <TabsContent value="documents" className="mt-0">
+          <EmployeeDocumentsTab
             employeeId={employee.id}
             isHrAdmin={isHrAdmin}
             isSelf={isSelf}
           />
         </TabsContent>
 
-        {/* Tab 3: Employee Documents */}
-        <TabsContent value="documents" className="mt-0">
-          <EmployeeDocumentsTab
+        {/* Tab 7: Emergency Contacts */}
+        <TabsContent value="emergency" className="mt-0">
+          <EmergencyContactsTab
             employeeId={employee.id}
             isHrAdmin={isHrAdmin}
             isSelf={isSelf}
