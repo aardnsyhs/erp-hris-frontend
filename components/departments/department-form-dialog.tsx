@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
@@ -81,10 +82,11 @@ export function DepartmentFormDialog({
         await createMutation.mutateAsync(values);
       }
       onOpenChange(false);
-    } catch (error: any) {
-      if (error?.response?.status === 409) {
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error) && error.response?.status === 409) {
+        const data = error.response.data as { message?: string | string[] } | undefined;
         const errorMsg =
-          error?.response?.data?.message ||
+          data?.message ||
           `Kode departemen '${values.code}' sudah terdaftar.`;
         setError('code', {
           type: 'manual',

@@ -5,21 +5,22 @@ import Link from 'next/link';
 import { ColumnDef, PaginationState } from '@tanstack/react-table';
 import { useLocale, useTranslations } from 'next-intl';
 import {
-  Building2,
   Plus,
   MoreHorizontal,
   Edit2,
-  Trash2,
   Users,
   Calendar,
+  Archive,
+  RotateCcw,
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useDepartments } from '@/hooks/use-departments';
-import { Department } from '@/types/department';
+import { Department, DepartmentStatus } from '@/types/department';
 import { DataTable } from '@/components/shared/data-table';
 import { PageHeader } from '@/components/shared/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,13 +30,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 import { DepartmentFormDialog } from '@/components/departments/department-form-dialog';
-import { DepartmentDeleteDialog } from '@/components/departments/department-delete-dialog';
+import { DepartmentArchiveDialog } from '@/components/departments/department-archive-dialog';
+import { DepartmentRestoreDialog } from '@/components/departments/department-restore-dialog';
 
 export default function DepartmentsPage() {
   const t = useTranslations('departments');
@@ -47,6 +44,7 @@ export default function DepartmentsPage() {
   const isHrAdmin = currentUser?.role === 'HR_ADMIN';
 
   // Filters & Pagination State
+  const [selectedStatus, setSelectedStatus] = useState<DepartmentStatus>('ACTIVE');
   const [search, setSearch] = useState('');
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -56,12 +54,14 @@ export default function DepartmentsPage() {
   // Dialog States
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [deptToEdit, setDeptToEdit] = useState<Department | null>(null);
-  const [deptToDelete, setDeptToDelete] = useState<Department | null>(null);
+  const [deptToArchive, setDeptToArchive] = useState<Department | null>(null);
+  const [deptToRestore, setDeptToRestore] = useState<Department | null>(null);
 
   const { data, isLoading, isPlaceholderData } = useDepartments({
     page: pageIndex + 1,
     limit: pageSize,
     search: search.trim() || undefined,
+    status: selectedStatus,
   });
 
   const departments = data?.data || [];
@@ -77,8 +77,12 @@ export default function DepartmentsPage() {
     setIsFormOpen(true);
   };
 
-  const handleDeleteClick = (dept: Department) => {
-    setDeptToDelete(dept);
+  const handleArchiveClick = (dept: Department) => {
+    setDeptToArchive(dept);
+  };
+
+  const handleRestoreClick = (dept: Department) => {
+    setDeptToRestore(dept);
   };
 
   const formatDate = (dateString: string) => {
@@ -115,6 +119,30 @@ export default function DepartmentsPage() {
       ),
     },
     {
+      accessorKey: 'isActive',
+      header: t('status'),
+      cell: ({ row }) => {
+        const isActive = row.original.isActive;
+        return isActive ? (
+          <Badge
+            variant="outline"
+            className="text-[11px] font-mono px-2 py-0.5 text-status-success border-(--status-success)/40 bg-status-success-bg gap-1.5"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-status-success inline-block" />
+            {t('statusActive')}
+          </Badge>
+        ) : (
+          <Badge
+            variant="outline"
+            className="text-[11px] font-mono px-2 py-0.5 text-status-warning border-(--status-warning)/40 bg-status-warning-bg gap-1.5"
+          >
+            <Archive className="w-3 h-3 text-status-warning" />
+            {t('statusArchived')}
+          </Badge>
+        );
+      },
+    },
+    {
       accessorKey: '_count.employees',
       header: t('employeeCount'),
       cell: ({ row }) => {
@@ -145,8 +173,6 @@ export default function DepartmentsPage() {
       header: tCommon('actions'),
       cell: ({ row }) => {
         const dept = row.original;
-        const employeeCount = dept._count?.employees ?? 0;
-        const hasEmployees = employeeCount > 0;
 
         if (!isHrAdmin) {
           return (
@@ -178,14 +204,23 @@ export default function DepartmentsPage() {
 
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem
-                  onClick={() => handleDeleteClick(dept)}
-                  disabled={hasEmployees}
-                  className="flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/10 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                  <span>{tCommon('delete')}</span>
-                </DropdownMenuItem>
+                {dept.isActive ? (
+                  <DropdownMenuItem
+                    onClick={() => handleArchiveClick(dept)}
+                    className="flex items-center gap-2 text-status-warning cursor-pointer focus:bg-status-warning-bg text-xs"
+                  >
+                    <Archive className="h-3.5 w-3.5 text-status-warning" />
+                    <span>{t('archiveDepartment')}</span>
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem
+                    onClick={() => handleRestoreClick(dept)}
+                    className="flex items-center gap-2 text-status-success cursor-pointer focus:bg-status-success-bg text-xs"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5 text-status-success" />
+                    <span>{t('restoreDepartment')}</span>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -193,6 +228,12 @@ export default function DepartmentsPage() {
       },
     },
   ];
+
+  const emptyTitle = search.trim()
+    ? t('noDepartmentsFound')
+    : selectedStatus === 'ARCHIVED'
+    ? t('noArchivedDepartmentsFound')
+    : t('noActiveDepartmentsFound');
 
   return (
     <div className="space-y-4">
@@ -221,6 +262,31 @@ export default function DepartmentsPage() {
         }
       />
 
+      {/* Tabs Filter for Department Lifecycle */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <Tabs
+          value={selectedStatus}
+          onValueChange={(val) => {
+            if (val) {
+              setSelectedStatus(val as DepartmentStatus);
+              setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+            }
+          }}
+        >
+          <TabsList className="bg-muted p-1 h-9">
+            <TabsTrigger value="ACTIVE" className="text-xs font-medium cursor-pointer px-3">
+              {t('tabActive')}
+            </TabsTrigger>
+            <TabsTrigger value="ARCHIVED" className="text-xs font-medium cursor-pointer px-3">
+              {t('tabArchived')}
+            </TabsTrigger>
+            <TabsTrigger value="ALL" className="text-xs font-medium cursor-pointer px-3">
+              {t('tabAll')}
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
       {/* Data Table */}
       <DataTable
         columns={columns}
@@ -236,8 +302,8 @@ export default function DepartmentsPage() {
           setPagination((prev) => ({ ...prev, pageIndex: 0 }));
         }}
         searchPlaceholder={t('searchPlaceholder')}
-        emptyTitle={t('noDepartmentsFound')}
-        emptyDescription={t('noDepartmentsFound')}
+        emptyTitle={emptyTitle}
+        emptyDescription={emptyTitle}
       />
 
       {/* Form Dialog (Create / Edit) */}
@@ -247,11 +313,18 @@ export default function DepartmentsPage() {
         departmentToEdit={deptToEdit}
       />
 
-      {/* Delete Confirmation Dialog */}
-      <DepartmentDeleteDialog
-        open={!!deptToDelete}
-        onOpenChange={(open) => !open && setDeptToDelete(null)}
-        department={deptToDelete}
+      {/* Archive Confirmation Dialog */}
+      <DepartmentArchiveDialog
+        open={!!deptToArchive}
+        onOpenChange={(open) => !open && setDeptToArchive(null)}
+        department={deptToArchive}
+      />
+
+      {/* Restore Confirmation Dialog */}
+      <DepartmentRestoreDialog
+        open={!!deptToRestore}
+        onOpenChange={(open) => !open && setDeptToRestore(null)}
+        department={deptToRestore}
       />
     </div>
   );

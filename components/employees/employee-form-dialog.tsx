@@ -53,7 +53,7 @@ export function EmployeeFormDialog({
 
   const createMutation = useCreateEmployee();
   const updateMutation = useUpdateEmployee();
-  const { data: departmentsData, isLoading: isLoadingDepts } = useDepartments();
+  const { data: departmentsData, isLoading: isLoadingDepts } = useDepartments({ status: 'ACTIVE' });
   const departments = departmentsData?.data || [];
 
   const [createdCredentials, setCreatedCredentials] = useState<{
@@ -300,6 +300,16 @@ export function EmployeeFormDialog({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="NONE">{t('noDepartment')}</SelectItem>
+                        {isEditMode &&
+                          employeeToEdit?.department &&
+                          !departments.some((d) => d.id === employeeToEdit.departmentId) && (
+                            <SelectItem
+                              key={employeeToEdit.department.id}
+                              value={employeeToEdit.department.id}
+                            >
+                              {employeeToEdit.department.name} ({employeeToEdit.department.code}) [Diarsipkan]
+                            </SelectItem>
+                          )}
                         {departments.map((dept) => (
                           <SelectItem key={dept.id} value={dept.id}>
                             {dept.name} ({dept.code})

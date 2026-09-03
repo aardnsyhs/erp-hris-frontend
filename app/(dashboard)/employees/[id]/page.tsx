@@ -254,7 +254,26 @@ export default function EmployeeDetailPage({ params }: PageProps) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <DetailGridItem label={t('nip')} value={employee.nip} mono />
                 <DetailGridItem label={t('jobTitle')} value={employee.jobTitle} />
-                <DetailGridItem label={t('department')} value={employee.department?.name} />
+                <DetailGridItem
+                  label={t('department')}
+                  value={
+                    employee.department ? (
+                      <span className="inline-flex items-center gap-1.5 flex-wrap">
+                        <span>{employee.department.name}</span>
+                        {employee.department.isActive === false && (
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] font-mono px-1.5 py-0 text-status-warning border-(--status-warning)/40 bg-status-warning-bg"
+                          >
+                            Diarsipkan
+                          </Badge>
+                        )}
+                      </span>
+                    ) : (
+                      '-'
+                    )
+                  }
+                />
                 <DetailGridItem label={t('hireDate')} value={formatDate(employee.hireDate)} />
               </div>
             </DetailSection>

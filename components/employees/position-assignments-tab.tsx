@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import axios from 'axios';
 import { useLocale, useTranslations } from 'next-intl';
 import {
   Briefcase,
@@ -62,7 +63,7 @@ export function PositionAssignmentsTab({
 
   const { data: assignments = [], isLoading } = usePositionAssignments(employeeId);
   const { data: positions = [] } = usePositions({ isActive: true });
-  const { data: deptsData } = useDepartments({ limit: 100 });
+  const { data: deptsData } = useDepartments({ limit: 100, status: 'ACTIVE' });
   const departments = deptsData?.data || [];
 
   const createAssignment = useCreatePositionAssignment(employeeId);
@@ -148,9 +149,14 @@ export function PositionAssignmentsTab({
       setIsDialogOpen(false);
       setPositionId('');
       setNotes('');
-    } catch (err: any) {
-      const msg =
-        err?.response?.data?.message || 'Gagal membuat penugasan posisi';
+    } catch (err: unknown) {
+      let msg = 'Gagal membuat penugasan posisi';
+      if (axios.isAxiosError(err)) {
+        const data = err.response?.data as { message?: string | string[] } | undefined;
+        if (data?.message) {
+          msg = Array.isArray(data.message) ? data.message.join(', ') : data.message;
+        }
+      }
       toast.error(msg);
     }
   };
@@ -282,9 +288,17 @@ export function PositionAssignmentsTab({
                               Level {item.position?.level}
                             </Badge>
                           </div>
-                          <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                          <p className="text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap">
                             <Building2 className="h-3 w-3" />
-                            {item.department?.name}
+                            <span>{item.department?.name}</span>
+                            {item.department && !item.department.isActive && (
+                              <Badge
+                                variant="outline"
+                                className="text-[10px] font-mono px-1.5 py-0 text-status-warning border-(--status-warning)/40 bg-status-warning-bg"
+                              >
+                                Diarsipkan
+                              </Badge>
+                            )}
                           </p>
                         </div>
 

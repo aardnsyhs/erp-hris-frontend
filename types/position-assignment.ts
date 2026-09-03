@@ -17,6 +17,7 @@ export interface EmployeePositionAssignment {
     id: string;
     code: string;
     name: string;
+    isActive?: boolean;
   } | null;
   effectiveFrom: string;
   effectiveTo: string | null;
