@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Loader2, RotateCcw } from 'lucide-react';
+import { Loader2, RotateCcw, Network } from 'lucide-react';
 import { useRestoreDepartment } from '@/hooks/use-departments';
 import { Department } from '@/types/department';
 import { Button } from '@/components/ui/button';
@@ -70,6 +70,14 @@ export function DepartmentRestoreDialog({
             {t('restoreConfirmDesc')}
           </AlertDialogDescription>
         </AlertDialogHeader>
+
+        {/* Hierarchy Safeguard Notice */}
+        <div className="p-2.5 rounded-md bg-muted/60 border border-border space-y-1 text-xs text-muted-foreground font-mono">
+          <div className="flex items-start gap-1.5">
+            <Network className="w-3.5 h-3.5 shrink-0 mt-0.5 text-primary" />
+            <span>{t('restoreHierarchyNotice')}</span>
+          </div>
+        </div>
 
         <div className="space-y-2 pt-1">
           <label className="text-xs font-semibold text-foreground font-mono">

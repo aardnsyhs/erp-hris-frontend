@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Loader2, Users, Archive, ArrowUpRight } from 'lucide-react';
+import { Loader2, Users, Archive, ArrowUpRight, Network } from 'lucide-react';
 import { useArchiveDepartment } from '@/hooks/use-departments';
 import { Department } from '@/types/department';
 import { Button } from '@/components/ui/button';
@@ -76,6 +76,14 @@ export function DepartmentArchiveDialog({
               : t('archiveConfirmDesc')}
           </AlertDialogDescription>
         </AlertDialogHeader>
+
+        {/* Hierarchy Safeguard Notice */}
+        <div className="p-2.5 rounded-md bg-muted/60 border border-border space-y-1 text-xs text-muted-foreground font-mono">
+          <div className="flex items-start gap-1.5">
+            <Network className="w-3.5 h-3.5 shrink-0 mt-0.5 text-primary" />
+            <span>{t('archiveHierarchyNotice')}</span>
+          </div>
+        </div>
 
         {hasActiveEmployees ? (
           <div className="p-3 rounded-md bg-status-warning-bg border border-(--status-warning)/30 space-y-2 text-status-warning text-xs font-mono">

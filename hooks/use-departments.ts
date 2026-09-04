@@ -8,6 +8,9 @@ import {
   Department,
   DepartmentListResponse,
   DepartmentQueryParams,
+  DepartmentTreeNode,
+  DepartmentTreeQueryParams,
+  ReparentDepartmentDto,
   RestoreDepartmentDto,
   UpdateDepartmentDto,
 } from '@/types/department';
@@ -33,6 +36,20 @@ export function useDepartments(params?: DepartmentQueryParams) {
           page: params?.page ?? 1,
           search: params?.search?.trim() || undefined,
           status: params?.status,
+        },
+      });
+      return data;
+    },
+  });
+}
+
+export function useDepartmentTree(params?: DepartmentTreeQueryParams) {
+  return useQuery({
+    queryKey: queryKeys.departments.tree(params),
+    queryFn: async () => {
+      const { data } = await apiClient.get<DepartmentTreeNode[]>('/departments/tree', {
+        params: {
+          includeArchived: params?.includeArchived ? true : undefined,
         },
       });
       return data;
@@ -174,3 +191,33 @@ export function useDeleteDepartment() {
     },
   });
 }
+
+export function useReparentDepartment() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: ReparentDepartmentDto;
+    }) => {
+      const { data } = await apiClient.patch<Department>(
+        `/departments/${id}/parent`,
+        payload,
+      );
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.departments.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.departments.detail(data.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
+      toast.success(`Posisi departemen "${data.name}" (${data.code}) berhasil diperbarui.`);
+    },
+    onError: (error: unknown) => {
+      toast.error(getErrorMessage(error, 'Gagal memindahkan departemen.'));
+    },
+  });
+}
+

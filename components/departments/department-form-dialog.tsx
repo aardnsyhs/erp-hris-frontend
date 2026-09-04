@@ -2,13 +2,14 @@
 
 import React, { useEffect } from 'react';
 import axios from 'axios';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import { Loader2 } from 'lucide-react';
 import { departmentFormSchema, DepartmentFormValues } from '@/lib/validations/department';
 import { useCreateDepartment, useUpdateDepartment } from '@/hooks/use-departments';
-import { Department } from '@/types/department';
+import { DepartmentParentSelect } from './department-parent-select';
+import { CreateDepartmentDto, Department } from '@/types/department';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -45,6 +46,7 @@ export function DepartmentFormDialog({
     handleSubmit,
     setValue,
     setError,
+    control,
     reset,
     formState: { errors },
   } = useForm<DepartmentFormValues>({
@@ -52,6 +54,7 @@ export function DepartmentFormDialog({
     defaultValues: {
       code: '',
       name: '',
+      parentId: '',
     },
   });
 
@@ -61,11 +64,13 @@ export function DepartmentFormDialog({
         reset({
           code: departmentToEdit.code,
           name: departmentToEdit.name,
+          parentId: departmentToEdit.parentId || '',
         });
       } else {
         reset({
           code: '',
           name: '',
+          parentId: '',
         });
       }
     }
@@ -76,10 +81,18 @@ export function DepartmentFormDialog({
       if (isEditMode && departmentToEdit) {
         await updateMutation.mutateAsync({
           id: departmentToEdit.id,
-          payload: values,
+          payload: {
+            code: values.code,
+            name: values.name,
+          },
         });
       } else {
-        await createMutation.mutateAsync(values);
+        const payload: CreateDepartmentDto = {
+          code: values.code,
+          name: values.name,
+          ...(values.parentId ? { parentId: values.parentId } : {}),
+        };
+        await createMutation.mutateAsync(payload);
       }
       onOpenChange(false);
     } catch (error: unknown) {
@@ -153,6 +166,46 @@ export function DepartmentFormDialog({
               <p className="text-xs text-status-danger font-mono">{errors.name.message}</p>
             )}
           </div>
+
+          {/* Field: Parent Selector (Only on Create) */}
+          {!isEditMode && (
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground font-mono">
+                {t('parentDepartmentLabel')}
+              </label>
+              <Controller
+                name="parentId"
+                control={control}
+                render={({ field }) => (
+                  <DepartmentParentSelect
+                    value={field.value || null}
+                    onChange={(val) => field.onChange(val || '')}
+                    disabled={isSubmitting}
+                  />
+                )}
+              />
+              <p className="text-[11px] text-muted-foreground font-mono">
+                {t('createParentHelper')}
+              </p>
+            </div>
+          )}
+
+          {/* Read-Only Hierarchy Info (On Edit) */}
+          {isEditMode && (
+            <div className="p-3 rounded-lg border border-border bg-muted/40 space-y-1.5 text-xs font-mono">
+              <div className="flex items-center justify-between text-muted-foreground">
+                <span>{t('currentParent')}:</span>
+                <span className="font-semibold text-foreground">
+                  {departmentToEdit?.parent?.name
+                    ? `${departmentToEdit.parent.code} — ${departmentToEdit.parent.name}`
+                    : t('rootDepartment')}
+                </span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                {t('editParentDisabledNotice')}
+              </p>
+            </div>
+          )}
         </form>
 
         <DialogFooter className="shrink-0 pt-2">

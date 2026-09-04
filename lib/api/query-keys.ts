@@ -5,6 +5,7 @@ export const queryKeys = {
   departments: {
     all: ['departments'] as const,
     list: (params?: unknown) => ['departments', 'list', params] as const,
+    tree: (params?: unknown) => ['departments', 'tree', params] as const,
     detail: (id: string) => ['departments', 'detail', id] as const,
   },
   employees: {

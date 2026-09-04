@@ -12,10 +12,13 @@ import {
   Calendar,
   Archive,
   RotateCcw,
+  LayoutList,
+  Network,
+  GitFork,
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useDepartments } from '@/hooks/use-departments';
-import { Department, DepartmentStatus } from '@/types/department';
+import { Department, DepartmentStatus, DepartmentTreeNode } from '@/types/department';
 import { DataTable } from '@/components/shared/data-table';
 import { PageHeader } from '@/components/shared/page-header';
 import { Badge } from '@/components/ui/badge';
@@ -33,6 +36,8 @@ import {
 import { DepartmentFormDialog } from '@/components/departments/department-form-dialog';
 import { DepartmentArchiveDialog } from '@/components/departments/department-archive-dialog';
 import { DepartmentRestoreDialog } from '@/components/departments/department-restore-dialog';
+import { DepartmentReparentDialog } from '@/components/departments/department-reparent-dialog';
+import { DepartmentTreeView } from '@/components/departments/department-tree-view';
 
 export default function DepartmentsPage() {
   const t = useTranslations('departments');
@@ -43,7 +48,10 @@ export default function DepartmentsPage() {
   const currentUser = useAuthStore((state) => state.user);
   const isHrAdmin = currentUser?.role === 'HR_ADMIN';
 
-  // Filters & Pagination State
+  // View Mode: Table vs Hierarchy Tree
+  const [viewMode, setViewMode] = useState<'TABLE' | 'TREE'>('TABLE');
+
+  // Filters & Pagination State for Table
   const [selectedStatus, setSelectedStatus] = useState<DepartmentStatus>('ACTIVE');
   const [search, setSearch] = useState('');
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
@@ -56,6 +64,7 @@ export default function DepartmentsPage() {
   const [deptToEdit, setDeptToEdit] = useState<Department | null>(null);
   const [deptToArchive, setDeptToArchive] = useState<Department | null>(null);
   const [deptToRestore, setDeptToRestore] = useState<Department | null>(null);
+  const [deptToReparent, setDeptToReparent] = useState<Department | DepartmentTreeNode | null>(null);
 
   const { data, isLoading, isPlaceholderData } = useDepartments({
     page: pageIndex + 1,
@@ -75,6 +84,10 @@ export default function DepartmentsPage() {
   const handleEditClick = (dept: Department) => {
     setDeptToEdit(dept);
     setIsFormOpen(true);
+  };
+
+  const handleReparentClick = (dept: Department | DepartmentTreeNode) => {
+    setDeptToReparent(dept);
   };
 
   const handleArchiveClick = (dept: Department) => {
@@ -99,9 +112,14 @@ export default function DepartmentsPage() {
       accessorKey: 'code',
       header: t('code'),
       cell: ({ row }) => (
-        <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-muted text-foreground border border-border">
-          {row.original.code}
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span className="font-mono text-[10px] font-semibold px-1 py-0.2 rounded bg-primary/10 text-primary border border-primary/20 shrink-0">
+            L{row.original.level ?? 0}
+          </span>
+          <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-muted text-foreground border border-border">
+            {row.original.code}
+          </span>
+        </div>
       ),
     },
     {
@@ -115,6 +133,11 @@ export default function DepartmentsPage() {
           >
             {row.original.name}
           </Link>
+          {row.original.parentId && row.original.parent && (
+            <span className="text-[11px] text-muted-foreground truncate font-mono">
+              Induk: {row.original.parent.code} — {row.original.parent.name}
+            </span>
+          )}
         </div>
       ),
     },
@@ -194,10 +217,17 @@ export default function DepartmentsPage() {
                   {tCommon('actions')}
                 </DropdownMenuLabel>
                 <DropdownMenuItem
+                  onClick={() => handleReparentClick(dept)}
+                  className="flex items-center gap-2 cursor-pointer text-xs font-medium text-primary"
+                >
+                  <GitFork className="h-3.5 w-3.5 text-primary" />
+                  <span>{t('moveDepartment')}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
                   onClick={() => handleEditClick(dept)}
                   className="flex items-center gap-2 cursor-pointer text-xs"
                 >
-                  <Edit2 className="h-3.5 w-3.5 text-primary" />
+                  <Edit2 className="h-3.5 w-3.5 text-muted-foreground" />
                   <span>{t('editDepartment')}</span>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
@@ -249,68 +279,153 @@ export default function DepartmentsPage() {
           ) : undefined
         }
         actions={
-          isHrAdmin && (
-            <Button
-              onClick={handleCreateClick}
-              size="sm"
-              className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-xs shrink-0 cursor-pointer font-medium text-xs h-8.5 rounded-md"
-            >
-              <Plus className="w-3.5 h-3.5 mr-1.5" />
-              {t('addDepartment')}
-            </Button>
-          )
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* View Mode Toggle Button Group */}
+            <div className="flex items-center p-0.5 rounded-lg border border-border bg-muted/60">
+              <Button
+                type="button"
+                variant={viewMode === 'TABLE' ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('TABLE')}
+                className="h-7 px-2.5 text-xs font-mono gap-1.5 cursor-pointer"
+              >
+                <LayoutList className="w-3.5 h-3.5" />
+                <span>{t('viewTable')}</span>
+              </Button>
+              <Button
+                type="button"
+                variant={viewMode === 'TREE' ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('TREE')}
+                className="h-7 px-2.5 text-xs font-mono gap-1.5 cursor-pointer"
+              >
+                <Network className="w-3.5 h-3.5 text-primary" />
+                <span>{t('viewTree')}</span>
+              </Button>
+            </div>
+
+            {isHrAdmin && (
+              <Button
+                onClick={handleCreateClick}
+                size="sm"
+                className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-xs shrink-0 cursor-pointer font-medium text-xs h-8 rounded-md"
+              >
+                <Plus className="w-3.5 h-3.5 mr-1.5" />
+                {t('addDepartment')}
+              </Button>
+            )}
+          </div>
         }
       />
 
-      {/* Tabs Filter for Department Lifecycle */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <Tabs
-          value={selectedStatus}
-          onValueChange={(val) => {
-            if (val) {
-              setSelectedStatus(val as DepartmentStatus);
-              setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-            }
+      {/* Main Content Area based on View Mode */}
+      {viewMode === 'TREE' ? (
+        <DepartmentTreeView
+          isHrAdmin={isHrAdmin}
+          onEdit={(node) => {
+            setDeptToEdit({
+              id: node.id,
+              code: node.code,
+              name: node.name,
+              isActive: node.isActive,
+              archivedAt: node.archivedAt,
+              parentId: node.parentId,
+              level: node.level,
+              createdAt: '',
+              updatedAt: '',
+              _count: node._count ? { employees: node._count.employees } : undefined,
+            });
+            setIsFormOpen(true);
           }}
-        >
-          <TabsList className="bg-muted p-1 h-9">
-            <TabsTrigger value="ACTIVE" className="text-xs font-medium cursor-pointer px-3">
-              {t('tabActive')}
-            </TabsTrigger>
-            <TabsTrigger value="ARCHIVED" className="text-xs font-medium cursor-pointer px-3">
-              {t('tabArchived')}
-            </TabsTrigger>
-            <TabsTrigger value="ALL" className="text-xs font-medium cursor-pointer px-3">
-              {t('tabAll')}
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
+          onReparent={(node) => handleReparentClick(node)}
+          onArchive={(node) => {
+            setDeptToArchive({
+              id: node.id,
+              code: node.code,
+              name: node.name,
+              isActive: node.isActive,
+              archivedAt: node.archivedAt,
+              parentId: node.parentId,
+              level: node.level,
+              createdAt: '',
+              updatedAt: '',
+              _count: node._count ? { employees: node._count.employees } : undefined,
+            });
+          }}
+          onRestore={(node) => {
+            setDeptToRestore({
+              id: node.id,
+              code: node.code,
+              name: node.name,
+              isActive: node.isActive,
+              archivedAt: node.archivedAt,
+              parentId: node.parentId,
+              level: node.level,
+              createdAt: '',
+              updatedAt: '',
+              _count: node._count ? { employees: node._count.employees } : undefined,
+            });
+          }}
+        />
+      ) : (
+        /* Table View */
+        <div className="space-y-4">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <Tabs
+              value={selectedStatus}
+              onValueChange={(val) => {
+                if (val) {
+                  setSelectedStatus(val as DepartmentStatus);
+                  setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+                }
+              }}
+            >
+              <TabsList className="bg-muted p-1 h-9">
+                <TabsTrigger value="ACTIVE" className="text-xs font-medium cursor-pointer px-3">
+                  {t('tabActive')}
+                </TabsTrigger>
+                <TabsTrigger value="ARCHIVED" className="text-xs font-medium cursor-pointer px-3">
+                  {t('tabArchived')}
+                </TabsTrigger>
+                <TabsTrigger value="ALL" className="text-xs font-medium cursor-pointer px-3">
+                  {t('tabAll')}
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
 
-      {/* Data Table */}
-      <DataTable
-        columns={columns}
-        data={departments}
-        isLoading={isLoading || isPlaceholderData}
-        totalRows={meta?.total}
-        pageCount={meta?.totalPages}
-        pagination={{ pageIndex, pageSize }}
-        onPaginationChange={setPagination}
-        searchValue={search}
-        onSearchChange={(val) => {
-          setSearch(val);
-          setPagination((prev) => ({ ...prev, pageIndex: 0 }));
-        }}
-        searchPlaceholder={t('searchPlaceholder')}
-        emptyTitle={emptyTitle}
-        emptyDescription={emptyTitle}
-      />
+          <DataTable
+            columns={columns}
+            data={departments}
+            isLoading={isLoading || isPlaceholderData}
+            totalRows={meta?.total}
+            pageCount={meta?.totalPages}
+            pagination={{ pageIndex, pageSize }}
+            onPaginationChange={setPagination}
+            searchValue={search}
+            onSearchChange={(val) => {
+              setSearch(val);
+              setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+            }}
+            searchPlaceholder={t('searchPlaceholder')}
+            emptyTitle={emptyTitle}
+            emptyDescription={emptyTitle}
+          />
+        </div>
+      )}
 
       {/* Form Dialog (Create / Edit) */}
       <DepartmentFormDialog
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
         departmentToEdit={deptToEdit}
+      />
+
+      {/* Reparent Confirmation Dialog */}
+      <DepartmentReparentDialog
+        open={!!deptToReparent}
+        onOpenChange={(open) => !open && setDeptToReparent(null)}
+        department={deptToReparent}
       />
 
       {/* Archive Confirmation Dialog */}
