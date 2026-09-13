@@ -21,6 +21,7 @@ import { useDepartments } from '@/hooks/use-departments';
 import { Department, DepartmentStatus, DepartmentTreeNode } from '@/types/department';
 import { DataTable } from '@/components/shared/data-table';
 import { PageHeader } from '@/components/shared/page-header';
+import { StatusBadge } from '@/components/shared/status-badge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -113,7 +114,7 @@ export default function DepartmentsPage() {
       header: t('code'),
       cell: ({ row }) => (
         <div className="flex items-center gap-1.5">
-          <span className="font-mono text-[10px] font-semibold px-1 py-0.2 rounded bg-primary/10 text-primary border border-primary/20 shrink-0">
+          <span className="font-mono text-[10px] font-semibold px-1 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 shrink-0">
             L{row.original.level ?? 0}
           </span>
           <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-muted text-foreground border border-border">
@@ -128,14 +129,14 @@ export default function DepartmentsPage() {
       cell: ({ row }) => (
         <div className="flex flex-col min-w-0">
           <Link
-            href={`/employees?departmentId=${row.original.id}`}
+            href={`/employees?departmentId=${row.original.id}&status=ACTIVE`}
             className="font-semibold text-foreground text-xs hover:text-primary hover:underline transition-colors truncate"
           >
             {row.original.name}
           </Link>
           {row.original.parentId && row.original.parent && (
             <span className="text-[11px] text-muted-foreground truncate font-mono">
-              Induk: {row.original.parent.code} — {row.original.parent.name}
+              {t('parentPrefix')} {row.original.parent.code} - {row.original.parent.name}
             </span>
           )}
         </div>
@@ -144,26 +145,9 @@ export default function DepartmentsPage() {
     {
       accessorKey: 'isActive',
       header: t('status'),
-      cell: ({ row }) => {
-        const isActive = row.original.isActive;
-        return isActive ? (
-          <Badge
-            variant="outline"
-            className="text-[11px] font-mono px-2 py-0.5 text-status-success border-(--status-success)/40 bg-status-success-bg gap-1.5"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-status-success inline-block" />
-            {t('statusActive')}
-          </Badge>
-        ) : (
-          <Badge
-            variant="outline"
-            className="text-[11px] font-mono px-2 py-0.5 text-status-warning border-(--status-warning)/40 bg-status-warning-bg gap-1.5"
-          >
-            <Archive className="w-3 h-3 text-status-warning" />
-            {t('statusArchived')}
-          </Badge>
-        );
-      },
+      cell: ({ row }) => (
+        <StatusBadge status={row.original.isActive ? 'ACTIVE' : 'ARCHIVED'} />
+      ),
     },
     {
       accessorKey: '_count.employees',
@@ -172,7 +156,7 @@ export default function DepartmentsPage() {
         const count = row.original._count?.employees ?? 0;
         return (
           <Link
-            href={`/employees?departmentId=${row.original.id}`}
+            href={`/employees?departmentId=${row.original.id}&status=ACTIVE`}
             className="inline-flex items-center gap-1.5 font-mono text-xs text-muted-foreground hover:text-foreground"
           >
             <Users className="w-3.5 h-3.5" />
@@ -262,8 +246,8 @@ export default function DepartmentsPage() {
   const emptyTitle = search.trim()
     ? t('noDepartmentsFound')
     : selectedStatus === 'ARCHIVED'
-    ? t('noArchivedDepartmentsFound')
-    : t('noActiveDepartmentsFound');
+      ? t('noArchivedDepartmentsFound')
+      : t('noActiveDepartmentsFound');
 
   return (
     <div className="space-y-4">
@@ -308,7 +292,7 @@ export default function DepartmentsPage() {
               <Button
                 onClick={handleCreateClick}
                 size="sm"
-                className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-xs shrink-0 cursor-pointer font-medium text-xs h-8 rounded-md"
+                className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-xs shrink-0 cursor-pointer font-medium text-xs h-8.5 rounded-md"
               >
                 <Plus className="w-3.5 h-3.5 mr-1.5" />
                 {t('addDepartment')}

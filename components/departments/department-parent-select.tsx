@@ -90,6 +90,7 @@ function flattenTreeCandidates(
   nodes: DepartmentTreeNode[],
   excludedIds: Set<string>,
   targetSubtreeHeight: number = 0,
+  disabledReasonMessage?: string,
 ): FlatCandidate[] {
   const result: FlatCandidate[] = [];
 
@@ -110,9 +111,7 @@ function flattenTreeCandidates(
       name: node.name,
       level: node.level,
       isDisabled: wouldExceedDepth,
-      disabledReason: wouldExceedDepth
-        ? 'Batas level organisasi maksimum (Level 0–3) terlampaui'
-        : undefined,
+      disabledReason: wouldExceedDepth ? disabledReasonMessage : undefined,
     });
 
     for (const child of node.children || []) {
@@ -150,9 +149,10 @@ export function DepartmentParentSelect({
     return collectExcludedIds(tree, excludeId);
   }, [tree, excludeId]);
 
+  const disabledReasonMessage = t('depthLimitNotice');
   const candidates = useMemo(() => {
-    return flattenTreeCandidates(tree, excludedIds, targetSubtreeHeight);
-  }, [tree, excludedIds, targetSubtreeHeight]);
+    return flattenTreeCandidates(tree, excludedIds, targetSubtreeHeight, disabledReasonMessage);
+  }, [tree, excludedIds, targetSubtreeHeight, disabledReasonMessage]);
 
   const internalValue = value === null ? ROOT_SENTINEL_VALUE : (value ?? ROOT_SENTINEL_VALUE);
 
@@ -171,7 +171,19 @@ export function DepartmentParentSelect({
       disabled={disabled || isLoading}
     >
       <SelectTrigger className="w-full text-xs font-sans">
-        <SelectValue placeholder={placeholder || t('selectParentPlaceholder')} />
+        <SelectValue placeholder={placeholder || t('selectParentPlaceholder')}>
+          {(val) => {
+            if (!val || val === '') return placeholder || t('selectParentPlaceholder');
+            if (val === ROOT_SENTINEL_VALUE) {
+              return t('makeRootDepartment');
+            }
+            const cand = candidates.find((c) => c.id === val);
+            if (cand) {
+              return `L${cand.level} ${cand.code} - ${cand.name}`;
+            }
+            return val;
+          }}
+        </SelectValue>
       </SelectTrigger>
       <SelectContent className="max-h-72">
         {allowRoot && (
@@ -214,13 +226,13 @@ export function DepartmentParentSelect({
                   {cand.level > 0 && (
                     <CornerDownRight className="w-3 h-3 text-muted-foreground shrink-0" />
                   )}
-                  <span className="font-mono text-[10px] px-1 py-0.2 rounded bg-muted text-muted-foreground border border-border shrink-0">
+                  <span className="font-mono text-[10px] px-1 py-0.5 rounded bg-muted text-muted-foreground border border-border shrink-0">
                     L{cand.level}
                   </span>
                   <span className="font-mono font-semibold text-foreground shrink-0">
                     {cand.code}
                   </span>
-                  <span className="text-muted-foreground truncate">— {cand.name}</span>
+                  <span className="text-muted-foreground truncate">- {cand.name}</span>
                   {cand.isDisabled && (
                     <span className="text-[10px] text-destructive italic ml-1 shrink-0">
                       ({t('depthLimitReached')})

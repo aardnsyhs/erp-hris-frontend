@@ -296,7 +296,20 @@ export function EmployeeFormDialog({
                       disabled={isSubmitting || isLoadingDepts}
                     >
                       <SelectTrigger className="w-full h-9 font-mono text-xs">
-                        <SelectValue placeholder={t('selectDepartment')} />
+                        <SelectValue placeholder={t('selectDepartment')}>
+                          {(val) => {
+                            if (!val || val === 'NONE') return t('noDepartment');
+                            const dept = departments.find((d) => d.id === val);
+                            if (dept) return `${dept.name} (${dept.code})`;
+                            if (
+                              employeeToEdit?.department &&
+                              employeeToEdit.department.id === val
+                            ) {
+                              return `${employeeToEdit.department.name} (${employeeToEdit.department.code}) [Diarsipkan]`;
+                            }
+                            return val;
+                          }}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="NONE">{t('noDepartment')}</SelectItem>
@@ -387,7 +400,14 @@ export function EmployeeFormDialog({
                     disabled={isSubmitting}
                   >
                     <SelectTrigger className="w-full h-9 font-mono text-xs">
-                      <SelectValue placeholder={t('accountStatus')} />
+                      <SelectValue placeholder={t('accountStatus')}>
+                        {(val) => {
+                          if (val === 'ACTIVE') return t('statusActive');
+                          if (val === 'INACTIVE') return t('statusInactive');
+                          if (val === 'TERMINATED') return t('statusTerminated');
+                          return val;
+                        }}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="ACTIVE">{t('statusActive')}</SelectItem>

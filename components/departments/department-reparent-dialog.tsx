@@ -51,8 +51,8 @@ function DepartmentReparentForm({
     'children' in department && Array.isArray(department.children)
       ? department.children.length
       : department._count && 'children' in department._count && typeof department._count.children === 'number'
-      ? department._count.children
-      : 0;
+        ? department._count.children
+        : 0;
 
   const parentObject = 'parent' in department && department.parent ? department.parent : null;
 
@@ -101,7 +101,7 @@ function DepartmentReparentForm({
           <span className="font-mono text-foreground font-medium">
             {department.parentId ? (
               parentObject ? (
-                `${parentObject.code} — ${parentObject.name}`
+                `${parentObject.code} - ${parentObject.name}`
               ) : (
                 department.parentId
               )
@@ -148,10 +148,11 @@ function DepartmentReparentForm({
 
       {/* Field: Reason */}
       <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-foreground font-mono">
+        <label htmlFor="reparent-reason" className="text-xs font-semibold text-foreground font-mono">
           {t('reparentReasonLabel')}
         </label>
         <Input
+          id="reparent-reason"
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           placeholder={t('reparentReasonPlaceholder')}
@@ -175,14 +176,14 @@ function DepartmentReparentForm({
           variant="outline"
           onClick={onCancel}
           disabled={isSubmitting}
-          className="font-mono text-xs cursor-pointer"
+          className="min-h-11 w-full sm:w-auto font-mono text-xs cursor-pointer"
         >
           {tCommon('cancel')}
         </Button>
         <Button
           type="submit"
           disabled={isSubmitting || isNoOp}
-          className="bg-primary hover:bg-primary-hover text-primary-foreground font-mono text-xs cursor-pointer shadow-xs"
+          className="min-h-11 w-full sm:w-auto bg-primary hover:bg-primary-hover text-primary-foreground font-mono text-xs font-semibold cursor-pointer shadow-xs"
         >
           {isSubmitting ? (
             <>

@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 export type StatusVariant =
   | 'ACTIVE'
   | 'INACTIVE'
+  | 'ARCHIVED'
   | 'TERMINATED'
   | 'PRESENT'
   | 'LATE'
@@ -24,6 +25,7 @@ interface StatusBadgeProps {
   label?: string;
   className?: string;
   showDot?: boolean;
+  size?: 'sm' | 'default';
 }
 
 export function StatusBadge({
@@ -31,11 +33,13 @@ export function StatusBadge({
   label,
   className,
   showDot = true,
+  size = 'default',
 }: StatusBadgeProps) {
   const tEmp = useTranslations('employees');
   const tAtt = useTranslations('attendance');
   const tLeave = useTranslations('leave');
   const tPay = useTranslations('payroll');
+  const tDept = useTranslations('departments');
 
   const normalizedStatus = (status || '').toUpperCase() as StatusVariant;
 
@@ -83,6 +87,11 @@ export function StatusBadge({
       dotClass = 'bg-[var(--status-warning)]';
       defaultLabel = tPay('statusDraft');
       break;
+    case 'ARCHIVED':
+      styleClass = 'bg-[var(--status-warning-bg)] text-[var(--status-warning)] border-[var(--status-warning)]/20';
+      dotClass = 'bg-[var(--status-warning)]';
+      defaultLabel = tDept('statusArchived');
+      break;
 
     // DANGER (Red)
     case 'INACTIVE':
@@ -127,7 +136,8 @@ export function StatusBadge({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold border tracking-wide uppercase font-mono select-none',
+        'inline-flex items-center font-semibold border tracking-wide uppercase font-mono select-none rounded-md',
+        size === 'sm' ? 'gap-1 px-1.5 py-0.5 text-[10px]' : 'gap-1.5 px-2 py-0.5 text-[11px]',
         styleClass,
         className,
       )}

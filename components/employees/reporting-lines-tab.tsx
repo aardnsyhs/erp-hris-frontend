@@ -272,7 +272,12 @@ export function ReportingLinesTab({
                   onValueChange={(val) => setManagerId(val || '')}
                 >
                   <SelectTrigger className="h-9">
-                    <SelectValue placeholder="Pilih atasan langsung" />
+                    <SelectValue placeholder="Pilih atasan langsung">
+                      {(val) => {
+                        const m = eligibleManagers.find((item) => item.id === val);
+                        return m ? `${m.fullName} (${m.nip}) - ${m.jobTitle}` : undefined;
+                      }}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {eligibleManagers.map((m) => (

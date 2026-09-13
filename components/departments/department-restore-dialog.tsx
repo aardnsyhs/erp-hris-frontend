@@ -80,10 +80,11 @@ export function DepartmentRestoreDialog({
         </div>
 
         <div className="space-y-2 pt-1">
-          <label className="text-xs font-semibold text-foreground font-mono">
+          <label htmlFor="restore-reason" className="text-xs font-semibold text-foreground font-mono">
             {t('restoreReasonLabel')}
           </label>
           <Input
+            id="restore-reason"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder={t('restoreReasonPlaceholder')}
@@ -99,7 +100,7 @@ export function DepartmentRestoreDialog({
             variant="outline"
             onClick={handleClose}
             disabled={isRestoring}
-            className="min-h-10 w-full sm:w-auto font-mono text-xs cursor-pointer"
+            className="min-h-11 w-full sm:w-auto font-mono text-xs cursor-pointer"
           >
             {tCommon('cancel')}
           </Button>
@@ -107,7 +108,7 @@ export function DepartmentRestoreDialog({
             type="button"
             onClick={handleRestore}
             disabled={isRestoring}
-            className="min-h-10 w-full sm:w-auto font-mono text-xs cursor-pointer bg-status-success text-foreground hover:opacity-90"
+            className="min-h-11 w-full sm:w-auto font-mono text-xs font-semibold cursor-pointer bg-status-success text-status-success-fg hover:opacity-90"
           >
             {isRestoring ? (
               <>

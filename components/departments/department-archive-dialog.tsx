@@ -94,7 +94,7 @@ export function DepartmentArchiveDialog({
             {department && (
               <div className="pt-1">
                 <Link
-                  href={`/employees?departmentId=${department.id}`}
+                  href={`/employees?departmentId=${department.id}&status=ACTIVE`}
                   onClick={() => onOpenChange(false)}
                   className="inline-flex items-center gap-1 text-xs font-semibold underline hover:opacity-80 transition-opacity"
                 >
@@ -106,10 +106,11 @@ export function DepartmentArchiveDialog({
           </div>
         ) : (
           <div className="space-y-2 pt-1">
-            <label className="text-xs font-semibold text-foreground font-mono">
+            <label htmlFor="archive-reason" className="text-xs font-semibold text-foreground font-mono">
               {t('archiveReasonLabel')}
             </label>
             <Input
+              id="archive-reason"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder={t('archiveReasonPlaceholder')}
@@ -126,7 +127,7 @@ export function DepartmentArchiveDialog({
             variant="outline"
             onClick={handleClose}
             disabled={isArchiving}
-            className="min-h-10 w-full sm:w-auto font-mono text-xs cursor-pointer"
+            className="min-h-11 w-full sm:w-auto font-mono text-xs cursor-pointer"
           >
             {hasActiveEmployees ? tCommon('close') : tCommon('cancel')}
           </Button>
@@ -135,7 +136,7 @@ export function DepartmentArchiveDialog({
               type="button"
               onClick={handleArchive}
               disabled={isArchiving}
-              className="min-h-10 w-full sm:w-auto font-mono text-xs cursor-pointer bg-status-warning text-foreground hover:opacity-90"
+              className="min-h-11 w-full sm:w-auto font-mono text-xs font-semibold cursor-pointer bg-status-warning text-status-warning-fg hover:opacity-90"
             >
               {isArchiving ? (
                 <>

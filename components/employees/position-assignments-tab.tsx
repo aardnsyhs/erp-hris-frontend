@@ -346,7 +346,12 @@ export function PositionAssignmentsTab({
                   onValueChange={(val) => setPositionId(val || '')}
                 >
                   <SelectTrigger className="h-9">
-                    <SelectValue placeholder="Pilih posisi baru" />
+                    <SelectValue placeholder="Pilih posisi baru">
+                      {(val) => {
+                        const p = positions.find((item) => item.id === val);
+                        return p ? `${p.title} (${p.code}) - Level ${p.level}` : undefined;
+                      }}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {positions.map((p) => (
@@ -367,7 +372,12 @@ export function PositionAssignmentsTab({
                   onValueChange={(val) => setDepartmentId(val || '')}
                 >
                   <SelectTrigger className="h-9">
-                    <SelectValue placeholder="Pilih departemen" />
+                    <SelectValue placeholder="Pilih departemen">
+                      {(val) => {
+                        const d = departments.find((item) => item.id === val);
+                        return d ? `${d.name} (${d.code})` : undefined;
+                      }}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {departments.map((d) => (
@@ -389,7 +399,18 @@ export function PositionAssignmentsTab({
                     onValueChange={(val) => setAssignmentType(val as AssignmentType)}
                   >
                     <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Pilih tipe" />
+                      <SelectValue placeholder="Pilih tipe">
+                        {(val) => {
+                          switch (val) {
+                            case 'PROMOTION': return 'Promosi (Naik Jabatan)';
+                            case 'TRANSFER': return 'Mutasi / Rotasi (Transfer)';
+                            case 'INITIAL': return 'Penugasan Awal (Hire)';
+                            case 'DEMOTION': return 'Demosi';
+                            case 'REORGANIZATION': return 'Reorganisasi Struktur';
+                            default: return undefined;
+                          }
+                        }}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="PROMOTION">Promosi (Naik Jabatan)</SelectItem>

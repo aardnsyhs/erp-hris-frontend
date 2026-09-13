@@ -228,7 +228,9 @@ export function EmployeeDocumentsTab({
               }}
             >
               <SelectTrigger className="h-8.5 text-xs">
-                <SelectValue placeholder={t('docType')} />
+                <SelectValue placeholder={t('docType')}>
+                  {selectedType === 'ALL' ? t('allTypes') : selectedType}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">{t('allTypes')}</SelectItem>
@@ -375,7 +377,9 @@ export function EmployeeDocumentsTab({
                   onValueChange={(val) => setDocType(val as DocumentType)}
                 >
                   <SelectTrigger className="h-8.5 text-xs">
-                    <SelectValue />
+                    <SelectValue placeholder={t('docType')}>
+                      {docType}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {DOCUMENT_TYPES.map((type) => (

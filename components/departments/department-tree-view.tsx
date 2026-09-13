@@ -199,12 +199,12 @@ export function DepartmentTreeView({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 rounded-lg border border-border bg-card/60">
         {/* Search Field */}
         <div className="relative w-full sm:w-80">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('treeSearchPlaceholder')}
-            className="pl-8 text-xs font-sans h-8.5"
+            className="pl-8 text-xs font-sans h-8.5 bg-card text-foreground rounded-md border-border"
           />
         </div>
 
@@ -349,13 +349,13 @@ export function DepartmentTreeView({
         <div className="flex items-center gap-2">
           <Network className="w-3 h-3 text-primary shrink-0" />
           <span>{t('treeLegendTitle')}:</span>
-          <span className="font-semibold text-primary">L0 (Root)</span>
+          <span className="font-semibold text-primary">L0 ({t('levelRoot')})</span>
           <span>→</span>
-          <span className="font-semibold text-blue-600 dark:text-blue-400">L1 (Divisi)</span>
+          <span className="font-semibold text-accent">L1 ({t('levelDivision')})</span>
           <span>→</span>
-          <span className="font-semibold text-teal-600 dark:text-teal-400">L2 (Departemen)</span>
+          <span className="font-semibold text-foreground">L2 ({t('levelDept')})</span>
           <span>→</span>
-          <span>L3 (Unit)</span>
+          <span>L3 ({t('levelUnit')})</span>
         </div>
         <div>
           <span>{t('maxDepthNotice')}</span>

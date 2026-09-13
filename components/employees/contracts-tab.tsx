@@ -349,7 +349,17 @@ export function ContractsTab({
                     onValueChange={(val) => setContractType(val as ContractType)}
                   >
                     <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Pilih tipe" />
+                      <SelectValue placeholder="Pilih tipe">
+                        {(val) => {
+                          switch (val) {
+                            case 'CONTRACT': return 'PKWT (Kontrak)';
+                            case 'PERMANENT': return 'PKWTT (Tetap)';
+                            case 'PROBATION': return 'Probation (Percobaan)';
+                            case 'INTERNSHIP': return 'Internship (Magang)';
+                            default: return undefined;
+                          }
+                        }}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="CONTRACT">PKWT (Kontrak)</SelectItem>
@@ -425,7 +435,13 @@ export function ContractsTab({
                     onValueChange={(val) => setDocumentId(val || '')}
                   >
                     <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Pilih dokumen lampiran" />
+                      <SelectValue placeholder="Pilih dokumen lampiran">
+                        {(val) => {
+                          if (!val) return '-- Tidak ada lampiran --';
+                          const doc = employeeDocuments.find((d) => d.id === val);
+                          return doc ? `${doc.title} (${doc.fileName})` : undefined;
+                        }}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="">-- Tidak ada lampiran --</SelectItem>
@@ -494,7 +510,16 @@ export function ContractsTab({
                   onValueChange={(val) => setNewStatus(val as ContractStatus)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Pilih status baru" />
+                    <SelectValue placeholder="Pilih status baru">
+                      {(val) => {
+                        switch (val) {
+                          case 'RENEWED': return 'RENEWED (Diperpanjang / Diganti Baru)';
+                          case 'EXPIRED': return 'EXPIRED (Masa Berlaku Habis)';
+                          case 'TERMINATED': return 'TERMINATED (Diakhiri Sebelum Waktunya)';
+                          default: return undefined;
+                        }
+                      }}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="RENEWED">RENEWED (Diperpanjang / Diganti Baru)</SelectItem>

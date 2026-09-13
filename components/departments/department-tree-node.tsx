@@ -14,7 +14,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { DepartmentTreeNode } from '@/types/department';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/shared/status-badge';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -57,31 +57,31 @@ export function DepartmentTreeNodeItem({
   const isExpanded = isNodeExpanded(node);
   const employeeCount = node._count?.employees ?? 0;
 
-  // Level badge styling
+  // Level badge styling using semantic system tokens and i18n
   const getLevelBadge = (level: number) => {
     switch (level) {
       case 0:
         return (
           <span className="font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 shrink-0">
-            L0 • Root
+            L0 • {t('levelRoot')}
           </span>
         );
       case 1:
         return (
-          <span className="font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shrink-0">
-            L1 • Divisi
+          <span className="font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded bg-accent/15 text-accent border border-accent/25 shrink-0">
+            L1 • {t('levelDivision')}
           </span>
         );
       case 2:
         return (
-          <span className="font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 shrink-0">
-            L2 • Dept
+          <span className="font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded bg-secondary text-secondary-foreground border border-border shrink-0">
+            L2 • {t('levelDept')}
           </span>
         );
       default:
         return (
           <span className="font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border shrink-0">
-            L{level} • Unit
+            L{level} • {t('levelUnit')}
           </span>
         );
     }
@@ -141,7 +141,7 @@ export function DepartmentTreeNodeItem({
 
           {/* Department Name */}
           <Link
-            href={`/employees?departmentId=${node.id}`}
+            href={`/employees?departmentId=${node.id}&status=ACTIVE`}
             className="font-semibold text-foreground text-xs hover:text-primary hover:underline transition-colors truncate"
             title={node.name}
           >
@@ -160,7 +160,7 @@ export function DepartmentTreeNodeItem({
 
           {/* Headcount Link */}
           <Link
-            href={`/employees?departmentId=${node.id}`}
+            href={`/employees?departmentId=${node.id}&status=ACTIVE`}
             className="inline-flex items-center gap-1.5 font-mono text-xs text-muted-foreground hover:text-foreground hover:underline"
           >
             <Users className="w-3.5 h-3.5 text-muted-foreground" />
@@ -170,23 +170,7 @@ export function DepartmentTreeNodeItem({
           </Link>
 
           {/* Status Badge */}
-          {node.isActive ? (
-            <Badge
-              variant="outline"
-              className="text-[10px] font-mono px-1.5 py-0 text-status-success border-(--status-success)/40 bg-status-success-bg gap-1 shrink-0"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-status-success inline-block" />
-              {t('statusActive')}
-            </Badge>
-          ) : (
-            <Badge
-              variant="outline"
-              className="text-[10px] font-mono px-1.5 py-0 text-status-warning border-(--status-warning)/40 bg-status-warning-bg gap-1 shrink-0"
-            >
-              <Archive className="w-3 h-3 text-status-warning" />
-              {t('statusArchived')}
-            </Badge>
-          )}
+          <StatusBadge status={node.isActive ? 'ACTIVE' : 'ARCHIVED'} size="sm" />
 
           {/* Actions Dropdown */}
           {isHrAdmin && (

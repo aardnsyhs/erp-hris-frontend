@@ -1,12 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ColumnDef, PaginationState } from '@tanstack/react-table';
 import { useTranslations } from 'next-intl';
 import {
-  Users,
   Plus,
   MoreHorizontal,
   Eye,
@@ -46,18 +45,23 @@ import { EmployeeDeleteDialog } from '@/components/employees/employee-delete-dia
 import { EmployeeTerminateDialog } from '@/components/employees/employee-terminate-dialog';
 import { EmployeeReactivateDialog } from '@/components/employees/employee-reactivate-dialog';
 
-export default function EmployeesPage() {
+function EmployeesContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations('employees');
   const tCommon = useTranslations('common');
   const tNav = useTranslations('navigation');
   const currentUser = useAuthStore((state) => state.user);
   const isHrAdmin = currentUser?.role === 'HR_ADMIN';
 
-  // Filters & Pagination State
+  // Filters & Pagination State - initialized from searchParams if present
   const [search, setSearch] = useState('');
-  const [selectedDept, setSelectedDept] = useState<string>('ALL');
-  const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
+  const [selectedDept, setSelectedDept] = useState<string>(
+    () => searchParams.get('departmentId') || 'ALL',
+  );
+  const [selectedStatus, setSelectedStatus] = useState<string>(
+    () => searchParams.get('status') || 'ALL',
+  );
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -399,5 +403,18 @@ export default function EmployeesPage() {
         employee={employeeToReactivate}
       />
     </div>
+  );
+}
+
+function EmployeesPageWrapper() {
+  const searchParams = useSearchParams();
+  return <EmployeesContent key={searchParams.toString()} />;
+}
+
+export default function EmployeesPage() {
+  return (
+    <Suspense fallback={null}>
+      <EmployeesPageWrapper />
+    </Suspense>
   );
 }

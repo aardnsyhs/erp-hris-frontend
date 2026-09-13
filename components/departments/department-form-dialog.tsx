@@ -128,10 +128,11 @@ export function DepartmentFormDialog({
         >
           {/* Field: Code */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-foreground font-mono">
+            <label htmlFor="dept-code" className="text-xs font-semibold text-foreground font-mono">
               {t('code')} <span className="text-destructive">*</span>
             </label>
             <Input
+              id="dept-code"
               placeholder="ENG, HRD, FIN"
               {...register('code', {
                 onChange: (e) => {
@@ -153,10 +154,11 @@ export function DepartmentFormDialog({
 
           {/* Field: Name */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-foreground font-mono">
+            <label htmlFor="dept-name" className="text-xs font-semibold text-foreground font-mono">
               {t('name')} <span className="text-destructive">*</span>
             </label>
             <Input
+              id="dept-name"
               placeholder="Engineering, Human Resources"
               {...register('name')}
               disabled={isSubmitting}
@@ -197,7 +199,7 @@ export function DepartmentFormDialog({
                 <span>{t('currentParent')}:</span>
                 <span className="font-semibold text-foreground">
                   {departmentToEdit?.parent?.name
-                    ? `${departmentToEdit.parent.code} — ${departmentToEdit.parent.name}`
+                    ? `${departmentToEdit.parent.code} - ${departmentToEdit.parent.name}`
                     : t('rootDepartment')}
                 </span>
               </div>

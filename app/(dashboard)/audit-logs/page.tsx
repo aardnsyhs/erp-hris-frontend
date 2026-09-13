@@ -279,7 +279,9 @@ export default function AuditLogsPage() {
             onValueChange={(val) => setSelectedEntity(val || 'ALL')}
           >
             <SelectTrigger className="h-9 text-xs">
-              <SelectValue placeholder={t('filterByEntity')} />
+              <SelectValue placeholder={t('filterByEntity')}>
+                {selectedEntity === 'ALL' ? t('allEntities') : selectedEntity}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">{t('allEntities')}</SelectItem>
@@ -299,7 +301,9 @@ export default function AuditLogsPage() {
             onValueChange={(val) => setSelectedAction(val || 'ALL')}
           >
             <SelectTrigger className="h-9 text-xs">
-              <SelectValue placeholder={t('filterByAction')} />
+              <SelectValue placeholder={t('filterByAction')}>
+                {selectedAction === 'ALL' ? t('allActions') : selectedAction}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">{t('allActions')}</SelectItem>
@@ -321,7 +325,7 @@ export default function AuditLogsPage() {
             className="h-9 text-xs w-full sm:w-36"
             aria-label="Start Date"
           />
-          <span className="text-muted-foreground text-xs font-mono">—</span>
+          <span className="text-muted-foreground text-xs font-mono">-</span>
           <Input
             type="date"
             value={endDate}

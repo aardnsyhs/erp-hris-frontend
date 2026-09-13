@@ -243,8 +243,8 @@
     "tabArchived": "Archived",
     "tabAll": "All",
     "description": "Department Description",
-    "employeeCount": "Registered Employees",
-    "headcount": "{count, plural, =0 {0 Employees} =1 {1 Employee} other {# Employees}}",
+    "employeeCount": "Active Employees",
+    "headcount": "{count, plural, =0 {0 Active Employees} =1 {1 Active Employee} other {# Active Employees}}",
     "registeredDate": "Registered Date",
     "totalUnits": "{count, plural, =0 {0 Units} =1 {1 Unit} other {# Units}}",
     "searchPlaceholder": "Search by department code or name...",
@@ -310,7 +310,13 @@
     "editParentDisabledNotice": "To change the parent structure of this department, please use \"Move Department Position\" action.",
     "archiveHierarchyNotice": "Archiving will be rejected if the department still has active sub-departments underneath.",
     "restoreHierarchyNotice": "Reactivation will be rejected if the parent department or any ancestor is still archived.",
-    "levelColumn": "Level"
+    "levelColumn": "Level",
+    "parentPrefix": "Parent:",
+    "depthLimitNotice": "Maximum organizational level limit (Level 0–3) exceeded",
+    "levelRoot": "Root",
+    "levelDivision": "Division",
+    "levelDept": "Department",
+    "levelUnit": "Unit"
   },
   "attendance": {
     "title": "Attendance & Presence",
