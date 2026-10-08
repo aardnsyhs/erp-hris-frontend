@@ -202,9 +202,9 @@ export default function DepartmentsPage() {
                 </DropdownMenuLabel>
                 <DropdownMenuItem
                   onClick={() => handleReparentClick(dept)}
-                  className="flex items-center gap-2 cursor-pointer text-xs font-medium text-primary"
+                  className="flex items-center gap-2 cursor-pointer text-xs"
                 >
-                  <GitFork className="h-3.5 w-3.5 text-primary" />
+                  <GitFork className="h-3.5 w-3.5 text-muted-foreground" />
                   <span>{t('moveDepartment')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
@@ -221,17 +221,18 @@ export default function DepartmentsPage() {
                 {dept.isActive ? (
                   <DropdownMenuItem
                     onClick={() => handleArchiveClick(dept)}
-                    className="flex items-center gap-2 text-status-warning cursor-pointer focus:bg-status-warning-bg text-xs"
+                    variant="destructive"
+                    className="flex items-center gap-2 cursor-pointer text-xs"
                   >
-                    <Archive className="h-3.5 w-3.5 text-status-warning" />
+                    <Archive className="h-3.5 w-3.5" />
                     <span>{t('archiveDepartment')}</span>
                   </DropdownMenuItem>
                 ) : (
                   <DropdownMenuItem
                     onClick={() => handleRestoreClick(dept)}
-                    className="flex items-center gap-2 text-status-success cursor-pointer focus:bg-status-success-bg text-xs"
+                    className="flex items-center gap-2 cursor-pointer text-xs"
                   >
-                    <RotateCcw className="h-3.5 w-3.5 text-status-success" />
+                    <RotateCcw className="h-3.5 w-3.5 text-muted-foreground" />
                     <span>{t('restoreDepartment')}</span>
                   </DropdownMenuItem>
                 )}

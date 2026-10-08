@@ -129,7 +129,7 @@ export function LeaveRejectDialog({
             type="submit"
             form="leave-reject-form"
             disabled={isSubmitting}
-            className="min-h-11 w-full sm:w-auto font-mono text-xs font-semibold cursor-pointer bg-status-danger hover:opacity-90 text-white"
+            className="min-h-11 w-full sm:w-auto font-mono text-xs font-semibold cursor-pointer bg-status-danger hover:opacity-90 text-status-danger-fg"
           >
             {isSubmitting ? (
               <>

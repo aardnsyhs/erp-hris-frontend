@@ -242,7 +242,8 @@ function EmployeesContent() {
                     {canTerminate && (
                       <DropdownMenuItem
                         onClick={() => handleTerminateClick(emp)}
-                        className="flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/10 text-xs"
+                        variant="destructive"
+                        className="flex items-center gap-2 cursor-pointer text-xs"
                       >
                         <UserX className="h-3.5 w-3.5" />
                         <span>{t('terminate')}</span>

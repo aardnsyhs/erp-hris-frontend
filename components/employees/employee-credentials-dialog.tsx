@@ -105,7 +105,7 @@ export function EmployeeCredentialsDialog({
                   onClick={handleCopy}
                   className={`min-h-11 px-4 text-xs font-mono font-semibold cursor-pointer ${
                     copied
-                      ? 'bg-status-success hover:opacity-90 text-white'
+                      ? 'bg-status-success hover:opacity-90 text-status-success-fg'
                       : 'bg-primary hover:bg-primary-hover text-primary-foreground'
                   }`}
                 >

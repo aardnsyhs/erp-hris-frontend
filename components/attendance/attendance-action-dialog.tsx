@@ -141,7 +141,7 @@ export function AttendanceActionDialog({
             disabled={isSubmitting}
             className={`min-h-11 w-full sm:w-auto font-mono text-xs font-semibold cursor-pointer ${
               isCheckIn
-                ? 'bg-status-success hover:opacity-90 text-white'
+                ? 'bg-status-success hover:opacity-90 text-status-success-fg'
                 : 'bg-primary hover:bg-primary-hover text-primary-foreground'
             }`}
           >

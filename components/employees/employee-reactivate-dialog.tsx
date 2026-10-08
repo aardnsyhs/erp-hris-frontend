@@ -68,7 +68,7 @@ export function EmployeeReactivateDialog({
           </Button>
           <Button
             type="button"
-            className="min-h-11 w-full sm:w-auto font-mono text-xs font-semibold cursor-pointer bg-status-success hover:opacity-90 text-white"
+            className="min-h-11 w-full sm:w-auto font-mono text-xs font-semibold cursor-pointer bg-status-success hover:opacity-90 text-status-success-fg"
             onClick={handleReactivate}
             disabled={isPending}
           >

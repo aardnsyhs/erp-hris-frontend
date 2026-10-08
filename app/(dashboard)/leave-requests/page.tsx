@@ -244,7 +244,7 @@ export default function LeaveRequestsPage() {
                           size="xs"
                           disabled={isOwn || approveMutation.isPending}
                           onClick={() => handleApprove(leave)}
-                          className="h-7 px-2 bg-status-success hover:opacity-90 text-white text-xs font-mono cursor-pointer"
+                          className="h-7 px-2 bg-status-success hover:opacity-90 text-status-success-fg text-xs font-mono cursor-pointer"
                         />
                       }
                     >

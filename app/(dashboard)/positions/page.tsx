@@ -17,6 +17,7 @@ import { usePositions } from '@/hooks/use-positions';
 import { Position } from '@/types/position';
 import { DataTable } from '@/components/shared/data-table';
 import { PageHeader } from '@/components/shared/page-header';
+import { StatusBadge } from '@/components/shared/status-badge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -97,22 +98,7 @@ export default function PositionsPage() {
       accessorKey: 'isActive',
       header: t('status'),
       cell: ({ row }) => (
-        <Badge
-          variant={row.original.isActive ? 'default' : 'secondary'}
-          className="gap-1 text-xs"
-        >
-          {row.original.isActive ? (
-            <>
-              <CheckCircle2 className="h-3 w-3 text-emerald-400" />
-              {tCommon('active')}
-            </>
-          ) : (
-            <>
-              <XCircle className="h-3 w-3 text-muted-foreground" />
-              {tCommon('inactive')}
-            </>
-          )}
-        </Badge>
+        <StatusBadge status={row.original.isActive ? 'ACTIVE' : 'INACTIVE'} />
       ),
     },
     {

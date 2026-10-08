@@ -155,7 +155,7 @@ export function AppHeader() {
                     {user?.email}
                   </p>
                   <div className="pt-1.5 flex items-center gap-1.5">
-                    <Badge variant="outline" className="text-[10px] font-mono px-1.5 py-0">
+                    <Badge variant="secondary" className="text-[10px] font-mono px-1.5 py-0">
                       <Shield className="w-2.5 h-2.5 mr-1" />
                       {domainLabel('roles', user?.role)}
                     </Badge>
@@ -177,7 +177,8 @@ export function AppHeader() {
 
               <DropdownMenuItem
                 onClick={handleLogout}
-                className="cursor-pointer text-xs text-destructive focus:bg-destructive/10 focus:text-destructive flex items-center gap-2"
+                variant="destructive"
+                className="cursor-pointer text-xs flex items-center gap-2"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>{tNav('logout')}</span>

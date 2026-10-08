@@ -182,7 +182,7 @@ export function AttendanceWidget() {
           {!hasCheckedIn ? (
             <Button
               onClick={() => setDialogType('CHECK_IN')}
-              className="w-full md:w-40 bg-status-success hover:opacity-90 text-white font-semibold text-xs h-9 rounded-md cursor-pointer"
+              className="w-full md:w-40 bg-status-success hover:opacity-90 text-status-success-fg font-semibold text-xs h-9 rounded-md cursor-pointer"
               disabled={isLoadingAttendance}
             >
               <LogIn className="w-4 h-4 mr-1.5" />

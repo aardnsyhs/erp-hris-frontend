@@ -71,7 +71,7 @@ export function PayrollDeleteDialog({
             variant="destructive"
             onClick={handleDelete}
             disabled={isDeleting}
-            className="min-h-11 w-full sm:w-auto font-mono text-xs font-semibold cursor-pointer bg-status-danger hover:opacity-90 text-white"
+            className="min-h-11 w-full sm:w-auto font-mono text-xs font-semibold cursor-pointer bg-status-danger hover:opacity-90 text-status-danger-fg"
           >
             {isDeleting ? (
               <>

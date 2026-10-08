@@ -110,7 +110,7 @@ export function LeaveDetailDialog({
                   {t('statusApproved')}
                 </Badge>
               ) : leaveRequest.status === 'REJECTED' ? (
-                <Badge variant="destructive" className="gap-1 text-[10px] font-mono whitespace-nowrap bg-status-danger text-white">
+                <Badge variant="destructive" className="gap-1 text-[10px] font-mono whitespace-nowrap bg-status-danger text-status-danger-fg">
                   <XCircle className="w-3 h-3" />
                   {t('statusRejected')}
                 </Badge>

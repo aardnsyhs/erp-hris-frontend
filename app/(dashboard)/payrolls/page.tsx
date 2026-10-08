@@ -268,7 +268,8 @@ export default function PayrollsPage() {
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() => setSelectedForDelete(payroll)}
-                        className="flex items-center gap-2 text-destructive cursor-pointer focus:bg-destructive/10 text-xs"
+                        variant="destructive"
+                        className="flex items-center gap-2 cursor-pointer text-xs"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                         <span>{t('deleteDraft')}</span>
