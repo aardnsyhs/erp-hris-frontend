@@ -5,6 +5,7 @@ import { useTheme } from 'next-themes';
 import { useTranslations } from 'next-intl';
 import { Moon, Sun, Monitor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +18,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
-export function ThemeToggle() {
+export function ThemeToggle({ className }: { className?: string } = {}) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const t = useTranslations('theme');
@@ -37,7 +38,7 @@ export function ThemeToggle() {
                   variant="ghost"
                   size="icon-sm"
                   aria-label={t('toggleTheme')}
-                  className="relative text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer"
+                  className={cn('relative text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer', className)}
                 />
               }
             />

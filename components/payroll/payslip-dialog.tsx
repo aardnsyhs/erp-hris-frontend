@@ -10,6 +10,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { Payroll } from '@/types/payroll';
+import { formatRupiah } from '@/lib/i18n/currency';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -38,6 +39,7 @@ export function PayslipDialog({
 }: PayslipDialogProps) {
   const t = useTranslations('payroll');
   const tCommon = useTranslations('common');
+  const tEmployees = useTranslations('employees');
   const locale = useLocale();
 
   if (!payroll) return null;
@@ -52,15 +54,7 @@ export function PayslipDialog({
   };
 
   const formatCurrency = (val: number | string | undefined | null) => {
-    if (val === undefined || val === null || val === '') return 'Rp 0';
-    const num = typeof val === 'string' ? parseFloat(val) : val;
-    if (isNaN(num)) return 'Rp 0';
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(num);
+    return formatRupiah(val, locale);
   };
 
   const basic = Number(payroll.basicSalary) || 0;
@@ -117,7 +111,7 @@ export function PayslipDialog({
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-bold text-foreground text-xs">
-                  {payroll.employee?.fullName || 'Karyawan'}
+                  {payroll.employee?.fullName || tEmployees('roleEmployee')}
                 </p>
                 <p className="text-[11px] text-muted-foreground font-mono">
                   NIP: {payroll.employee?.nip} • {payroll.employee?.jobTitle}

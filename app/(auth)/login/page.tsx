@@ -2,7 +2,10 @@
 
 import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import Link from 'next/link';
+import { BrandMark } from '@/components/shared/brand-mark';
+import { brandName, publicPages } from '@/lib/site';
 import { useApiError } from '@/hooks/use-api-error';
 import {
   Lock,
@@ -51,6 +54,9 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations('auth');
+  const tMetadata = useTranslations('metadata');
+  const tProduct = useTranslations('product');
+  const locale = useLocale();
   const apiError = useApiError();
   const setAuth = useAuthStore((state) => state.setAuth);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -145,14 +151,12 @@ function LoginForm() {
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       {/* Top Navbar */}
       <header className="h-14 border-b border-border px-4 sm:px-6 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-mono font-bold text-xs shadow-xs tracking-wider">
-            HR
-          </div>
-          <span className="font-bold text-xs tracking-wider uppercase font-mono text-foreground">
-            HRIS & ERP Console
+        <Link href={locale === 'id' ? publicPages.id : publicPages.en} aria-label={tProduct('about', { brand: brandName })} className="flex min-h-11 items-center gap-2 rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+          <BrandMark />
+          <span className="font-bold text-xs text-foreground">
+            {tMetadata('loginBrand', { brand: brandName })}
           </span>
-        </div>
+        </Link>
 
         <div className="flex items-center gap-2">
           <LanguageSwitcher />

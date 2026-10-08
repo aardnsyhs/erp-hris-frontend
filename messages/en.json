@@ -1,4 +1,31 @@
 {
+  "metadata": {
+    "title": "{brand} | HRIS & ERP",
+    "description": "Manage employee records, departments, attendance, leave, contracts, and payroll with {brand}.",
+    "loginTitle": "Sign in",
+    "loginBrand": "{brand} HRIS & ERP",
+    "publicTitle": "HRIS for employee records, attendance, and payroll",
+    "publicDescription": "{brand} brings employee records, department structure, attendance, leave approvals, contracts, and payroll into one workspace."
+  },
+  "product": {
+    "title": "People and payroll, in one workspace.",
+    "intro": "{brand} helps HR teams manage employee records and daily workforce administration. Employees can check attendance, request leave, and view their own payroll records.",
+    "signIn": "Sign in to your workspace",
+    "about": "About {brand}",
+    "modulesTitle": "What you can manage",
+    "peopleTitle": "Employee records and organization",
+    "peopleDescription": "Maintain employee profiles, departments, positions, emergency contacts, and supporting documents. Record position assignments and reporting relationships.",
+    "attendanceTitle": "Attendance and leave",
+    "attendanceDescription": "Record check-in and check-out, configure work schedules, and review leave requests through approval or rejection.",
+    "contractsTitle": "Employment contracts",
+    "contractsDescription": "Track contract periods, attachments, renewal reminders, and status changes alongside each employee's profile.",
+    "payrollTitle": "Payroll and activity history",
+    "payrollDescription": "Prepare payroll periods, allowances, and deductions. Process payments, view payslips, and review recorded system activities in the audit log.",
+    "accessTitle": "A workspace for HR, managers, and employees",
+    "accessDescription": "HR administrators manage workforce records. Managers review their team's attendance and leave. Employees access their own information through an account.",
+    "accessNote": "An account is required to access employee records and payroll.",
+    "languageNavigation": "Page language"
+  },
   "uiCopy": {
     "noPosition": "No position",
     "noDepartment": "Unassigned department",

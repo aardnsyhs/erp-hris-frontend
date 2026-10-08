@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useDomainLabel } from '@/hooks/use-domain-label';
+import { BrandMark } from '@/components/shared/brand-mark';
+import { brandName } from '@/lib/site';
 import {
   Briefcase,
   Building2,
@@ -105,12 +107,10 @@ export function SidebarNavContent({
     <div className="flex flex-col h-full bg-sidebar text-sidebar-foreground border-r border-sidebar-border select-none">
       {/* Console Brand Header */}
       <div className="h-14 flex items-center gap-2.5 px-4 border-b border-sidebar-border shrink-0">
-        <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-mono font-bold text-xs shadow-xs tracking-wider">
-          HR
-        </div>
+        <BrandMark />
         <div className="flex flex-col min-w-0">
           <span className="font-bold text-xs tracking-wider uppercase text-foreground truncate font-mono">
-            {t('systemTitle')}
+            {brandName}
           </span>
           <span className="text-[10px] text-muted-foreground font-mono truncate">
             {tUi('roleConsole', { role: domainLabel('roles', currentRole) })}

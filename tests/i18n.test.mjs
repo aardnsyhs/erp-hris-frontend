@@ -9,6 +9,7 @@ import { createTranslator } from 'next-intl';
 import { NextIntlClientProvider } from 'next-intl';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import sharp from 'sharp';
 
 const catalogs = {
   en: JSON.parse(fs.readFileSync(new URL('../messages/en.json', import.meta.url), 'utf8')),
@@ -19,20 +20,21 @@ function loadValidation(name) {
   return loadModule(`lib/validations/${name}.ts`);
 }
 
-function loadModule(relativePath) {
+function loadModule(relativePath, overrides = {}) {
   const filename = fileURLToPath(new URL(`../${relativePath}`, import.meta.url));
   const compiled = ts.transpileModule(fs.readFileSync(filename, 'utf8'), {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2017, jsx: ts.JsxEmit.ReactJSX },
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2017, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
   });
   const compiledModule = new Module(filename);
   compiledModule.filename = filename;
   compiledModule.paths = Module._nodeModulePaths(path.dirname(filename));
   const originalRequire = compiledModule.require.bind(compiledModule);
   compiledModule.require = (specifier) => {
+    if (specifier in overrides) return overrides[specifier];
     if (!specifier.startsWith('@/')) return originalRequire(specifier);
     const relative = specifier.slice(2);
     const extension = fs.existsSync(new URL(`../${relative}.ts`, import.meta.url)) ? '.ts' : '.tsx';
-    return loadModule(relative + extension);
+    return loadModule(relative + extension, overrides);
   };
   compiledModule._compile(compiled.outputText, filename);
   return compiledModule.exports;
@@ -57,10 +59,143 @@ const { localizedApiError } = loadModule('lib/i18n/api-error.ts');
 const { localizedDomainLabel } = loadModule('lib/i18n/domain-label.ts');
 const { Breadcrumb } = loadModule('components/ui/breadcrumb.tsx');
 const { AuditMeta } = loadModule('components/shared/audit-meta.tsx');
+const { formatRupiah } = loadModule('lib/i18n/currency.ts');
+const site = loadModule('lib/site.ts');
+const robots = loadModule('app/robots.ts').default;
+const sitemap = loadModule('app/sitemap.ts').default;
+const { middleware } = loadModule('middleware.ts');
+const { NextRequest } = await import('next/server.js');
+
+test('production sitemap includes only public localized pages at the configured origin', () => {
+  const originalMode = process.env.NODE_ENV;
+  const originalSite = process.env.SITE_URL;
+  try {
+    process.env.NODE_ENV = 'production';
+    process.env.SITE_URL = 'https://hris.ardiansyah.app';
+    assert.deepEqual(sitemap().map((entry) => entry.url), [
+      'https://hris.ardiansyah.app/about', 'https://hris.ardiansyah.app/id/about',
+    ]);
+    assert.equal(robots().sitemap, 'https://hris.ardiansyah.app/sitemap.xml');
+    assert.equal(site.canIndexPublicPages(), true);
+    for (const value of ['invalid', 'http://example.com', 'https://example.com/private', 'https://user:password@example.com', 'https://example.com/?query=1', 'https://localhost']) {
+      process.env.SITE_URL = value;
+      assert.equal(site.getSiteUrl(), undefined);
+      assert.deepEqual(sitemap(), []);
+      assert.equal(robots().rules.disallow, '/');
+    }
+    delete process.env.SITE_URL;
+    assert.equal(site.getSiteUrl().origin, 'https://hris.ardiansyah.app');
+    process.env.NODE_ENV = 'development';
+    assert.equal(site.canIndexPublicPages(), false);
+    assert.deepEqual(sitemap(), []);
+  } finally {
+    if (originalMode === undefined) delete process.env.NODE_ENV; else process.env.NODE_ENV = originalMode;
+    if (originalSite === undefined) delete process.env.SITE_URL; else process.env.SITE_URL = originalSite;
+  }
+});
+
+test('public SEO pages bypass login while private routes still redirect and cannot accept a spoofed public locale', () => {
+  for (const [pathname, locale] of [['/about', 'en'], ['/id/about', 'id'], ['/id/about/', 'id']]) {
+    const response = middleware(new NextRequest(`https://hris.ardiansyah.app${pathname}`, {
+      headers: { cookie: 'NEXT_LOCALE=en', 'x-public-locale': 'spoofed' },
+    }));
+    assert.equal(response.headers.get('location'), null);
+    assert.equal(response.headers.get('x-middleware-request-x-public-locale'), locale);
+  }
+  for (const pathname of ['/', '/employees', '/payrolls', '/about/private', '/id/about/private', '/login/other']) {
+    const response = middleware(new NextRequest(`https://hris.ardiansyah.app${pathname}`));
+    assert.equal(new URL(response.headers.get('location')).pathname, '/login');
+    assert.equal(response.headers.get('X-Robots-Tag'), 'noindex, nofollow');
+  }
+  const authenticated = middleware(new NextRequest('https://hris.ardiansyah.app/employees', {
+    headers: { cookie: 'auth_role=HR_ADMIN', 'x-public-locale': 'id' },
+  }));
+  assert.equal(authenticated.headers.get('location'), null);
+  assert.equal(authenticated.headers.get('X-Robots-Tag'), 'noindex, nofollow');
+  assert.equal(authenticated.headers.get('x-middleware-request-x-public-locale'), null);
+  for (const pathname of ['/robots.txt', '/sitemap.xml', '/brand-mark.svg', '/apple-touch-icon.png', '/share/en', '/share/id']) {
+    assert.equal(middleware(new NextRequest(`https://hris.ardiansyah.app${pathname}`)).headers.get('location'), null);
+  }
+  assert.equal(middleware(new NextRequest('https://hris.ardiansyah.app/login')).headers.get('X-Robots-Tag'), 'noindex, nofollow');
+});
+
+test('public URL language overrides cookies while workspace language still follows the saved preference', async () => {
+  for (const [publicLocale, cookieLocale, expected] of [
+    ['en', 'id', 'en'], ['id', 'en', 'id'], [null, 'id', 'id'], [null, 'invalid', 'en'], [null, undefined, 'en'],
+  ]) {
+    const configure = loadModule('i18n/request.ts', {
+      'next-intl/server': { getRequestConfig: (callback) => callback },
+      'next/headers': {
+        cookies: async () => ({ get: () => cookieLocale ? { value: cookieLocale } : undefined }),
+        headers: async () => ({ get: () => publicLocale }),
+      },
+    }).default;
+    const config = await configure();
+    assert.equal(config.locale, expected);
+    assert.equal(config.messages.metadata.description, catalogs[expected].metadata.description);
+  }
+});
 
 for (const locale of ['en', 'id']) {
   const tError = createTranslator({ locale, messages: catalogs[locale], namespace: 'apiErrors' });
   const tDomain = createTranslator({ locale, messages: catalogs[locale], namespace: 'domain' });
+  const getTranslations = async (options) => createTranslator({
+    locale: options?.locale ?? locale,
+    messages: catalogs[options?.locale ?? locale],
+    namespace: typeof options === 'string' ? options : options.namespace,
+  });
+
+  test(`${locale}: social preview endpoint renders a PNG at the advertised dimensions`, async () => {
+    const { GET } = loadModule('app/share/[locale]/route.tsx', { 'next-intl/server': { getTranslations } });
+    const response = await GET(new Request(`https://hris.ardiansyah.app/share/${locale}`), { params: Promise.resolve({ locale }) });
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get('content-type'), 'image/png');
+    const { width, height } = await sharp(Buffer.from(await response.arrayBuffer())).metadata();
+    assert.equal(width, 1200);
+    assert.equal(height, 630);
+    assert.equal((await GET(new Request('https://hris.ardiansyah.app/share/invalid'), {
+      params: Promise.resolve({ locale: 'invalid' }),
+    })).status, 404);
+  });
+
+  test(`${locale}: public metadata has canonical and reciprocal language URLs without indexing private pages`, async () => {
+    const { getPublicMetadata } = loadModule('lib/public-metadata.ts', { 'next-intl/server': { getTranslations } });
+    const metadata = await getPublicMetadata(locale);
+    assert.equal(metadata.alternates.canonical, `https://hris.ardiansyah.app${site.publicPages[locale]}`);
+    assert.equal(metadata.alternates.languages.en, 'https://hris.ardiansyah.app/about');
+    assert.equal(metadata.alternates.languages.id, 'https://hris.ardiansyah.app/id/about');
+    assert.equal(metadata.openGraph.siteName, 'Lajur');
+    assert.equal(metadata.openGraph.images[0].url, `https://hris.ardiansyah.app/share/${locale}`);
+    assert(metadata.description.includes('Lajur'));
+    const { generateMetadata } = loadModule('app/(auth)/login/layout.tsx', { 'next-intl/server': { getTranslations } });
+    assert.equal((await generateMetadata()).robots.index, false);
+  });
+
+  test(`${locale}: public overview renders meaningful translated text and working route destinations`, async () => {
+    const { ProductOverview } = loadModule('components/public/product-overview.tsx', { 'next-intl/server': { getTranslations } });
+    const content = await ProductOverview({ locale });
+    const html = renderToStaticMarkup(React.createElement(NextIntlClientProvider, {
+      locale, messages: catalogs[locale], timeZone: 'Asia/Jakarta',
+    }, content));
+    assert(html.includes(catalogs[locale].product.title));
+    assert(html.includes('href="/login"'));
+    assert(html.includes('href="/about"'));
+    assert(html.includes('href="/id/about"'));
+    assert.equal((html.match(/<h1\b/g) || []).length, 1);
+    for (const module of ['people', 'attendance', 'contracts', 'payroll']) {
+      assert(html.includes(catalogs[locale].product[`${module}Title`]));
+    }
+  });
+
+  test(`${locale}: payslip currency follows the display language, including zero and invalid values`, () => {
+    const formatter = new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'id-ID', {
+      style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0,
+    });
+    assert.equal(formatRupiah('1250000', locale), formatter.format(1250000));
+    for (const value of [null, undefined, '', 'invalid', Infinity]) {
+      assert.equal(formatRupiah(value, locale), formatter.format(0));
+    }
+  });
 
   test(`${locale}: shared navigation and actor metadata render translated accessible labels`, () => {
     const render = (child) => renderToStaticMarkup(React.createElement(NextIntlClientProvider, {

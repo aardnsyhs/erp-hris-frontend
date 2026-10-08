@@ -4,6 +4,7 @@ import React, { useEffect, Suspense } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useTranslations } from 'next-intl';
+import { BrandMark } from '@/components/shared/brand-mark';
 
 function AuthGuardInner({ children }: { children: React.ReactNode }) {
   const tUi = useTranslations('uiCopy');
@@ -25,9 +26,7 @@ function AuthGuardInner({ children }: { children: React.ReactNode }) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-mono font-bold text-xs shadow-xs animate-pulse">
-            HR
-          </div>
+          <BrandMark className="size-8 animate-pulse" />
           <span className="text-xs font-mono text-muted-foreground animate-pulse">
             {tUi('loadingSession')}
           </span>

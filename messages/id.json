@@ -1,4 +1,31 @@
 {
+  "metadata": {
+    "title": "{brand} | HRIS & ERP",
+    "description": "Kelola data karyawan, departemen, kehadiran, cuti, kontrak, dan penggajian dengan {brand}.",
+    "loginTitle": "Masuk",
+    "loginBrand": "{brand} HRIS & ERP",
+    "publicTitle": "HRIS untuk data karyawan, kehadiran, dan penggajian",
+    "publicDescription": "{brand} menggabungkan data karyawan, struktur departemen, kehadiran, persetujuan cuti, kontrak, dan penggajian dalam satu ruang kerja."
+  },
+  "product": {
+    "title": "Data karyawan dan penggajian dalam satu ruang kerja.",
+    "intro": "{brand} membantu tim SDM mengelola data karyawan dan administrasi tenaga kerja sehari-hari. Karyawan dapat mencatat kehadiran, mengajukan cuti, dan melihat data penggajian mereka sendiri.",
+    "signIn": "Masuk ke ruang kerja",
+    "about": "Tentang {brand}",
+    "modulesTitle": "Yang dapat Anda kelola",
+    "peopleTitle": "Data karyawan dan organisasi",
+    "peopleDescription": "Kelola profil karyawan, departemen, jabatan, kontak darurat, dan dokumen pendukung. Catat penugasan jabatan dan hubungan pelaporan.",
+    "attendanceTitle": "Kehadiran dan cuti",
+    "attendanceDescription": "Catat check-in dan check-out, atur jadwal kerja, serta tinjau pengajuan cuti untuk disetujui atau ditolak.",
+    "contractsTitle": "Kontrak kerja",
+    "contractsDescription": "Pantau periode kontrak, lampiran, pengingat perpanjangan, dan perubahan status pada profil setiap karyawan.",
+    "payrollTitle": "Penggajian dan riwayat aktivitas",
+    "payrollDescription": "Siapkan periode penggajian, tunjangan, dan potongan. Proses pembayaran, lihat slip gaji, dan tinjau aktivitas sistem yang tercatat dalam log audit.",
+    "accessTitle": "Ruang kerja untuk SDM, manajer, dan karyawan",
+    "accessDescription": "Administrator SDM mengelola data tenaga kerja. Manajer meninjau kehadiran dan cuti timnya. Karyawan mengakses informasi mereka sendiri melalui akun.",
+    "accessNote": "Anda memerlukan akun untuk mengakses data karyawan dan penggajian.",
+    "languageNavigation": "Bahasa halaman"
+  },
   "uiCopy": {
     "noPosition": "Belum ada jabatan",
     "noDepartment": "Belum ada departemen",
