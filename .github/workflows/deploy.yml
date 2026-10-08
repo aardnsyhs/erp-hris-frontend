@@ -17,7 +17,9 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 2110
           script: |
+            set -e
             cd /var/www/erp-hris-frontend
+            git reset --hard
             git pull origin main
             npm ci
             npm run build
