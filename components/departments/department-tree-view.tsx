@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
+import { useApiError } from '@/hooks/use-api-error';
 import {
   Network,
   Search,
@@ -86,6 +87,7 @@ export function DepartmentTreeView({
   onRestore,
 }: DepartmentTreeViewProps) {
   const t = useTranslations('departments');
+  const apiError = useApiError();
   const [includeArchived, setIncludeArchived] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -295,7 +297,7 @@ export function DepartmentTreeView({
               {t('treeLoadErrorTitle')}
             </p>
             <p className="text-xs text-muted-foreground max-w-sm mt-1 mb-4">
-              {error instanceof Error ? error.message : t('treeLoadErrorDesc')}
+              {apiError(error, t('treeLoadErrorDesc'))}
             </p>
             <Button
               variant="outline"

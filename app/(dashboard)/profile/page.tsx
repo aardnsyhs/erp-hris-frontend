@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocale, useTranslations } from 'next-intl';
+import { useDomainLabel } from '@/hooks/use-domain-label';
 import {
   Shield,
   Lock,
@@ -32,6 +33,7 @@ import {
 
 export default function ProfilePage() {
   const t = useTranslations('profile');
+  const domainLabel = useDomainLabel();
   const tValidation = useTranslations('validation');
   const tCommon = useTranslations('common');
   const tEmp = useTranslations('employees');
@@ -92,7 +94,7 @@ export default function ProfilePage() {
         badge={
           <Badge variant="outline" className="font-mono text-xs px-2 py-0.5 uppercase tracking-wider">
             <Shield className="w-3 h-3 mr-1 text-primary" />
-            {user?.role?.replace('_', ' ') || 'EMPLOYEE'}
+            {domainLabel('roles', user?.role || 'EMPLOYEE')}
           </Badge>
         }
       />

@@ -10,6 +10,7 @@ import {
 } from '@/types/attendance';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { useApiError } from '@/hooks/use-api-error';
 
 export function useAttendances(params?: AttendanceQueryParams) {
   return useQuery({
@@ -50,6 +51,7 @@ export function useTodayAttendance(employeeId?: string | null) {
 }
 
 export function useCheckIn() {
+  const apiError = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -63,14 +65,13 @@ export function useCheckIn() {
       toast.success(t(data.status === 'LATE' ? 'checkInLate' : 'checkInOnTime'));
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || t('checkInFailed');
-      toast.error(Array.isArray(message) ? message.join(', ') : message);
+      toast.error(apiError(error, t('checkInFailed')));
     },
   });
 }
 
 export function useCheckOut() {
+  const apiError = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -84,9 +85,7 @@ export function useCheckOut() {
       toast.success(t('checkOutSuccess'));
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || t('checkOutFailed');
-      toast.error(Array.isArray(message) ? message.join(', ') : message);
+      toast.error(apiError(error, t('checkOutFailed')));
     },
   });
 }

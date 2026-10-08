@@ -10,6 +10,7 @@ import {
 } from '@/types/leave-request';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { useApiError } from '@/hooks/use-api-error';
 
 export function useLeaveRequests(params?: LeaveRequestQueryParams) {
   return useQuery({
@@ -49,6 +50,7 @@ export function useLeaveRequest(id: string) {
 }
 
 export function useCreateLeaveRequest() {
+  const apiError = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -72,14 +74,13 @@ export function useCreateLeaveRequest() {
         );
         return;
       }
-      const message =
-        error?.response?.data?.message || t('leaveCreateFailed');
-      toast.error(Array.isArray(message) ? message.join(', ') : message);
+      toast.error(apiError(error, t('leaveCreateFailed')));
     },
   });
 }
 
 export function useApproveLeaveRequest() {
+  const apiError = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -102,14 +103,13 @@ export function useApproveLeaveRequest() {
         );
         return;
       }
-      const message =
-        error?.response?.data?.message || t('leaveApproveFailed');
-      toast.error(Array.isArray(message) ? message.join(', ') : message);
+      toast.error(apiError(error, t('leaveApproveFailed')));
     },
   });
 }
 
 export function useRejectLeaveRequest() {
+  const apiError = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -132,9 +132,7 @@ export function useRejectLeaveRequest() {
       toast.success(t('leaveRejected'));
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || t('leaveRejectFailed');
-      toast.error(Array.isArray(message) ? message.join(', ') : message);
+      toast.error(apiError(error, t('leaveRejectFailed')));
     },
   });
 }

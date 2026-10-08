@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useApiError } from '@/hooks/use-api-error';
+import { useDomainLabel } from '@/hooks/use-domain-label';
 import {
   FileText,
   Upload,
@@ -66,6 +68,9 @@ export function EmployeeDocumentsTab({
   isSelf,
 }: EmployeeDocumentsTabProps) {
   const t = useTranslations('employeeDocuments');
+  const tUi = useTranslations('uiCopy');
+  const apiError = useApiError();
+  const domainLabel = useDomainLabel();
   const tCommon = useTranslations('common');
   const locale = useLocale();
 
@@ -132,7 +137,7 @@ export function EmployeeDocumentsTab({
     if (!file) return;
 
     if (file.size > 10 * 1024 * 1024) {
-      setFormError('Ukuran file melebihi batas maksimal 10MB');
+      setFormError(tUi('fileTooLarge'));
       setSelectedFile(null);
       return;
     }
@@ -149,11 +154,11 @@ export function EmployeeDocumentsTab({
   const handleUploadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) {
-      setFormError('Silakan pilih file untuk diunggah');
+      setFormError(tUi('fileRequired'));
       return;
     }
     if (!title.trim()) {
-      setFormError('Judul dokumen wajib diisi');
+      setFormError(tUi('titleRequired'));
       return;
     }
 
@@ -174,7 +179,7 @@ export function EmployeeDocumentsTab({
       setFormError(null);
     } catch (err: any) {
       setFormError(
-        err?.response?.data?.message || 'Gagal mengunggah dokumen',
+        apiError(err, tUi('uploadFailed')),
       );
     }
   };
@@ -229,14 +234,14 @@ export function EmployeeDocumentsTab({
             >
               <SelectTrigger className="h-8.5 text-xs">
                 <SelectValue placeholder={t('docType')}>
-                  {selectedType === 'ALL' ? t('allTypes') : selectedType}
+                  {selectedType === 'ALL' ? t('allTypes') : domainLabel('documentTypes', selectedType)}
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">{t('allTypes')}</SelectItem>
                 {DOCUMENT_TYPES.map((type) => (
                   <SelectItem key={type} value={type}>
-                    {type}
+                    {domainLabel('documentTypes', type)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -292,14 +297,14 @@ export function EmployeeDocumentsTab({
                         variant="secondary"
                         className="text-[10px] font-mono uppercase px-1.5 py-0"
                       >
-                        {doc.documentType}
+                        {domainLabel('documentTypes', doc.documentType)}
                       </Badge>
                       {doc.expiryDate && (
                         <Badge
                           variant={expired ? 'destructive' : 'outline'}
                           className="text-[10px] font-mono px-1.5 py-0"
                         >
-                          {expired ? t('expired') : `Exp: ${formatDate(doc.expiryDate)}`}
+                          {expired ? t('expired') : tUi('expiresOn', { date: formatDate(doc.expiryDate) })}
                         </Badge>
                       )}
                     </div>
@@ -378,13 +383,13 @@ export function EmployeeDocumentsTab({
                 >
                   <SelectTrigger className="h-8.5 text-xs">
                     <SelectValue placeholder={t('docType')}>
-                      {docType}
+                      {domainLabel('documentTypes', docType)}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {DOCUMENT_TYPES.map((type) => (
                       <SelectItem key={type} value={type}>
-                        {type}
+                        {domainLabel('documentTypes', type)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -398,7 +403,7 @@ export function EmployeeDocumentsTab({
                 <Input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. KTP Asli John Doe"
+                  placeholder={tUi('documentExample')}
                   required
                   className="h-8.5 text-xs"
                 />

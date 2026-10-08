@@ -50,6 +50,7 @@ export function DepartmentTreeNodeItem({
   searchQuery = '',
 }: DepartmentTreeNodeProps) {
   const t = useTranslations('departments');
+  const tUi = useTranslations('uiCopy');
   const tCommon = useTranslations('common');
   const tNav = useTranslations('navigation');
 
@@ -117,7 +118,7 @@ export function DepartmentTreeNodeItem({
               size="icon"
               onClick={() => toggleExpandNode(node)}
               className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground hover:bg-muted rounded cursor-pointer shrink-0"
-              aria-label={isExpanded ? 'Collapse' : 'Expand'}
+              aria-label={tUi(isExpanded ? 'collapse' : 'expand')}
             >
               {isExpanded ? (
                 <ChevronDown className="h-4 w-4" />

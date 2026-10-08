@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { useApiError } from '@/hooks/use-api-error';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api/axios';
 import { queryKeys } from '@/lib/api/query-keys';
@@ -16,16 +16,6 @@ import {
 } from '@/types/department';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
-
-function getErrorMessage(error: unknown, defaultMessage: string): string {
-  if (axios.isAxiosError(error)) {
-    const data = error.response?.data as { message?: string | string[] } | undefined;
-    if (data?.message) {
-      return Array.isArray(data.message) ? data.message.join(', ') : data.message;
-    }
-  }
-  return defaultMessage;
-}
 
 export function useDepartments(params?: DepartmentQueryParams) {
   return useQuery({
@@ -70,6 +60,7 @@ export function useDepartment(id: string, enabled = true) {
 }
 
 export function useCreateDepartment() {
+  const getErrorMessage = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -90,6 +81,7 @@ export function useCreateDepartment() {
 }
 
 export function useUpdateDepartment() {
+  const getErrorMessage = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -117,6 +109,7 @@ export function useUpdateDepartment() {
 }
 
 export function useArchiveDepartment() {
+  const getErrorMessage = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -147,6 +140,7 @@ export function useArchiveDepartment() {
 }
 
 export function useRestoreDepartment() {
+  const getErrorMessage = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -179,6 +173,7 @@ export function useRestoreDepartment() {
 }
 
 export function useDeleteDepartment() {
+  const getErrorMessage = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -199,6 +194,7 @@ export function useDeleteDepartment() {
 }
 
 export function useReparentDepartment() {
+  const getErrorMessage = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 

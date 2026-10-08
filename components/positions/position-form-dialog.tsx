@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useApiError } from '@/hooks/use-api-error';
 import {
   Dialog,
   DialogContent,
@@ -29,6 +30,7 @@ export function PositionFormDialog({
   positionToEdit,
 }: PositionFormDialogProps) {
   const t = useTranslations('positions');
+  const apiError = useApiError();
   const tCommon = useTranslations('common');
 
   const [code, setCode] = useState('');
@@ -97,9 +99,7 @@ export function PositionFormDialog({
       }
       onOpenChange(false);
     } catch (error: any) {
-      const message =
-        error?.response?.data?.message || t('saveFailed');
-      toast.error(message);
+      toast.error(apiError(error, t('saveFailed')));
     }
   };
 

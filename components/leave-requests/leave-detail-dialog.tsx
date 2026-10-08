@@ -38,6 +38,7 @@ export function LeaveDetailDialog({
   onOpenChange,
 }: LeaveDetailDialogProps) {
   const t = useTranslations('leave');
+  const tUi = useTranslations('uiCopy');
   const tCommon = useTranslations('common');
   const locale = useLocale();
 
@@ -220,7 +221,7 @@ export function LeaveDetailDialog({
                   </span>
                 </div>
                 <p className="text-xs font-medium">
-                  {leaveRequest.approver?.fullName || 'Manager / HR Admin'}{' '}
+                  {leaveRequest.approver?.fullName || tUi('approverFallback')}{' '}
                   {leaveRequest.approver?.nip ? `(${leaveRequest.approver.nip})` : ''}
                 </p>
 

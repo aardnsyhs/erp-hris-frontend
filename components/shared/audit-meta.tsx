@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useDomainLabel } from '@/hooks/use-domain-label';
 import { Clock, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -23,6 +24,7 @@ export function AuditMeta({
   compact = false,
 }: AuditMetaProps) {
   const locale = useLocale();
+  const domainLabel = useDomainLabel();
   const tCommon = useTranslations('common');
 
   const formatDate = (dateStr?: string | null) => {
@@ -49,7 +51,7 @@ export function AuditMeta({
         {actorName && (
           <span className="flex items-center gap-1">
             <User className="w-3 h-3 text-muted-foreground/70" />
-            {actorName} {actorRole ? `(${actorRole})` : ''}
+            {actorName} {actorRole ? `(${domainLabel('roles', actorRole)})` : ''}
           </span>
         )}
       </div>
@@ -79,7 +81,7 @@ export function AuditMeta({
         <div className="flex items-center justify-between">
           <span>{tCommon('operator')}:</span>
           <span className="font-semibold text-foreground">
-            {actorName} {actorRole ? `[${actorRole}]` : ''}
+            {actorName} {actorRole ? `[${domainLabel('roles', actorRole)}]` : ''}
           </span>
         </div>
       )}

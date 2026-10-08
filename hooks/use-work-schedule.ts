@@ -4,6 +4,7 @@ import { queryKeys } from '@/lib/api/query-keys';
 import { UpdateWorkScheduleDto, WorkSchedule } from '@/types/work-schedule';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { useApiError } from '@/hooks/use-api-error';
 
 export function useWorkSchedule() {
   return useQuery({
@@ -16,6 +17,7 @@ export function useWorkSchedule() {
 }
 
 export function useUpdateWorkSchedule() {
+  const apiError = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -31,9 +33,7 @@ export function useUpdateWorkSchedule() {
       );
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || t('scheduleUpdateFailed');
-      toast.error(Array.isArray(message) ? message.join(', ') : message);
+      toast.error(apiError(error, t('scheduleUpdateFailed')));
     },
   });
 }

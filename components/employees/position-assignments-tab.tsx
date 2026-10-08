@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import axios from 'axios';
+import { useApiError } from '@/hooks/use-api-error';
 import { useLocale, useTranslations } from 'next-intl';
 import {
   Briefcase,
@@ -60,6 +60,7 @@ export function PositionAssignmentsTab({
 }: PositionAssignmentsTabProps) {
   const tCommon = useTranslations('common');
   const t = useTranslations('positionAssignments');
+  const apiError = useApiError();
   const locale = useLocale();
 
   const { data: assignments = [], isLoading } = usePositionAssignments(employeeId);
@@ -151,14 +152,7 @@ export function PositionAssignmentsTab({
       setPositionId('');
       setNotes('');
     } catch (err: unknown) {
-      let msg = t('saveFailed');
-      if (axios.isAxiosError(err)) {
-        const data = err.response?.data as { message?: string | string[] } | undefined;
-        if (data?.message) {
-          msg = Array.isArray(data.message) ? data.message.join(', ') : data.message;
-        }
-      }
-      toast.error(msg);
+      toast.error(apiError(err, t('saveFailed')));
     }
   };
 

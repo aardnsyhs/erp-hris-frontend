@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useApiError } from '@/hooks/use-api-error';
 import {
   Phone,
   Mail,
@@ -45,6 +46,8 @@ export function EmergencyContactsTab({
   isSelf,
 }: EmergencyContactsTabProps) {
   const t = useTranslations('emergencyContacts');
+  const tUi = useTranslations('uiCopy');
+  const apiError = useApiError();
   const tCommon = useTranslations('common');
   const tDialogs = useTranslations('dialogs');
 
@@ -97,7 +100,7 @@ export function EmergencyContactsTab({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !relationship.trim() || !phone.trim()) {
-      setFormError('Nama, hubungan, dan nomor telepon wajib diisi');
+      setFormError(tUi('contactRequired'));
       return;
     }
 
@@ -125,7 +128,7 @@ export function EmergencyContactsTab({
       setIsFormOpen(false);
     } catch (err: any) {
       setFormError(
-        err?.response?.data?.message || 'Gagal menyimpan kontak darurat',
+        apiError(err, tUi('contactSaveFailed')),
       );
     }
   };
@@ -291,7 +294,7 @@ export function EmergencyContactsTab({
                 <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Siti Nurhaliza"
+                  placeholder={tUi('nameExample')}
                   required
                   className="h-8.5 text-xs"
                 />
@@ -304,7 +307,7 @@ export function EmergencyContactsTab({
                 <Input
                   value={relationship}
                   onChange={(e) => setRelationship(e.target.value)}
-                  placeholder="e.g. Istri, Suami, Orang Tua, Saudara"
+                  placeholder={tUi('relationshipExample')}
                   required
                   className="h-8.5 text-xs"
                 />
@@ -317,7 +320,7 @@ export function EmergencyContactsTab({
                 <Input
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="e.g. +6281234567890"
+                  placeholder={tUi('phoneExample')}
                   required
                   className="h-8.5 text-xs font-mono"
                 />
@@ -331,7 +334,7 @@ export function EmergencyContactsTab({
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="e.g. siti@example.com"
+                  placeholder={tUi('emailExample')}
                   className="h-8.5 text-xs font-mono"
                 />
               </div>

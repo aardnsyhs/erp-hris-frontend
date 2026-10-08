@@ -4,6 +4,7 @@ import { AuthUser, ChangePasswordDto } from '@/types/auth';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { useApiError } from '@/hooks/use-api-error';
 
 export const authKeys = {
   profile: ['auth', 'profile'] as const,
@@ -25,6 +26,7 @@ export function useUserProfile() {
 }
 
 export function useChangePassword() {
+  const apiError = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -41,10 +43,7 @@ export function useChangePassword() {
       queryClient.invalidateQueries({ queryKey: authKeys.profile });
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message ||
-        t('passwordUpdateFailed');
-      toast.error(Array.isArray(message) ? message.join(', ') : message);
+      toast.error(apiError(error, t('passwordUpdateFailed')));
     },
   });
 }

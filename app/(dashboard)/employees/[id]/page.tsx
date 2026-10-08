@@ -4,6 +4,8 @@ import React, { use, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
+import { useDomainLabel } from '@/hooks/use-domain-label';
+import { useApiError } from '@/hooks/use-api-error';
 import {
   ArrowLeft,
   Building2,
@@ -53,6 +55,9 @@ export default function EmployeeDetailPage({ params }: PageProps) {
   const { id } = use(params);
   const router = useRouter();
   const t = useTranslations('employees');
+  const tUi = useTranslations('uiCopy');
+  const domainLabel = useDomainLabel();
+  const apiError = useApiError();
   const tCommon = useTranslations('common');
   const tPayroll = useTranslations('payroll');
   const tEmergency = useTranslations('emergencyContacts');
@@ -110,7 +115,7 @@ export default function EmployeeDetailPage({ params }: PageProps) {
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>{tCommon('error')}</AlertTitle>
           <AlertDescription>
-            {error instanceof Error ? error.message : t('noEmployeesFound')}
+            {apiError(error, t('noEmployeesFound'))}
           </AlertDescription>
         </Alert>
       </div>
@@ -136,7 +141,7 @@ export default function EmployeeDetailPage({ params }: PageProps) {
           </Link>
         }
         title={employee.fullName}
-        description={`${employee.jobTitle || 'No position'} • ${employee.department?.name || 'Unassigned department'}`}
+        description={`${employee.jobTitle || tUi('noPosition')} • ${employee.department?.name || tUi('noDepartment')}`}
         badge={<StatusBadge status={employee.status} />}
         actions={
           isHrAdmin && (canEdit || canReactivate || canDeactivate || canTerminate) ? (
@@ -237,7 +242,7 @@ export default function EmployeeDetailPage({ params }: PageProps) {
             </div>
             <div className="p-2 space-y-1">
               <span className="text-[10px] text-muted-foreground uppercase">{t('role')}</span>
-              <p className="font-semibold text-foreground">{employee.user?.role || 'EMPLOYEE'}</p>
+              <p className="font-semibold text-foreground">{domainLabel('roles', employee.user?.role || 'EMPLOYEE')}</p>
             </div>
           </div>
 
@@ -269,7 +274,7 @@ export default function EmployeeDetailPage({ params }: PageProps) {
                             variant="outline"
                             className="text-[10px] font-mono px-1.5 py-0 text-status-warning border-(--status-warning)/40 bg-status-warning-bg"
                           >
-                            Diarsipkan
+                            {tUi('archived')}
                           </Badge>
                         )}
                       </span>
@@ -286,7 +291,7 @@ export default function EmployeeDetailPage({ params }: PageProps) {
             <DetailSection title={t('accountInfo')}>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <DetailGridItem label={t('userId')} value={employee.user?.id || '-'} mono />
-                <DetailGridItem label={t('role')} value={employee.user?.role || 'EMPLOYEE'} mono />
+                <DetailGridItem label={t('role')} value={domainLabel('roles', employee.user?.role || 'EMPLOYEE')} mono />
                 <DetailGridItem
                   label={t('accountStatus')}
                   value={

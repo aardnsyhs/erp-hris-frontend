@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
+import { useDomainLabel } from '@/hooks/use-domain-label';
 import {
   Building2,
   CalendarCheck2,
@@ -37,6 +38,7 @@ import { cn } from '@/lib/utils';
 
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
+  const tUi = useTranslations('uiCopy');
   const user = useAuthStore((state) => state.user);
   const role = user?.role || 'EMPLOYEE';
   const emp = user?.employee;
@@ -45,7 +47,7 @@ export default function DashboardPage() {
     <div className="space-y-5">
       {/* Console Header */}
       <PageHeader
-        title={emp?.fullName || user?.email || 'Operations Console'}
+        title={emp?.fullName || user?.email || tUi('operationsConsole')}
         description={
           emp?.jobTitle && emp?.department?.name
             ? `${emp.jobTitle} • ${emp.department.name} - ${t('welcomeDesc')}`
@@ -73,6 +75,7 @@ export default function DashboardPage() {
 function HRAdminDashboard() {
   const t = useTranslations('dashboard');
   const tEmp = useTranslations('employees');
+  const tUi = useTranslations('uiCopy');
   const tLeave = useTranslations('leave');
   const tPayroll = useTranslations('payroll');
   const tDept = useTranslations('departments');
@@ -134,7 +137,7 @@ function HRAdminDashboard() {
       icon: Clock,
       badge: pendingLeaves > 0 ? (
         <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-status-warning-bg text-status-warning">
-          ACTION
+          {tUi('action')}
         </span>
       ) : undefined,
       action: (
@@ -151,7 +154,7 @@ function HRAdminDashboard() {
       icon: CreditCard,
       badge: draftPayrolls > 0 ? (
         <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-status-warning-bg text-status-warning">
-          DRAFT
+          {tUi('draft')}
         </span>
       ) : undefined,
       action: (
@@ -213,7 +216,7 @@ function HRAdminDashboard() {
               </div>
               <Progress
                 value={attendancePercentage}
-                aria-label={`Attendance rate ${attendancePercentage}%`}
+                aria-label={tUi('attendanceRate', { percentage: attendancePercentage })}
                 className="h-2 w-full bg-muted"
               />
             </div>
@@ -265,7 +268,7 @@ function HRAdminDashboard() {
                     </div>
                     <Link
                       href={`/employees?departmentId=${dept.id}`}
-                      aria-label={`View employees in ${dept.name}`}
+                      aria-label={tUi('viewDepartment', { name: dept.name })}
                       className="text-muted-foreground hover:text-foreground p-1 rounded hover:bg-muted"
                     >
                       <ChevronRight className="w-4 h-4" />
@@ -347,6 +350,8 @@ function ManagerDashboard({ departmentId }: { departmentId?: string | null }) {
   const tCommon = useTranslations('common');
   const tAtt = useTranslations('attendance');
   const tLeave = useTranslations('leave');
+  const tUi = useTranslations('uiCopy');
+  const domainLabel = useDomainLabel();
   const locale = useLocale();
   const todayStr = new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
     day: 'numeric',
@@ -400,7 +405,7 @@ function ManagerDashboard({ departmentId }: { departmentId?: string | null }) {
       icon: Clock,
       badge: pendingTeamLeaves > 0 ? (
         <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-status-warning-bg text-status-warning">
-          ACTION
+          {tUi('action')}
         </span>
       ) : undefined,
       action: (
@@ -518,7 +523,7 @@ function ManagerDashboard({ departmentId }: { departmentId?: string | null }) {
                       {leave.employee?.fullName}
                     </p>
                     <p className="text-[11px] text-muted-foreground font-mono">
-                      {leave.leaveType} • {new Date(leave.startDate).toLocaleDateString(locale === 'en' ? 'en-US' : 'id-ID')} –{' '}
+                      {domainLabel('leaveTypes', leave.leaveType)} • {new Date(leave.startDate).toLocaleDateString(locale === 'en' ? 'en-US' : 'id-ID')} –{' '}
                       {new Date(leave.endDate).toLocaleDateString(locale === 'en' ? 'en-US' : 'id-ID')}
                     </p>
                   </div>

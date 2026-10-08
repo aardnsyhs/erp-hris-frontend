@@ -23,6 +23,7 @@ export function AttendanceWidget() {
   const currentUser = useAuthStore((state) => state.user);
   const employeeId = currentUser?.employeeId;
   const t = useTranslations('attendance');
+  const tUi = useTranslations('uiCopy');
   const tDash = useTranslations('dashboard');
   const locale = useLocale();
 
@@ -169,7 +170,7 @@ export function AttendanceWidget() {
             <div className="space-y-1 pt-0.5 text-[11px] font-mono text-muted-foreground">
               <div className="flex justify-between">
                 <span>{t('duration')}: <strong className="text-foreground">{formatHoursMinutes(elapsedMinutes)}</strong></span>
-                <span>Target: {formatHoursMinutes(targetMinutes)} ({progressPercent}%)</span>
+                <span>{tUi('target')} {formatHoursMinutes(targetMinutes)} ({progressPercent}%)</span>
               </div>
               <Progress value={progressPercent} className="h-1.5 w-full bg-muted" />
             </div>

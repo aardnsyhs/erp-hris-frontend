@@ -33,6 +33,7 @@ export function DepartmentFormDialog({
   departmentToEdit,
 }: DepartmentFormDialogProps) {
   const t = useTranslations('departments');
+  const tUi = useTranslations('uiCopy');
   const tValidation = useTranslations('validation');
   const tCommon = useTranslations('common');
   const isEditMode = !!departmentToEdit;
@@ -98,13 +99,9 @@ export function DepartmentFormDialog({
       onOpenChange(false);
     } catch (error: unknown) {
       if (axios.isAxiosError(error) && error.response?.status === 409) {
-        const data = error.response.data as { message?: string | string[] } | undefined;
-        const errorMsg =
-          data?.message ||
-          `Kode departemen '${values.code}' sudah terdaftar.`;
         setError('code', {
           type: 'manual',
-          message: Array.isArray(errorMsg) ? errorMsg.join(', ') : errorMsg,
+          message: tUi('duplicateCode', { code: values.code }),
         });
       }
     }
@@ -148,7 +145,7 @@ export function DepartmentFormDialog({
               <p className="text-xs text-status-danger font-mono">{errors.code.message}</p>
             ) : (
               <p className="text-[11px] text-muted-foreground font-mono">
-                2–20 karakter unik (ENG, MKT, HRD).
+                {tUi('codeHint')}
               </p>
             )}
           </div>
@@ -160,7 +157,7 @@ export function DepartmentFormDialog({
             </label>
             <Input
               id="dept-name"
-              placeholder="Engineering, Human Resources"
+              placeholder={tUi('departmentExample')}
               {...register('name')}
               disabled={isSubmitting}
               className="text-xs"

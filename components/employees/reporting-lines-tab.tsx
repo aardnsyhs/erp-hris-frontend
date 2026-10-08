@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useApiError } from '@/hooks/use-api-error';
 import {
   Network,
   Plus,
@@ -48,6 +49,7 @@ export function ReportingLinesTab({
 }: ReportingLinesTabProps) {
   const tCommon = useTranslations('common');
   const t = useTranslations('reportingLines');
+  const apiError = useApiError();
   const locale = useLocale();
 
   const { data: lines = [], isLoading } = useReportingLines(employeeId);
@@ -102,9 +104,7 @@ export function ReportingLinesTab({
       setIsDialogOpen(false);
       setManagerId('');
     } catch (err: any) {
-      const msg =
-        err?.response?.data?.message || t('saveFailed');
-      toast.error(msg);
+      toast.error(apiError(err, t('saveFailed')));
     }
   };
 

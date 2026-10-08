@@ -3,6 +3,7 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useApiError } from '@/hooks/use-api-error';
 import {
   Lock,
   Mail,
@@ -50,6 +51,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslations('auth');
+  const apiError = useApiError();
   const setAuth = useAuthStore((state) => state.setAuth);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isLoadingAuth = useAuthStore((state) => state.isLoading);
@@ -102,19 +104,11 @@ function LoginForm() {
         setErrorMessage(msg);
         toast.error(msg);
       } else if (err?.response?.status === 401) {
-        const rawMessage =
-          err?.response?.data?.message || t('invalidCredentials');
-        const displayMsg = Array.isArray(rawMessage)
-          ? rawMessage.join(', ')
-          : rawMessage;
+        const displayMsg = t('invalidCredentials');
         setErrorMessage(displayMsg);
         toast.error(displayMsg);
       } else if (err?.response?.status === 400) {
-        const rawMessage =
-          err?.response?.data?.message || t('validationFailed');
-        const displayMsg = Array.isArray(rawMessage)
-          ? rawMessage.join(', ')
-          : rawMessage;
+        const displayMsg = apiError(err, t('validationFailed'));
         setErrorMessage(displayMsg);
         toast.error(displayMsg);
       } else if (!err?.response) {
@@ -122,11 +116,7 @@ function LoginForm() {
         setErrorMessage(networkMsg);
         toast.error(networkMsg);
       } else {
-        const serverMsg =
-          err?.response?.data?.message || t('serverError');
-        const displayMsg = Array.isArray(serverMsg)
-          ? serverMsg.join(', ')
-          : serverMsg;
+        const displayMsg = apiError(err, t('serverError'));
         setErrorMessage(displayMsg);
         toast.error(displayMsg);
       }

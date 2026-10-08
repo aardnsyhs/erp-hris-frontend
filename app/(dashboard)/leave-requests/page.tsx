@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { ColumnDef, PaginationState } from '@tanstack/react-table';
 import { useLocale, useTranslations } from 'next-intl';
+import { useDomainLabel } from '@/hooks/use-domain-label';
 import {
   CalendarDays,
   Plus,
@@ -49,6 +50,8 @@ import { cn } from '@/lib/utils';
 
 export default function LeaveRequestsPage() {
   const t = useTranslations('leave');
+  const tUi = useTranslations('uiCopy');
+  const domainLabel = useDomainLabel();
   const tCommon = useTranslations('common');
   const tEmp = useTranslations('employees');
   const locale = useLocale();
@@ -178,7 +181,7 @@ export default function LeaveRequestsPage() {
       header: t('leaveType'),
       cell: ({ row }) => (
         <span className="text-xs font-semibold font-mono text-foreground">
-          {row.original.leaveType}
+          {domainLabel('leaveTypes', row.original.leaveType)}
         </span>
       ),
     },
@@ -316,7 +319,7 @@ export default function LeaveRequestsPage() {
             )}
           >
             <Clock className="w-3.5 h-3.5" />
-            Pending Approvals Queue
+            {tUi('pendingQueue')}
           </button>
           <button
             onClick={() => {
@@ -331,7 +334,7 @@ export default function LeaveRequestsPage() {
             )}
           >
             <CalendarDays className="w-3.5 h-3.5" />
-            Leave History Matrix
+            {tUi('leaveHistory')}
           </button>
         </div>
       )}

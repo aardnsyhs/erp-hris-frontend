@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useDomainLabel } from '@/hooks/use-domain-label';
 import {
   LogOut,
   Menu,
@@ -37,6 +38,8 @@ import { SidebarNavContent } from './app-sidebar';
 
 export function AppHeader() {
   const tNav = useTranslations('navigation');
+  const tUi = useTranslations('uiCopy');
+  const domainLabel = useDomainLabel();
   const pathname = usePathname();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -112,8 +115,8 @@ export function AppHeader() {
         </div>
 
         {/* Minimal Breadcrumb Hierarchy */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-muted-foreground font-mono">
-          <span className="hidden sm:inline-block font-medium">Console</span>
+        <nav aria-label={tUi('breadcrumb')} className="flex items-center gap-1.5 text-xs text-muted-foreground font-mono">
+          <span className="hidden sm:inline-block font-medium">{tUi('console')}</span>
           <ChevronRight className="hidden sm:inline-block w-3 h-3 text-muted-foreground/60" />
           <span className="font-semibold text-foreground tracking-tight">{getPageTitle()}</span>
         </nav>
@@ -146,7 +149,7 @@ export function AppHeader() {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-xs font-bold leading-none text-foreground truncate">
-                    {user?.employee?.fullName || 'User Account'}
+                    {user?.employee?.fullName || tUi('userAccount')}
                   </p>
                   <p className="text-[11px] font-mono leading-none text-muted-foreground truncate">
                     {user?.email}
@@ -154,7 +157,7 @@ export function AppHeader() {
                   <div className="pt-1.5 flex items-center gap-1.5">
                     <Badge variant="outline" className="text-[10px] font-mono px-1.5 py-0">
                       <Shield className="w-2.5 h-2.5 mr-1" />
-                      {user?.role}
+                      {domainLabel('roles', user?.role)}
                     </Badge>
                   </div>
                 </div>

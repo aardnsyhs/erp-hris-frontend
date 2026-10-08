@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useDomainLabel } from '@/hooks/use-domain-label';
 import {
   History,
   Calendar,
@@ -27,6 +28,7 @@ interface MovementHistoryTabProps {
 
 export function MovementHistoryTab({ employeeId }: MovementHistoryTabProps) {
   const t = useTranslations('movementHistory');
+  const domainLabel = useDomainLabel();
   const locale = useLocale();
 
   const { data: movements = [], isLoading } = useMovementHistory(employeeId);
@@ -163,7 +165,7 @@ export function MovementHistoryTab({ employeeId }: MovementHistoryTabProps) {
 
                     {item.performedBy && (
                       <span className="text-[11px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded">
-                        {t('performedBy')}: <strong className="text-foreground">{item.performedBy.email}</strong> ({item.performedBy.role})
+                        {t('performedBy')}: <strong className="text-foreground">{item.performedBy.email}</strong> ({domainLabel('roles', item.performedBy.role)})
                       </span>
                     )}
                   </div>

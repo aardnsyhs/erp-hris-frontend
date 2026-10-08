@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useDomainLabel } from '@/hooks/use-domain-label';
 import {
   Briefcase,
   Building2,
@@ -91,6 +92,8 @@ export function SidebarNavContent({
 }) {
   const pathname = usePathname();
   const t = useTranslations('navigation');
+  const tUi = useTranslations('uiCopy');
+  const domainLabel = useDomainLabel();
   const user = useAuthStore((state) => state.user);
   const currentRole = user?.role || 'EMPLOYEE';
 
@@ -110,7 +113,7 @@ export function SidebarNavContent({
             {t('systemTitle')}
           </span>
           <span className="text-[10px] text-muted-foreground font-mono truncate">
-            {currentRole.replace('_', ' ')} CONSOLE
+            {tUi('roleConsole', { role: domainLabel('roles', currentRole) })}
           </span>
         </div>
       </div>
@@ -118,7 +121,7 @@ export function SidebarNavContent({
       {/* Navigation Links */}
       <nav className="flex-1 p-2 space-y-0.5 overflow-y-auto">
         <div className="px-2 py-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-widest font-mono">
-          Operations
+          {tUi('operations')}
         </div>
         {filteredNavItems.map((item) => {
           const Icon = item.icon;

@@ -11,6 +11,7 @@ import {
 } from '@/types/employee';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { useApiError } from '@/hooks/use-api-error';
 
 export function useEmployees(params?: EmployeeQueryParams) {
   return useQuery({
@@ -49,6 +50,7 @@ export function useEmployee(id: string, enabled = true) {
 }
 
 export function useCreateEmployee() {
+  const apiError = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -65,14 +67,13 @@ export function useCreateEmployee() {
       toast.success(t('employeeCreated', { name: data.fullName }));
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || t('employeeCreateFailed');
-      toast.error(Array.isArray(message) ? message.join(', ') : message);
+      toast.error(apiError(error, t('employeeCreateFailed')));
     },
   });
 }
 
 export function useUpdateEmployee() {
+  const apiError = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -93,14 +94,13 @@ export function useUpdateEmployee() {
       toast.success(t('employeeUpdated', { name: data.fullName }));
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || t('employeeUpdateFailed');
-      toast.error(Array.isArray(message) ? message.join(', ') : message);
+      toast.error(apiError(error, t('employeeUpdateFailed')));
     },
   });
 }
 
 export function useDeleteEmployee() {
+  const apiError = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -116,14 +116,13 @@ export function useDeleteEmployee() {
       );
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || t('employeeDeactivateFailed');
-      toast.error(Array.isArray(message) ? message.join(', ') : message);
+      toast.error(apiError(error, t('employeeDeactivateFailed')));
     },
   });
 }
 
 export function useTerminateEmployee() {
+  const apiError = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -144,14 +143,13 @@ export function useTerminateEmployee() {
       );
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || t('employeeTerminateFailed');
-      toast.error(Array.isArray(message) ? message.join(', ') : message);
+      toast.error(apiError(error, t('employeeTerminateFailed')));
     },
   });
 }
 
 export function useReactivateEmployee() {
+  const apiError = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -168,9 +166,7 @@ export function useReactivateEmployee() {
       toast.success(t('employeeReactivated', { name: data.fullName }));
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || t('employeeReactivateFailed');
-      toast.error(Array.isArray(message) ? message.join(', ') : message);
+      toast.error(apiError(error, t('employeeReactivateFailed')));
     },
   });
 }

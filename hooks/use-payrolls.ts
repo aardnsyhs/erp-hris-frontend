@@ -10,6 +10,7 @@ import {
 } from '@/types/payroll';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
+import { useApiError } from '@/hooks/use-api-error';
 
 export function usePayrolls(params?: PayrollQueryParams) {
   return useQuery({
@@ -43,6 +44,7 @@ export function usePayroll(id: string) {
 }
 
 export function useCreatePayroll() {
+  const apiError = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -63,14 +65,13 @@ export function useCreatePayroll() {
         );
         return;
       }
-      const message =
-        error?.response?.data?.message || t('payrollCreateFailed');
-      toast.error(Array.isArray(message) ? message.join(', ') : message);
+      toast.error(apiError(error, t('payrollCreateFailed')));
     },
   });
 }
 
 export function useUpdatePayroll() {
+  const apiError = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -93,14 +94,13 @@ export function useUpdatePayroll() {
       toast.success(t('payrollUpdated'));
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || t('payrollUpdateFailed');
-      toast.error(Array.isArray(message) ? message.join(', ') : message);
+      toast.error(apiError(error, t('payrollUpdateFailed')));
     },
   });
 }
 
 export function useProcessPayroll() {
+  const apiError = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -116,14 +116,13 @@ export function useProcessPayroll() {
       toast.success(t('payrollProcessed'));
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || t('payrollProcessFailed');
-      toast.error(Array.isArray(message) ? message.join(', ') : message);
+      toast.error(apiError(error, t('payrollProcessFailed')));
     },
   });
 }
 
 export function usePayPayroll() {
+  const apiError = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -137,14 +136,13 @@ export function usePayPayroll() {
       toast.success(t('payrollPaid'));
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || t('payrollPayFailed');
-      toast.error(Array.isArray(message) ? message.join(', ') : message);
+      toast.error(apiError(error, t('payrollPayFailed')));
     },
   });
 }
 
 export function useDeletePayroll() {
+  const apiError = useApiError();
   const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
@@ -158,9 +156,7 @@ export function useDeletePayroll() {
       toast.success(t('payrollDeleted'));
     },
     onError: (error: any) => {
-      const message =
-        error?.response?.data?.message || t('payrollDeleteFailed');
-      toast.error(Array.isArray(message) ? message.join(', ') : message);
+      toast.error(apiError(error, t('payrollDeleteFailed')));
     },
   });
 }

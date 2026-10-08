@@ -3,8 +3,10 @@
 import React, { useEffect, Suspense } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/auth-store';
+import { useTranslations } from 'next-intl';
 
 function AuthGuardInner({ children }: { children: React.ReactNode }) {
+  const tUi = useTranslations('uiCopy');
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -27,7 +29,7 @@ function AuthGuardInner({ children }: { children: React.ReactNode }) {
             HR
           </div>
           <span className="text-xs font-mono text-muted-foreground animate-pulse">
-            Memuat sesi...
+            {tUi('loadingSession')}
           </span>
         </div>
       </div>

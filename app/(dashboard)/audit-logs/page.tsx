@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { ColumnDef, PaginationState } from '@tanstack/react-table';
 import { useLocale, useTranslations } from 'next-intl';
+import { useDomainLabel } from '@/hooks/use-domain-label';
 import {
   ShieldCheck,
   Eye,
@@ -67,6 +68,10 @@ const ACTION_OPTIONS = [
 
 export default function AuditLogsPage() {
   const t = useTranslations('auditLogs');
+  const tUi = useTranslations('uiCopy');
+  const domainLabel = useDomainLabel();
+  const auditLabel = (group: 'actions' | 'entities', value?: string | null) =>
+    value ? `${domainLabel(group, value)} (${value})` : '-';
   const tCommon = useTranslations('common');
   const locale = useLocale();
 
@@ -194,7 +199,7 @@ export default function AuditLogsPage() {
             </span>
             {role && (
               <span className="text-[10px] font-mono text-muted-foreground uppercase">
-                {role}
+                {domainLabel('roles', role)}
               </span>
             )}
           </div>
@@ -209,7 +214,7 @@ export default function AuditLogsPage() {
           variant={getActionBadgeVariant(row.original.action) as any}
           className="font-mono text-[10px] tracking-wider uppercase font-semibold"
         >
-          {row.original.action}
+          {auditLabel('actions', row.original.action)}
         </Badge>
       ),
     },
@@ -219,7 +224,7 @@ export default function AuditLogsPage() {
       cell: ({ row }) => (
         <div className="flex flex-col gap-0.5">
           <span className="text-xs font-semibold text-foreground">
-            {row.original.entity}
+            {auditLabel('entities', row.original.entity)}
           </span>
           <span
             className="text-[10px] font-mono text-muted-foreground truncate max-w-[140px]"
@@ -280,14 +285,14 @@ export default function AuditLogsPage() {
           >
             <SelectTrigger className="h-9 text-xs">
               <SelectValue placeholder={t('filterByEntity')}>
-                {selectedEntity === 'ALL' ? t('allEntities') : selectedEntity}
+                {selectedEntity === 'ALL' ? t('allEntities') : auditLabel('entities', selectedEntity)}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">{t('allEntities')}</SelectItem>
               {ENTITY_OPTIONS.map((entity) => (
                 <SelectItem key={entity} value={entity}>
-                  {entity}
+                  {auditLabel('entities', entity)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -302,14 +307,14 @@ export default function AuditLogsPage() {
           >
             <SelectTrigger className="h-9 text-xs">
               <SelectValue placeholder={t('filterByAction')}>
-                {selectedAction === 'ALL' ? t('allActions') : selectedAction}
+                {selectedAction === 'ALL' ? t('allActions') : auditLabel('actions', selectedAction)}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">{t('allActions')}</SelectItem>
               {ACTION_OPTIONS.map((action) => (
                 <SelectItem key={action} value={action}>
-                  {action}
+                  {auditLabel('actions', action)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -323,7 +328,7 @@ export default function AuditLogsPage() {
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             className="h-9 text-xs w-full sm:w-36"
-            aria-label="Start Date"
+            aria-label={tUi('startDate')}
           />
           <span className="text-muted-foreground text-xs font-mono">-</span>
           <Input
@@ -331,7 +336,7 @@ export default function AuditLogsPage() {
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             className="h-9 text-xs w-full sm:w-36"
-            aria-label="End Date"
+            aria-label={tUi('endDate')}
           />
         </div>
 
@@ -376,10 +381,10 @@ export default function AuditLogsPage() {
                 }
                 className="font-mono text-xs"
               >
-                {selectedLog?.action}
+                {auditLabel('actions', selectedLog?.action)}
               </Badge>
               <DialogTitle className="text-base font-bold font-mono">
-                {selectedLog?.entity} #{selectedLog?.entityId}
+                {auditLabel('entities', selectedLog?.entity)} #{selectedLog?.entityId}
               </DialogTitle>
             </div>
             <DialogDescription className="text-xs">
@@ -404,7 +409,7 @@ export default function AuditLogsPage() {
                     {t('actor')}
                   </span>
                   <span className="font-mono text-[11px] font-medium text-foreground truncate block">
-                    {selectedLog.actorEmail || selectedLog.actorRole || t('systemActor')}
+                    {selectedLog.actorEmail || (selectedLog.actorRole ? domainLabel('roles', selectedLog.actorRole) : t('systemActor'))}
                   </span>
                 </div>
                 <div>

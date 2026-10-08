@@ -48,6 +48,7 @@ export function EmployeeFormDialog({
   employeeToEdit,
 }: EmployeeFormDialogProps) {
   const t = useTranslations('employees');
+  const tUi = useTranslations('uiCopy');
   const tValidation = useTranslations('validation');
   const tCommon = useTranslations('common');
   const isEditMode = !!employeeToEdit;
@@ -306,7 +307,7 @@ export function EmployeeFormDialog({
                               employeeToEdit?.department &&
                               employeeToEdit.department.id === val
                             ) {
-                              return `${employeeToEdit.department.name} (${employeeToEdit.department.code}) [Diarsipkan]`;
+                              return `${employeeToEdit.department.name} (${employeeToEdit.department.code}) [${tUi('archived')}]`;
                             }
                             return val;
                           }}
@@ -321,7 +322,7 @@ export function EmployeeFormDialog({
                               key={employeeToEdit.department.id}
                               value={employeeToEdit.department.id}
                             >
-                              {employeeToEdit.department.name} ({employeeToEdit.department.code}) [Diarsipkan]
+                              {employeeToEdit.department.name} ({employeeToEdit.department.code}) [{tUi('archived')}]
                             </SelectItem>
                           )}
                         {departments.map((dept) => (
@@ -341,7 +342,7 @@ export function EmployeeFormDialog({
                       {t('jobTitle')} <span className="text-destructive">*</span>
                     </label>
                     <Input
-                      placeholder="Software Engineer"
+                      placeholder={tUi('jobExample')}
                       {...register('jobTitle')}
                       disabled={isSubmitting}
                       className="text-xs"
