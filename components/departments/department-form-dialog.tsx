@@ -33,6 +33,7 @@ export function DepartmentFormDialog({
   departmentToEdit,
 }: DepartmentFormDialogProps) {
   const t = useTranslations('departments');
+  const tValidation = useTranslations('validation');
   const tCommon = useTranslations('common');
   const isEditMode = !!departmentToEdit;
 
@@ -50,7 +51,7 @@ export function DepartmentFormDialog({
     reset,
     formState: { errors },
   } = useForm<DepartmentFormValues>({
-    resolver: zodResolver(departmentFormSchema),
+    resolver: zodResolver(departmentFormSchema(tValidation)),
     defaultValues: {
       code: '',
       name: '',

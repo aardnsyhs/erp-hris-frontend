@@ -26,6 +26,7 @@ interface MovementHistoryTabProps {
 }
 
 export function MovementHistoryTab({ employeeId }: MovementHistoryTabProps) {
+  const t = useTranslations('movementHistory');
   const locale = useLocale();
 
   const { data: movements = [], isLoading } = useMovementHistory(employeeId);
@@ -42,7 +43,7 @@ export function MovementHistoryTab({ employeeId }: MovementHistoryTabProps) {
     switch (type) {
       case 'HIRE':
         return {
-          label: 'Penerimaan / Hire',
+          label: t('types.HIRE'),
           icon: UserPlus,
           badgeClass:
             'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
@@ -50,7 +51,7 @@ export function MovementHistoryTab({ employeeId }: MovementHistoryTabProps) {
         };
       case 'PROMOTION':
         return {
-          label: 'Promosi Jabatan',
+          label: t('types.PROMOTION'),
           icon: TrendingUp,
           badgeClass:
             'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
@@ -58,7 +59,7 @@ export function MovementHistoryTab({ employeeId }: MovementHistoryTabProps) {
         };
       case 'TRANSFER':
         return {
-          label: 'Mutasi / Rotasi',
+          label: t('types.TRANSFER'),
           icon: ArrowRightLeft,
           badgeClass:
             'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20',
@@ -66,7 +67,7 @@ export function MovementHistoryTab({ employeeId }: MovementHistoryTabProps) {
         };
       case 'DEMOTION':
         return {
-          label: 'Demosi',
+          label: t('types.DEMOTION'),
           icon: TrendingDown,
           badgeClass:
             'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
@@ -74,7 +75,7 @@ export function MovementHistoryTab({ employeeId }: MovementHistoryTabProps) {
         };
       case 'REORGANIZATION':
         return {
-          label: 'Reorganisasi',
+          label: t('types.REORGANIZATION'),
           icon: RotateCcw,
           badgeClass:
             'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20',
@@ -82,14 +83,14 @@ export function MovementHistoryTab({ employeeId }: MovementHistoryTabProps) {
         };
       case 'TERMINATION':
         return {
-          label: 'Pemberhentian (Terminated)',
+          label: t('types.TERMINATION'),
           icon: Ban,
           badgeClass: 'bg-destructive/10 text-destructive border-destructive/20',
           dotClass: 'border-destructive bg-destructive',
         };
       case 'REACTIVATION':
         return {
-          label: 'Reaktivasi',
+          label: t('types.REACTIVATION'),
           icon: UserCheck,
           badgeClass:
             'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
@@ -109,13 +110,13 @@ export function MovementHistoryTab({ employeeId }: MovementHistoryTabProps) {
     <div className="space-y-4">
       <div>
         <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
-          Riwayat Perpindahan Karyawan (Movement History)
+          {t('title')}
           <Badge variant="outline" className="text-[10px] uppercase font-mono tracking-wider">
-            Append-Only Audit Log
+            {t('auditLabel')}
           </Badge>
         </h3>
         <p className="text-xs text-muted-foreground">
-          Buku besar jejak pergerakan status, mutasi departemen, dan promosi jabatan yang tercatat permanen secara otomatis oleh sistem.
+          {t('subtitle')}
         </p>
       </div>
 
@@ -128,10 +129,10 @@ export function MovementHistoryTab({ employeeId }: MovementHistoryTabProps) {
         <div className="flex flex-col items-center justify-center p-8 border border-dashed rounded-lg text-center bg-muted/20">
           <History className="h-10 w-10 text-muted-foreground/50 mb-2" />
           <p className="text-sm font-medium text-foreground">
-            Belum ada rekam jejak perpindahan
+            {t('emptyTitle')}
           </p>
           <p className="text-xs text-muted-foreground mt-1 max-w-sm">
-            Setiap kali terjadi penugasan baru, promosi, mutasi, atau pemberhentian, sistem akan otomatis mencatatnya di sini.
+            {t('emptyDescription')}
           </p>
         </div>
       ) : (
@@ -156,13 +157,13 @@ export function MovementHistoryTab({ employeeId }: MovementHistoryTabProps) {
                       </Badge>
                       <span className="text-xs text-muted-foreground flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
-                        Efektif: <strong className="text-foreground">{formatDate(item.effectiveDate)}</strong>
+                        {t('effective')}: <strong className="text-foreground">{formatDate(item.effectiveDate)}</strong>
                       </span>
                     </div>
 
                     {item.performedBy && (
                       <span className="text-[11px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded">
-                        Diproses oleh: <strong className="text-foreground">{item.performedBy.email}</strong> ({item.performedBy.role})
+                        {t('performedBy')}: <strong className="text-foreground">{item.performedBy.email}</strong> ({item.performedBy.role})
                       </span>
                     )}
                   </div>
@@ -173,7 +174,7 @@ export function MovementHistoryTab({ employeeId }: MovementHistoryTabProps) {
                     <div className="space-y-1">
                       <span className="font-semibold text-muted-foreground flex items-center gap-1 text-[11px]">
                         <Briefcase className="h-3 w-3" />
-                        Perubahan Jabatan:
+                        {t('positionChange')}:
                       </span>
                       <p className="text-foreground">
                         {item.fromPosition ? (
@@ -198,7 +199,7 @@ export function MovementHistoryTab({ employeeId }: MovementHistoryTabProps) {
                     <div className="space-y-1">
                       <span className="font-semibold text-muted-foreground flex items-center gap-1 text-[11px]">
                         <Building2 className="h-3 w-3" />
-                        Perubahan Departemen:
+                        {t('departmentChange')}:
                       </span>
                       <p className="text-foreground">
                         {item.fromDepartment ? (
@@ -222,7 +223,7 @@ export function MovementHistoryTab({ employeeId }: MovementHistoryTabProps) {
 
                   {item.reason && (
                     <p className="text-xs text-muted-foreground italic">
-                      Alasan: &quot;{item.reason}&quot;
+                      {t('reason')}: &quot;{item.reason}&quot;
                     </p>
                   )}
                 </div>

@@ -1,20 +1,21 @@
 import { z } from 'zod';
+import type { ValidationTranslator } from './translator';
 
-export const leaveRequestFormSchema = z
+export const leaveRequestFormSchema = (t: ValidationTranslator) => z
   .object({
     leaveType: z.enum(['ANNUAL', 'SICK', 'UNPAID', 'MATERNITY'], {
-      message: 'Tipe cuti wajib dipilih',
+      message: t('leaveTypeRequired'),
     }),
     startDate: z
-      .string({ message: 'Tanggal mulai wajib diisi' })
-      .min(1, { message: 'Tanggal mulai wajib diisi' }),
+      .string({ message: t('startDateRequired') })
+      .min(1, { message: t('startDateRequired') }),
     endDate: z
-      .string({ message: 'Tanggal selesai wajib diisi' })
-      .min(1, { message: 'Tanggal selesai wajib diisi' }),
+      .string({ message: t('endDateRequired') })
+      .min(1, { message: t('endDateRequired') }),
     reason: z
       .string()
-      .min(5, { message: 'Alasan pengajuan cuti minimal 5 karakter' })
-      .max(500, { message: 'Alasan pengajuan cuti maksimal 500 karakter' }),
+      .min(5, { message: t('leaveReasonMin', { length: 5 }) })
+      .max(500, { message: t('leaveReasonMax', { length: 500 }) }),
   })
   .refine(
     (data) => {
@@ -22,20 +23,20 @@ export const leaveRequestFormSchema = z
       return new Date(data.endDate) >= new Date(data.startDate);
     },
     {
-      message: 'Tanggal selesai harus sama atau setelah tanggal mulai',
+      message: t('invalidDateRange'),
       path: ['endDate'],
     },
   );
 
-export type LeaveRequestFormValues = z.infer<typeof leaveRequestFormSchema>;
+export type LeaveRequestFormValues = z.infer<ReturnType<typeof leaveRequestFormSchema>>;
 
-export const rejectLeaveRequestSchema = z.object({
+export const rejectLeaveRequestSchema = (t: ValidationTranslator) => z.object({
   rejectionReason: z
     .string()
-    .min(5, { message: 'Alasan penolakan minimal 5 karakter' })
-    .max(500, { message: 'Alasan penolakan maksimal 500 karakter' }),
+    .min(5, { message: t('rejectionReasonMin', { length: 5 }) })
+    .max(500, { message: t('rejectionReasonMax', { length: 500 }) }),
 });
 
 export type RejectLeaveRequestFormValues = z.infer<
-  typeof rejectLeaveRequestSchema
+  ReturnType<typeof rejectLeaveRequestSchema>
 >;

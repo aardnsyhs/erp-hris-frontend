@@ -60,6 +60,7 @@ export function ContractsTab({
   isSelf,
 }: ContractsTabProps) {
   const tCommon = useTranslations('common');
+  const t = useTranslations('contracts');
   const locale = useLocale();
 
   const { data: contracts = [], isLoading } = useContracts(employeeId);
@@ -101,28 +102,28 @@ export function ContractsTab({
         return (
           <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 gap-1">
             <CheckCircle2 className="h-3 w-3" />
-            Aktif
+            {t('statuses.ACTIVE')}
           </Badge>
         );
       case 'RENEWED':
         return (
           <Badge variant="outline" className="text-blue-600 dark:text-blue-400 border-blue-500/30 gap-1">
             <RefreshCw className="h-3 w-3" />
-            Diperbarui (Renewed)
+            {t('statuses.RENEWED')}
           </Badge>
         );
       case 'EXPIRED':
         return (
           <Badge variant="secondary" className="gap-1">
             <Clock className="h-3 w-3" />
-            Kedaluwarsa (Expired)
+            {t('statuses.EXPIRED')}
           </Badge>
         );
       case 'TERMINATED':
         return (
           <Badge variant="destructive" className="gap-1">
             <Ban className="h-3 w-3" />
-            Diakhiri (Terminated)
+            {t('statuses.TERMINATED')}
           </Badge>
         );
     }
@@ -132,7 +133,7 @@ export function ContractsTab({
     e.preventDefault();
 
     if (!contractNumber.trim() || !startDate) {
-      toast.error('Nomor kontrak dan tanggal mulai wajib diisi');
+      toast.error(t('numberDateRequired'));
       return;
     }
 
@@ -148,7 +149,7 @@ export function ContractsTab({
         documentId: documentId || undefined,
       });
 
-      toast.success('Kontrak kerja berhasil dibuat');
+      toast.success(t('created'));
       setIsCreateOpen(false);
       // Reset
       setContractNumber('');
@@ -158,7 +159,7 @@ export function ContractsTab({
       setNotes('');
       setDocumentId('');
     } catch (err: any) {
-      const msg = err?.response?.data?.message || 'Gagal membuat kontrak kerja';
+      const msg = err?.response?.data?.message || t('createFailed');
       toast.error(msg);
     }
   };
@@ -176,12 +177,12 @@ export function ContractsTab({
         },
       });
 
-      toast.success('Status kontrak berhasil diperbarui');
+      toast.success(t('statusUpdated'));
       setStatusDialogContract(null);
       setStatusNotes('');
     } catch (err: any) {
       const msg =
-        err?.response?.data?.message || 'Gagal mengubah status kontrak';
+        err?.response?.data?.message || t('statusUpdateFailed');
       toast.error(msg);
     }
   };
@@ -191,10 +192,10 @@ export function ContractsTab({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
           <h3 className="text-base font-semibold text-foreground">
-            Perjanjian & Kontrak Kerja
+            {t('title')}
           </h3>
           <p className="text-xs text-muted-foreground">
-            Riwayat kontrak kerja (PKWT/PKWTT/Probation), masa berlaku, dan dokumen hukum terkait.
+            {t('subtitle')}
           </p>
         </div>
 
@@ -205,7 +206,7 @@ export function ContractsTab({
             className="gap-1.5 shrink-0"
           >
             <Plus className="h-4 w-4" />
-            Tambah Kontrak
+            {t('addContract')}
           </Button>
         )}
       </div>
@@ -219,12 +220,12 @@ export function ContractsTab({
         <div className="flex flex-col items-center justify-center p-8 border border-dashed rounded-lg text-center bg-muted/20">
           <FileCheck2 className="h-10 w-10 text-muted-foreground/50 mb-2" />
           <p className="text-sm font-medium text-foreground">
-            Belum ada data kontrak kerja
+            {t('emptyTitle')}
           </p>
           <p className="text-xs text-muted-foreground mt-1 max-w-sm">
             {isHrAdmin
-              ? 'Tambahkan kontrak kerja untuk mencatat masa berlaku dan status ikatan kerja karyawan.'
-              : 'Belum ada dokumen perjanjian kerja yang tercatat di akun Anda.'}
+              ? t('emptyAdminDescription')
+              : t('emptyDescription')}
           </p>
         </div>
       ) : (
@@ -246,7 +247,7 @@ export function ContractsTab({
                       {c.contractNumber}
                     </span>
                     <Badge variant="outline" className="text-xs font-mono">
-                      {c.contractType}
+                      {t(`types.${c.contractType}`)}
                     </Badge>
                     {getStatusBadge(c.status)}
                   </div>
@@ -255,13 +256,13 @@ export function ContractsTab({
                     <div className="flex items-center gap-1.5">
                       <Calendar className="h-3.5 w-3.5 shrink-0" />
                       <span>
-                        Periode:{' '}
+                        {t('period')}:{' '}
                         <strong className="text-foreground font-medium">
                           {formatDate(c.startDate)}
                         </strong>{' '}
-                        s/d{' '}
+                        {tCommon('to')}{' '}
                         <strong className="text-foreground font-medium">
-                          {c.endDate ? formatDate(c.endDate) : 'Tetap (PKWTT)'}
+                          {c.endDate ? formatDate(c.endDate) : t('types.PERMANENT')}
                         </strong>
                       </span>
                     </div>
@@ -270,7 +271,7 @@ export function ContractsTab({
                       <div className="flex items-center gap-1.5">
                         <Clock className="h-3.5 w-3.5 shrink-0 text-amber-500" />
                         <span>
-                          Pengingat Perpanjangan:{' '}
+                          {t('renewalReminder')}:{' '}
                           <strong className="text-foreground font-medium">
                             {formatDate(c.renewalReminderDate)}
                           </strong>
@@ -300,7 +301,7 @@ export function ContractsTab({
                         }
                       >
                         <Download className="h-3.5 w-3.5" />
-                        Unduh Lampiran: {c.document.title || c.document.fileName}
+                        {t('downloadAttachment')}: {c.document.title || c.document.fileName}
                       </Button>
                     </div>
                   )}
@@ -317,7 +318,7 @@ export function ContractsTab({
                       }}
                       className="text-xs h-8"
                     >
-                      Ubah Status
+                      {t('changeStatus')}
                     </Button>
                   </div>
                 )}
@@ -332,9 +333,9 @@ export function ContractsTab({
         <DialogContent className="sm:max-w-[500px]">
           <form onSubmit={handleCreateSubmit}>
             <DialogHeader>
-              <DialogTitle>Tambah Kontrak Kerja</DialogTitle>
+              <DialogTitle>{t('createTitle')}</DialogTitle>
               <DialogDescription>
-                Catat perjanjian kerja baru. Sistem akan memeriksa agar tidak ada kontrak aktif yang overlap.
+                {t('createDescription')}
               </DialogDescription>
             </DialogHeader>
 
@@ -342,40 +343,40 @@ export function ContractsTab({
               <div className="grid grid-cols-2 gap-3">
                 <div className="grid gap-1">
                   <label className="text-xs font-medium text-foreground">
-                    Tipe Kontrak <span className="text-destructive">*</span>
+                    {t('contractType')} <span className="text-destructive">*</span>
                   </label>
                   <Select
                     value={contractType}
                     onValueChange={(val) => setContractType(val as ContractType)}
                   >
                     <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Pilih tipe">
+                      <SelectValue placeholder={t('typePlaceholder')}>
                         {(val) => {
                           switch (val) {
-                            case 'CONTRACT': return 'PKWT (Kontrak)';
-                            case 'PERMANENT': return 'PKWTT (Tetap)';
-                            case 'PROBATION': return 'Probation (Percobaan)';
-                            case 'INTERNSHIP': return 'Internship (Magang)';
+                            case 'CONTRACT': return t('types.CONTRACT');
+                            case 'PERMANENT': return t('types.PERMANENT');
+                            case 'PROBATION': return t('types.PROBATION');
+                            case 'INTERNSHIP': return t('types.INTERNSHIP');
                             default: return undefined;
                           }
                         }}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="CONTRACT">PKWT (Kontrak)</SelectItem>
-                      <SelectItem value="PERMANENT">PKWTT (Tetap)</SelectItem>
-                      <SelectItem value="PROBATION">Probation (Percobaan)</SelectItem>
-                      <SelectItem value="INTERNSHIP">Internship (Magang)</SelectItem>
+                      <SelectItem value="CONTRACT">{t('types.CONTRACT')}</SelectItem>
+                      <SelectItem value="PERMANENT">{t('types.PERMANENT')}</SelectItem>
+                      <SelectItem value="PROBATION">{t('types.PROBATION')}</SelectItem>
+                      <SelectItem value="INTERNSHIP">{t('types.INTERNSHIP')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="grid gap-1">
                   <label className="text-xs font-medium text-foreground">
-                    Nomor Kontrak <span className="text-destructive">*</span>
+                    {t('contractNumber')} <span className="text-destructive">*</span>
                   </label>
                   <Input
-                    placeholder="e.g. CTR/2026/089"
+                    placeholder={t('numberPlaceholder')}
                     value={contractNumber}
                     onChange={(e) => setContractNumber(e.target.value)}
                     className="h-9 font-mono"
@@ -387,7 +388,7 @@ export function ContractsTab({
               <div className="grid grid-cols-2 gap-3">
                 <div className="grid gap-1">
                   <label className="text-xs font-medium text-foreground">
-                    Tanggal Mulai <span className="text-destructive">*</span>
+                    {t('startDate')} <span className="text-destructive">*</span>
                   </label>
                   <Input
                     type="date"
@@ -400,7 +401,7 @@ export function ContractsTab({
 
                 <div className="grid gap-1">
                   <label className="text-xs font-medium text-foreground">
-                    Tanggal Selesai {contractType !== 'PERMANENT' && <span className="text-destructive">*</span>}
+                    {t('endDate')} {contractType !== 'PERMANENT' && <span className="text-destructive">*</span>}
                   </label>
                   <Input
                     type="date"
@@ -416,7 +417,7 @@ export function ContractsTab({
               <div className="grid grid-cols-2 gap-3">
                 <div className="grid gap-1">
                   <label className="text-xs font-medium text-foreground">
-                    Pengingat Perpanjangan
+                    {t('renewalReminder')}
                   </label>
                   <Input
                     type="date"
@@ -428,23 +429,23 @@ export function ContractsTab({
 
                 <div className="grid gap-1">
                   <label className="text-xs font-medium text-foreground">
-                    Lampiran Dokumen
+                    {t('attachment')}
                   </label>
                   <Select
                     value={documentId}
                     onValueChange={(val) => setDocumentId(val || '')}
                   >
                     <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Pilih dokumen lampiran">
+                      <SelectValue placeholder={t('attachmentPlaceholder')}>
                         {(val) => {
-                          if (!val) return '-- Tidak ada lampiran --';
+                          if (!val) return t('noAttachment');
                           const doc = employeeDocuments.find((d) => d.id === val);
                           return doc ? `${doc.title} (${doc.fileName})` : undefined;
                         }}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">-- Tidak ada lampiran --</SelectItem>
+                      <SelectItem value="">{t('noAttachment')}</SelectItem>
                       {employeeDocuments.map((d) => (
                         <SelectItem key={d.id} value={d.id}>
                           {d.title} ({d.fileName})
@@ -457,10 +458,10 @@ export function ContractsTab({
 
               <div className="grid gap-1">
                 <label className="text-xs font-medium text-foreground">
-                  Catatan / Klausul Tambahan
+                  {t('notes')}
                 </label>
                 <Textarea
-                  placeholder="Keterangan masa percobaan, klausul khusus, dll..."
+                  placeholder={t('notesPlaceholder')}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={2}
@@ -478,7 +479,7 @@ export function ContractsTab({
                 {tCommon('cancel')}
               </Button>
               <Button type="submit" disabled={createContract.isPending}>
-                {createContract.isPending ? 'Menyimpan...' : 'Simpan Kontrak'}
+                {createContract.isPending ? tCommon('saving') : t('save')}
               </Button>
             </DialogFooter>
           </form>
@@ -493,48 +494,48 @@ export function ContractsTab({
         <DialogContent className="sm:max-w-[420px]">
           <form onSubmit={handleStatusSubmit}>
             <DialogHeader>
-              <DialogTitle>Ubah Status Kontrak Kerja</DialogTitle>
+              <DialogTitle>{t('statusTitle')}</DialogTitle>
               <DialogDescription>
-                Kontrak: <strong className="font-mono text-foreground">{statusDialogContract?.contractNumber}</strong>.
-                Perhatian: Status terminal (EXPIRED, TERMINATED, RENEWED) bersifat permanen.
+                {t('contract')}: <strong className="font-mono text-foreground">{statusDialogContract?.contractNumber}</strong>.
+                {' '}{t('terminalWarning')}
               </DialogDescription>
             </DialogHeader>
 
             <div className="grid gap-3 py-3">
               <div className="grid gap-1">
                 <label className="text-xs font-medium text-foreground">
-                  Status Baru <span className="text-destructive">*</span>
+                  {t('newStatus')} <span className="text-destructive">*</span>
                 </label>
                 <Select
                   value={newStatus}
                   onValueChange={(val) => setNewStatus(val as ContractStatus)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Pilih status baru">
+                    <SelectValue placeholder={t('statusPlaceholder')}>
                       {(val) => {
                         switch (val) {
-                          case 'RENEWED': return 'RENEWED (Diperpanjang / Diganti Baru)';
-                          case 'EXPIRED': return 'EXPIRED (Masa Berlaku Habis)';
-                          case 'TERMINATED': return 'TERMINATED (Diakhiri Sebelum Waktunya)';
+                          case 'RENEWED': return t('statusOptions.RENEWED');
+                          case 'EXPIRED': return t('statusOptions.EXPIRED');
+                          case 'TERMINATED': return t('statusOptions.TERMINATED');
                           default: return undefined;
                         }
                       }}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="RENEWED">RENEWED (Diperpanjang / Diganti Baru)</SelectItem>
-                    <SelectItem value="EXPIRED">EXPIRED (Masa Berlaku Habis)</SelectItem>
-                    <SelectItem value="TERMINATED">TERMINATED (Diakhiri Sebelum Waktunya)</SelectItem>
+                    <SelectItem value="RENEWED">{t('statusOptions.RENEWED')}</SelectItem>
+                    <SelectItem value="EXPIRED">{t('statusOptions.EXPIRED')}</SelectItem>
+                    <SelectItem value="TERMINATED">{t('statusOptions.TERMINATED')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="grid gap-1">
                 <label className="text-xs font-medium text-foreground">
-                  Alasan Perubahan Status
+                  {t('statusReason')}
                 </label>
                 <Textarea
-                  placeholder="Catatan alasan perubahan status kontrak..."
+                  placeholder={t('statusReasonPlaceholder')}
                   value={statusNotes}
                   onChange={(e) => setStatusNotes(e.target.value)}
                   rows={3}
@@ -552,7 +553,7 @@ export function ContractsTab({
                 {tCommon('cancel')}
               </Button>
               <Button type="submit" disabled={updateStatus.isPending}>
-                {updateStatus.isPending ? 'Menyimpan...' : 'Perbarui Status'}
+                {updateStatus.isPending ? tCommon('saving') : t('updateStatus')}
               </Button>
             </DialogFooter>
           </form>

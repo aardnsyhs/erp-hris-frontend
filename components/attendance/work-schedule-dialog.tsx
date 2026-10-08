@@ -34,6 +34,7 @@ export function WorkScheduleDialog({
   onOpenChange,
 }: WorkScheduleDialogProps) {
   const t = useTranslations('attendance');
+  const tValidation = useTranslations('validation');
   const tCommon = useTranslations('common');
   const { data: schedule, isLoading: isLoadingSchedule } = useWorkSchedule();
   const updateMutation = useUpdateWorkSchedule();
@@ -45,7 +46,7 @@ export function WorkScheduleDialog({
     reset,
     formState: { errors },
   } = useForm<WorkScheduleFormValues>({
-    resolver: zodResolver(workScheduleSchema),
+    resolver: zodResolver(workScheduleSchema(tValidation)),
     defaultValues: {
       startTime: '09:00',
       lateToleranceMinutes: 15,

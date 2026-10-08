@@ -59,6 +59,7 @@ export function PositionAssignmentsTab({
   currentDepartmentId,
 }: PositionAssignmentsTabProps) {
   const tCommon = useTranslations('common');
+  const t = useTranslations('positionAssignments');
   const locale = useLocale();
 
   const { data: assignments = [], isLoading } = usePositionAssignments(employeeId);
@@ -80,7 +81,7 @@ export function PositionAssignmentsTab({
   const [notes, setNotes] = useState('');
 
   const formatDate = (dateString?: string | null) => {
-    if (!dateString) return 'Sekarang';
+    if (!dateString) return t('present');
     return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
       day: 'numeric',
       month: 'short',
@@ -94,35 +95,35 @@ export function PositionAssignmentsTab({
         return (
           <Badge className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20 gap-1 font-normal">
             <UserCheck className="h-3 w-3" />
-            Penugasan Awal (Hire)
+            {t('types.INITIAL')}
           </Badge>
         );
       case 'PROMOTION':
         return (
           <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 gap-1 font-normal">
             <TrendingUp className="h-3 w-3" />
-            Promosi
+            {t('types.PROMOTION')}
           </Badge>
         );
       case 'TRANSFER':
         return (
           <Badge className="bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20 gap-1 font-normal">
             <ArrowRightLeft className="h-3 w-3" />
-            Mutasi / Transfer
+            {t('types.TRANSFER')}
           </Badge>
         );
       case 'DEMOTION':
         return (
           <Badge variant="destructive" className="gap-1 font-normal">
             <TrendingDown className="h-3 w-3" />
-            Demosi
+            {t('types.DEMOTION')}
           </Badge>
         );
       case 'REORGANIZATION':
         return (
           <Badge variant="outline" className="gap-1 font-normal">
             <RotateCcw className="h-3 w-3" />
-            Reorganisasi
+            {t('types.REORGANIZATION')}
           </Badge>
         );
     }
@@ -132,7 +133,7 @@ export function PositionAssignmentsTab({
     e.preventDefault();
 
     if (!positionId || !departmentId || !effectiveFrom) {
-      toast.error('Posisi, departemen, dan tanggal efektif wajib diisi');
+      toast.error(t('requiredFields'));
       return;
     }
 
@@ -145,12 +146,12 @@ export function PositionAssignmentsTab({
         notes: notes.trim() || undefined,
       });
 
-      toast.success('Penugasan posisi berhasil disimpan');
+      toast.success(t('saved'));
       setIsDialogOpen(false);
       setPositionId('');
       setNotes('');
     } catch (err: unknown) {
-      let msg = 'Gagal membuat penugasan posisi';
+      let msg = t('saveFailed');
       if (axios.isAxiosError(err)) {
         const data = err.response?.data as { message?: string | string[] } | undefined;
         if (data?.message) {
@@ -168,10 +169,10 @@ export function PositionAssignmentsTab({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
           <h3 className="text-base font-semibold text-foreground">
-            Riwayat Posisi & Penugasan
+            {t('title')}
           </h3>
           <p className="text-xs text-muted-foreground">
-            Catatan penugasan jabatan formal, kenaikan level/promosi, dan perpindahan departemen.
+            {t('subtitle')}
           </p>
         </div>
 
@@ -187,7 +188,7 @@ export function PositionAssignmentsTab({
             className="gap-1.5 shrink-0"
           >
             <Plus className="h-4 w-4" />
-            Penugasan Baru
+            {t('addAssignment')}
           </Button>
         )}
       </div>
@@ -201,12 +202,12 @@ export function PositionAssignmentsTab({
         <div className="flex flex-col items-center justify-center p-8 border border-dashed rounded-lg text-center bg-muted/20">
           <Briefcase className="h-10 w-10 text-muted-foreground/50 mb-2" />
           <p className="text-sm font-medium text-foreground">
-            Belum ada data penugasan posisi
+            {t('emptyTitle')}
           </p>
           <p className="text-xs text-muted-foreground mt-1 max-w-sm">
             {isHrAdmin
-              ? 'Tugaskan karyawan ke jabatan dan departemen formal untuk melacak rekam jejak karir.'
-              : 'Belum ada penugasan jabatan yang tercatat.'}
+              ? t('emptyAdminDescription')
+              : t('emptyDescription')}
           </p>
         </div>
       ) : (
@@ -216,17 +217,17 @@ export function PositionAssignmentsTab({
             <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 text-card-foreground shadow-xs">
               <div className="flex items-center justify-between gap-2 mb-2">
                 <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                  Penugasan Posisi Saat Ini
+                  {t('currentAssignment')}
                 </span>
                 <Badge className="bg-primary text-primary-foreground font-normal text-[11px]">
-                  Aktif
+                  {tCommon('active')}
                 </Badge>
               </div>
 
               <div className="flex flex-col sm:flex-row justify-between gap-4">
                 <div>
                   <h4 className="text-lg font-bold text-foreground flex items-center gap-2">
-                    {activeAssignment.position?.title || 'Posisi'}
+                    {activeAssignment.position?.title || t('position')}
                     <span className="font-mono text-xs px-2 py-0.5 rounded bg-background border text-muted-foreground font-normal">
                       {activeAssignment.position?.code}
                     </span>
@@ -234,15 +235,15 @@ export function PositionAssignmentsTab({
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mt-1.5">
                     <span className="flex items-center gap-1">
                       <Building2 className="h-3.5 w-3.5 text-primary/70" />
-                      {activeAssignment.department?.name || 'Departemen'}
+                      {activeAssignment.department?.name || t('department')}
                     </span>
                     <span className="flex items-center gap-1">
                       <Layers className="h-3.5 w-3.5 text-primary/70" />
-                      Level {activeAssignment.position?.level}
+                      {t('levelValue', { level: activeAssignment.position?.level ?? '-' })}
                     </span>
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3.5 w-3.5 text-primary/70" />
-                      Sejak {formatDate(activeAssignment.effectiveFrom)}
+                      {t('since', { date: formatDate(activeAssignment.effectiveFrom) })}
                     </span>
                   </div>
                 </div>
@@ -257,7 +258,7 @@ export function PositionAssignmentsTab({
           {/* Timeline History */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-              Riwayat Perjalanan Jabatan
+              {t('history')}
             </h4>
 
             <div className="relative pl-6 border-l-2 border-border space-y-6">
@@ -285,7 +286,7 @@ export function PositionAssignmentsTab({
                               {item.position?.code}
                             </Badge>
                             <Badge variant="secondary" className="text-[11px]">
-                              Level {item.position?.level}
+                              {t('levelValue', { level: item.position?.level ?? '-' })}
                             </Badge>
                           </div>
                           <p className="text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap">
@@ -296,7 +297,7 @@ export function PositionAssignmentsTab({
                                 variant="outline"
                                 className="text-[10px] font-mono px-1.5 py-0 text-status-warning border-(--status-warning)/40 bg-status-warning-bg"
                               >
-                                Diarsipkan
+                                {t('archived')}
                               </Badge>
                             )}
                           </p>
@@ -330,33 +331,33 @@ export function PositionAssignmentsTab({
         <DialogContent className="sm:max-w-[480px]">
           <form onSubmit={handleSubmit}>
             <DialogHeader>
-              <DialogTitle>Penugasan Posisi Baru</DialogTitle>
+              <DialogTitle>{t('dialogTitle')}</DialogTitle>
               <DialogDescription>
-                Penugasan baru akan otomatis menutup periode aktif penugasan sebelumnya dan mencatat ke Riwayat Perpindahan Karyawan.
+                {t('dialogDescription')}
               </DialogDescription>
             </DialogHeader>
 
             <div className="grid gap-3.5 py-3">
               <div className="grid gap-1">
                 <label className="text-xs font-medium text-foreground">
-                  Pilih Jabatan / Posisi <span className="text-destructive">*</span>
+                  {t('selectPosition')} <span className="text-destructive">*</span>
                 </label>
                 <Select
                   value={positionId}
                   onValueChange={(val) => setPositionId(val || '')}
                 >
                   <SelectTrigger className="h-9">
-                    <SelectValue placeholder="Pilih posisi baru">
+                    <SelectValue placeholder={t('positionPlaceholder')}>
                       {(val) => {
                         const p = positions.find((item) => item.id === val);
-                        return p ? `${p.title} (${p.code}) - Level ${p.level}` : undefined;
+                        return p ? `${p.title} (${p.code}) - ${t('levelValue', { level: p.level })}` : undefined;
                       }}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {positions.map((p) => (
                       <SelectItem key={p.id} value={p.id}>
-                        {p.title} ({p.code}) - Level {p.level}
+                        {p.title} ({p.code}) - {t('levelValue', { level: p.level })}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -365,14 +366,14 @@ export function PositionAssignmentsTab({
 
               <div className="grid gap-1">
                 <label className="text-xs font-medium text-foreground">
-                  Departemen Penempatan <span className="text-destructive">*</span>
+                  {t('placementDepartment')} <span className="text-destructive">*</span>
                 </label>
                 <Select
                   value={departmentId}
                   onValueChange={(val) => setDepartmentId(val || '')}
                 >
                   <SelectTrigger className="h-9">
-                    <SelectValue placeholder="Pilih departemen">
+                    <SelectValue placeholder={t('departmentPlaceholder')}>
                       {(val) => {
                         const d = departments.find((item) => item.id === val);
                         return d ? `${d.name} (${d.code})` : undefined;
@@ -392,39 +393,39 @@ export function PositionAssignmentsTab({
               <div className="grid grid-cols-2 gap-3">
                 <div className="grid gap-1">
                   <label className="text-xs font-medium text-foreground">
-                    Tipe Penugasan <span className="text-destructive">*</span>
+                    {t('assignmentType')} <span className="text-destructive">*</span>
                   </label>
                   <Select
                     value={assignmentType}
                     onValueChange={(val) => setAssignmentType(val as AssignmentType)}
                   >
                     <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Pilih tipe">
+                      <SelectValue placeholder={t('typePlaceholder')}>
                         {(val) => {
                           switch (val) {
-                            case 'PROMOTION': return 'Promosi (Naik Jabatan)';
-                            case 'TRANSFER': return 'Mutasi / Rotasi (Transfer)';
-                            case 'INITIAL': return 'Penugasan Awal (Hire)';
-                            case 'DEMOTION': return 'Demosi';
-                            case 'REORGANIZATION': return 'Reorganisasi Struktur';
+                            case 'PROMOTION': return t('types.PROMOTION');
+                            case 'TRANSFER': return t('types.TRANSFER');
+                            case 'INITIAL': return t('types.INITIAL');
+                            case 'DEMOTION': return t('types.DEMOTION');
+                            case 'REORGANIZATION': return t('types.REORGANIZATION');
                             default: return undefined;
                           }
                         }}
                       </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="PROMOTION">Promosi (Naik Jabatan)</SelectItem>
-                      <SelectItem value="TRANSFER">Mutasi / Rotasi (Transfer)</SelectItem>
-                      <SelectItem value="INITIAL">Penugasan Awal (Hire)</SelectItem>
-                      <SelectItem value="DEMOTION">Demosi</SelectItem>
-                      <SelectItem value="REORGANIZATION">Reorganisasi Struktur</SelectItem>
+                      <SelectItem value="PROMOTION">{t('types.PROMOTION')}</SelectItem>
+                      <SelectItem value="TRANSFER">{t('types.TRANSFER')}</SelectItem>
+                      <SelectItem value="INITIAL">{t('types.INITIAL')}</SelectItem>
+                      <SelectItem value="DEMOTION">{t('types.DEMOTION')}</SelectItem>
+                      <SelectItem value="REORGANIZATION">{t('types.REORGANIZATION')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="grid gap-1">
                   <label className="text-xs font-medium text-foreground">
-                    Tanggal Efektif <span className="text-destructive">*</span>
+                    {t('effectiveDate')} <span className="text-destructive">*</span>
                   </label>
                   <Input
                     type="date"
@@ -438,10 +439,10 @@ export function PositionAssignmentsTab({
 
               <div className="grid gap-1">
                 <label className="text-xs font-medium text-foreground">
-                  Catatan / Keterangan Penugasan
+                  {t('notes')}
                 </label>
                 <Textarea
-                  placeholder="Keterangan SK Direksi, pertimbangan promosi, dll..."
+                  placeholder={t('notesPlaceholder')}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={2}
@@ -460,8 +461,8 @@ export function PositionAssignmentsTab({
               </Button>
               <Button type="submit" disabled={createAssignment.isPending}>
                 {createAssignment.isPending
-                  ? 'Menyimpan...'
-                  : 'Simpan Penugasan'}
+                  ? tCommon('saving')
+                  : t('save')}
               </Button>
             </DialogFooter>
           </form>

@@ -37,6 +37,7 @@ export function PayrollGenerateDialog({
   onOpenChange,
 }: PayrollGenerateDialogProps) {
   const t = useTranslations('payroll');
+  const tValidation = useTranslations('validation');
   const tCommon = useTranslations('common');
   const tEmp = useTranslations('employees');
 
@@ -54,7 +55,7 @@ export function PayrollGenerateDialog({
     setError,
     formState: { errors },
   } = useForm<CreatePayrollFormValues>({
-    resolver: zodResolver(createPayrollSchema),
+    resolver: zodResolver(createPayrollSchema(tValidation)),
     defaultValues: {
       employeeId: '',
       periodStart: '',

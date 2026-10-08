@@ -1,29 +1,30 @@
 import { z } from 'zod';
+import type { ValidationTranslator } from './translator';
 
-export const createPayrollSchema = z
+export const createPayrollSchema = (t: ValidationTranslator) => z
   .object({
-    employeeId: z.string({ message: 'Pilih karyawan penerima gaji' }).min(1, {
-      message: 'Pilih karyawan penerima gaji',
+    employeeId: z.string({ message: t('payrollEmployeeRequired') }).min(1, {
+      message: t('payrollEmployeeRequired'),
     }),
     periodStart: z
-      .string({ message: 'Tanggal awal periode wajib diisi' })
-      .min(1, { message: 'Tanggal awal periode wajib diisi' }),
+      .string({ message: t('periodStartRequired') })
+      .min(1, { message: t('periodStartRequired') }),
     periodEnd: z
-      .string({ message: 'Tanggal akhir periode wajib diisi' })
-      .min(1, { message: 'Tanggal akhir periode wajib diisi' }),
+      .string({ message: t('periodEndRequired') })
+      .min(1, { message: t('periodEndRequired') }),
     allowances: z
       .string()
       .optional()
       .refine(
         (val) => !val || (!isNaN(Number(val)) && Number(val) >= 0),
-        { message: 'Tunjangan harus berupa angka positif' },
+        { message: t('allowancesNumber') },
       ),
     deductions: z
       .string()
       .optional()
       .refine(
         (val) => !val || (!isNaN(Number(val)) && Number(val) >= 0),
-        { message: 'Potongan harus berupa angka positif' },
+        { message: t('deductionsNumber') },
       ),
   })
   .refine(
@@ -32,28 +33,28 @@ export const createPayrollSchema = z
       return new Date(data.periodEnd) >= new Date(data.periodStart);
     },
     {
-      message: 'Tanggal akhir periode harus sama atau setelah tanggal awal',
+      message: t('invalidPeriodRange'),
       path: ['periodEnd'],
     },
   );
 
-export type CreatePayrollFormValues = z.infer<typeof createPayrollSchema>;
+export type CreatePayrollFormValues = z.infer<ReturnType<typeof createPayrollSchema>>;
 
-export const updatePayrollSchema = z.object({
+export const updatePayrollSchema = (t: ValidationTranslator) => z.object({
   allowances: z
     .string()
     .optional()
     .refine(
       (val) => !val || (!isNaN(Number(val)) && Number(val) >= 0),
-      { message: 'Tunjangan harus berupa angka positif' },
+      { message: t('allowancesNumber') },
     ),
   deductions: z
     .string()
     .optional()
     .refine(
       (val) => !val || (!isNaN(Number(val)) && Number(val) >= 0),
-      { message: 'Potongan harus berupa angka positif' },
+      { message: t('deductionsNumber') },
     ),
 });
 
-export type UpdatePayrollFormValues = z.infer<typeof updatePayrollSchema>;
+export type UpdatePayrollFormValues = z.infer<ReturnType<typeof updatePayrollSchema>>;

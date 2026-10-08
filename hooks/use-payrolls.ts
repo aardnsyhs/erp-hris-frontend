@@ -9,6 +9,7 @@ import {
   UpdatePayrollDto,
 } from '@/types/payroll';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 export function usePayrolls(params?: PayrollQueryParams) {
   return useQuery({
@@ -42,6 +43,7 @@ export function usePayroll(id: string) {
 }
 
 export function useCreatePayroll() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -51,24 +53,25 @@ export function useCreatePayroll() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.payrolls.all });
-      toast.success('Draft payroll berhasil di-generate!');
+      toast.success(t('payrollCreated'));
     },
     onError: (error: any) => {
       if (error?.response?.status === 409) {
         // Will also be handled by form error alert
         toast.error(
-          'Payroll untuk karyawan ini pada periode tersebut sudah ada.',
+          t('payrollExists'),
         );
         return;
       }
       const message =
-        error?.response?.data?.message || 'Gagal membuat draft payroll.';
+        error?.response?.data?.message || t('payrollCreateFailed');
       toast.error(Array.isArray(message) ? message.join(', ') : message);
     },
   });
 }
 
 export function useUpdatePayroll() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -87,17 +90,18 @@ export function useUpdatePayroll() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.payrolls.all });
-      toast.success('Draft payroll berhasil diperbarui!');
+      toast.success(t('payrollUpdated'));
     },
     onError: (error: any) => {
       const message =
-        error?.response?.data?.message || 'Gagal memperbarui draft payroll.';
+        error?.response?.data?.message || t('payrollUpdateFailed');
       toast.error(Array.isArray(message) ? message.join(', ') : message);
     },
   });
 }
 
 export function useProcessPayroll() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -109,17 +113,18 @@ export function useProcessPayroll() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.payrolls.all });
-      toast.success('Status payroll berhasil diubah ke PROCESSED!');
+      toast.success(t('payrollProcessed'));
     },
     onError: (error: any) => {
       const message =
-        error?.response?.data?.message || 'Gagal memproses status payroll.';
+        error?.response?.data?.message || t('payrollProcessFailed');
       toast.error(Array.isArray(message) ? message.join(', ') : message);
     },
   });
 }
 
 export function usePayPayroll() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -129,17 +134,18 @@ export function usePayPayroll() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.payrolls.all });
-      toast.success('Status payroll berhasil diubah ke PAID (Telah Dibayar)!');
+      toast.success(t('payrollPaid'));
     },
     onError: (error: any) => {
       const message =
-        error?.response?.data?.message || 'Gagal menandai pembayaran payroll.';
+        error?.response?.data?.message || t('payrollPayFailed');
       toast.error(Array.isArray(message) ? message.join(', ') : message);
     },
   });
 }
 
 export function useDeletePayroll() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -149,11 +155,11 @@ export function useDeletePayroll() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.payrolls.all });
-      toast.success('Draft payroll berhasil dihapus.');
+      toast.success(t('payrollDeleted'));
     },
     onError: (error: any) => {
       const message =
-        error?.response?.data?.message || 'Gagal menghapus draft payroll.';
+        error?.response?.data?.message || t('payrollDeleteFailed');
       toast.error(Array.isArray(message) ? message.join(', ') : message);
     },
   });

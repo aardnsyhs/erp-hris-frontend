@@ -15,6 +15,7 @@ import {
   UpdateDepartmentDto,
 } from '@/types/department';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 function getErrorMessage(error: unknown, defaultMessage: string): string {
   if (axios.isAxiosError(error)) {
@@ -69,6 +70,7 @@ export function useDepartment(id: string, enabled = true) {
 }
 
 export function useCreateDepartment() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -79,15 +81,16 @@ export function useCreateDepartment() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.departments.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
-      toast.success(`Departemen "${data.name}" (${data.code}) berhasil ditambahkan.`);
+      toast.success(t('departmentCreated', { name: data.name, code: data.code }));
     },
     onError: (error: unknown) => {
-      toast.error(getErrorMessage(error, 'Gagal menambahkan departemen.'));
+      toast.error(getErrorMessage(error, t('departmentCreateFailed')));
     },
   });
 }
 
 export function useUpdateDepartment() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -105,15 +108,16 @@ export function useUpdateDepartment() {
       queryClient.invalidateQueries({ queryKey: queryKeys.departments.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.departments.detail(data.id) });
       queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
-      toast.success(`Data departemen "${data.name}" berhasil diperbarui.`);
+      toast.success(t('departmentUpdated', { name: data.name }));
     },
     onError: (error: unknown) => {
-      toast.error(getErrorMessage(error, 'Gagal memperbarui departemen.'));
+      toast.error(getErrorMessage(error, t('departmentUpdateFailed')));
     },
   });
 }
 
 export function useArchiveDepartment() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -134,15 +138,16 @@ export function useArchiveDepartment() {
       queryClient.invalidateQueries({ queryKey: queryKeys.departments.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.departments.detail(data.id) });
       queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
-      toast.success(`Departemen "${data.name}" (${data.code}) berhasil diarsipkan.`);
+      toast.success(t('departmentArchived', { name: data.name, code: data.code }));
     },
     onError: (error: unknown) => {
-      toast.error(getErrorMessage(error, 'Gagal mengarsipkan departemen.'));
+      toast.error(getErrorMessage(error, t('departmentArchiveFailed')));
     },
   });
 }
 
 export function useRestoreDepartment() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -164,16 +169,17 @@ export function useRestoreDepartment() {
       queryClient.invalidateQueries({ queryKey: queryKeys.departments.detail(data.id) });
       queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
       toast.success(
-        `Departemen "${data.name}" (${data.code}) berhasil diaktifkan kembali.`,
+        t('departmentRestored', { name: data.name, code: data.code }),
       );
     },
     onError: (error: unknown) => {
-      toast.error(getErrorMessage(error, 'Gagal mengaktifkan kembali departemen.'));
+      toast.error(getErrorMessage(error, t('departmentRestoreFailed')));
     },
   });
 }
 
 export function useDeleteDepartment() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -184,15 +190,16 @@ export function useDeleteDepartment() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.departments.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
-      toast.success('Departemen berhasil dihapus.');
+      toast.success(t('departmentDeleted'));
     },
     onError: (error: unknown) => {
-      toast.error(getErrorMessage(error, 'Gagal menghapus departemen.'));
+      toast.error(getErrorMessage(error, t('departmentDeleteFailed')));
     },
   });
 }
 
 export function useReparentDepartment() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -213,11 +220,10 @@ export function useReparentDepartment() {
       queryClient.invalidateQueries({ queryKey: queryKeys.departments.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.departments.detail(data.id) });
       queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
-      toast.success(`Posisi departemen "${data.name}" (${data.code}) berhasil diperbarui.`);
+      toast.success(t('departmentMoved', { name: data.name, code: data.code }));
     },
     onError: (error: unknown) => {
-      toast.error(getErrorMessage(error, 'Gagal memindahkan departemen.'));
+      toast.error(getErrorMessage(error, t('departmentMoveFailed')));
     },
   });
 }
-

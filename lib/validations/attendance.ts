@@ -1,29 +1,30 @@
 import { z } from 'zod';
+import type { ValidationTranslator } from './translator';
 
-export const attendanceActionSchema = z.object({
+export const attendanceActionSchema = (t: ValidationTranslator) => z.object({
   notes: z
     .string()
-    .max(255, { message: 'Catatan maksimal 255 karakter' })
+    .max(255, { message: t('notesMax', { length: 255 }) })
     .optional()
     .or(z.literal('')),
 });
 
-export type AttendanceActionFormValues = z.infer<typeof attendanceActionSchema>;
+export type AttendanceActionFormValues = z.infer<ReturnType<typeof attendanceActionSchema>>;
 
-export const workScheduleSchema = z.object({
+export const workScheduleSchema = (t: ValidationTranslator) => z.object({
   startTime: z
     .string()
     .regex(/^([01]\d|2[0-3]):([0-5]\d)$/, {
-      message: 'Format jam kerja harus "HH:mm" (contoh: "09:00")',
+      message: t('workTimeFormat'),
     }),
   lateToleranceMinutes: z
-    .number({ message: 'Toleransi harus berupa angka' })
-    .min(0, { message: 'Toleransi keterlambatan minimal 0 menit' })
-    .max(120, { message: 'Toleransi maksimal 120 menit' }),
+    .number({ message: t('toleranceNumber') })
+    .min(0, { message: t('toleranceMin', { minutes: 0 }) })
+    .max(120, { message: t('toleranceMax', { minutes: 120 }) }),
   standardWorkMinutes: z
-    .number({ message: 'Target jam kerja harus berupa angka' })
-    .min(60, { message: 'Target jam kerja minimal 60 menit (1 jam)' })
-    .max(1440, { message: 'Target jam kerja maksimal 1440 menit (24 jam)' }),
+    .number({ message: t('workMinutesNumber') })
+    .min(60, { message: t('workMinutesMin', { minutes: 60 }) })
+    .max(1440, { message: t('workMinutesMax', { minutes: 1440 }) }),
 });
 
-export type WorkScheduleFormValues = z.infer<typeof workScheduleSchema>;
+export type WorkScheduleFormValues = z.infer<ReturnType<typeof workScheduleSchema>>;

@@ -34,6 +34,7 @@ export function PayrollEditDialog({
   onOpenChange,
 }: PayrollEditDialogProps) {
   const t = useTranslations('payroll');
+  const tValidation = useTranslations('validation');
   const tCommon = useTranslations('common');
   const locale = useLocale();
   const updateMutation = useUpdatePayroll();
@@ -46,7 +47,7 @@ export function PayrollEditDialog({
     reset,
     formState: { errors },
   } = useForm<UpdatePayrollFormValues>({
-    resolver: zodResolver(updatePayrollSchema),
+    resolver: zodResolver(updatePayrollSchema(tValidation)),
     defaultValues: {
       allowances: '0',
       deductions: '0',

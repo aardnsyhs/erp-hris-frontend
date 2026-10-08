@@ -48,6 +48,7 @@ export function EmployeeFormDialog({
   employeeToEdit,
 }: EmployeeFormDialogProps) {
   const t = useTranslations('employees');
+  const tValidation = useTranslations('validation');
   const tCommon = useTranslations('common');
   const isEditMode = !!employeeToEdit;
 
@@ -73,7 +74,7 @@ export function EmployeeFormDialog({
     reset,
     formState: { errors },
   } = useForm<EmployeeFormValues>({
-    resolver: zodResolver(employeeFormSchema),
+    resolver: zodResolver(employeeFormSchema(tValidation)),
     defaultValues: {
       role: 'EMPLOYEE',
       departmentId: '',

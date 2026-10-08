@@ -1,18 +1,19 @@
 import { z } from 'zod';
+import type { ValidationTranslator } from './translator';
 
-export const changePasswordSchema = z
+export const changePasswordSchema = (t: ValidationTranslator) => z
   .object({
-    currentPassword: z.string().min(1, 'Password saat ini wajib diisi'),
+    currentPassword: z.string().min(1, t('currentPasswordRequired')),
     newPassword: z
       .string()
-      .min(8, 'Password baru minimal 8 karakter'),
+      .min(8, t('minPassword', { length: 8 })),
     confirmPassword: z
       .string()
-      .min(1, 'Konfirmasi password baru wajib diisi'),
+      .min(1, t('confirmPasswordRequired')),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: 'Konfirmasi password tidak cocok dengan password baru',
+    message: t('passwordsDoNotMatch'),
     path: ['confirmPassword'],
   });
 
-export type ChangePasswordFormValues = z.infer<typeof changePasswordSchema>;
+export type ChangePasswordFormValues = z.infer<ReturnType<typeof changePasswordSchema>>;

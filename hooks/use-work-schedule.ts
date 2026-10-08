@@ -3,6 +3,7 @@ import { apiClient } from '@/lib/api/axios';
 import { queryKeys } from '@/lib/api/query-keys';
 import { UpdateWorkScheduleDto, WorkSchedule } from '@/types/work-schedule';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 export function useWorkSchedule() {
   return useQuery({
@@ -15,6 +16,7 @@ export function useWorkSchedule() {
 }
 
 export function useUpdateWorkSchedule() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -25,12 +27,12 @@ export function useUpdateWorkSchedule() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.workSchedule.active });
       toast.success(
-        `Jadwal kerja berhasil diperbarui (Mulai: ${data.startTime} WIB, Toleransi: ${data.lateToleranceMinutes}m).`,
+        t('scheduleUpdated', { time: data.startTime, minutes: data.lateToleranceMinutes }),
       );
     },
     onError: (error: any) => {
       const message =
-        error?.response?.data?.message || 'Gagal memperbarui jadwal kerja.';
+        error?.response?.data?.message || t('scheduleUpdateFailed');
       toast.error(Array.isArray(message) ? message.join(', ') : message);
     },
   });

@@ -1,36 +1,36 @@
 import { z } from 'zod';
+import type { ValidationTranslator } from './translator';
 
-export const departmentFormSchema = z.object({
+export const departmentFormSchema = (t: ValidationTranslator) => z.object({
   code: z
     .string()
-    .min(2, { message: 'Kode departemen minimal 2 karakter' })
-    .max(20, { message: 'Kode departemen maksimal 20 karakter' })
+    .min(2, { message: t('departmentCodeMin', { length: 2 }) })
+    .max(20, { message: t('departmentCodeMax', { length: 20 }) })
     .trim(),
   name: z
     .string()
-    .min(2, { message: 'Nama departemen minimal 2 karakter' })
-    .max(100, { message: 'Nama departemen maksimal 100 karakter' })
+    .min(2, { message: t('departmentNameMin', { length: 2 }) })
+    .max(100, { message: t('departmentNameMax', { length: 100 }) })
     .trim(),
   parentId: z
     .string()
-    .uuid({ message: 'Induk departemen tidak valid' })
+    .uuid({ message: t('invalidParentDepartment') })
     .optional()
     .or(z.literal('')),
 });
 
-export type DepartmentFormValues = z.infer<typeof departmentFormSchema>;
+export type DepartmentFormValues = z.infer<ReturnType<typeof departmentFormSchema>>;
 
-export const reparentDepartmentSchema = z.object({
+export const reparentDepartmentSchema = (t: ValidationTranslator) => z.object({
   parentId: z
     .string()
-    .uuid({ message: 'Induk departemen tidak valid' })
+    .uuid({ message: t('invalidParentDepartment') })
     .nullable(),
   reason: z
     .string()
-    .max(255, { message: 'Alasan maksimal 255 karakter' })
+    .max(255, { message: t('reasonMax', { length: 255 }) })
     .optional()
     .or(z.literal('')),
 });
 
-export type ReparentDepartmentFormValues = z.infer<typeof reparentDepartmentSchema>;
-
+export type ReparentDepartmentFormValues = z.infer<ReturnType<typeof reparentDepartmentSchema>>;

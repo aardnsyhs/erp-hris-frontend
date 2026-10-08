@@ -23,6 +23,7 @@ import { Input } from '@/components/ui/input';
 import { PositionFormDialog } from '@/components/positions/position-form-dialog';
 
 export default function PositionsPage() {
+  const t = useTranslations('positions');
   const tCommon = useTranslations('common');
   const tNav = useTranslations('navigation');
   const locale = useLocale();
@@ -59,7 +60,7 @@ export default function PositionsPage() {
   const columns: ColumnDef<Position>[] = [
     {
       accessorKey: 'code',
-      header: 'Kode Posisi',
+      header: t('code'),
       cell: ({ row }) => (
         <span className="font-mono text-xs font-semibold px-2.5 py-1 rounded bg-muted text-foreground border border-border">
           {row.original.code}
@@ -68,7 +69,7 @@ export default function PositionsPage() {
     },
     {
       accessorKey: 'title',
-      header: 'Nama Posisi / Jabatan',
+      header: t('positionTitle'),
       cell: ({ row }) => (
         <div className="flex flex-col">
           <span className="font-medium text-foreground">
@@ -84,17 +85,17 @@ export default function PositionsPage() {
     },
     {
       accessorKey: 'level',
-      header: 'Level',
+      header: t('level'),
       cell: ({ row }) => (
         <Badge variant="outline" className="font-mono font-medium gap-1">
           <Layers className="h-3 w-3 text-muted-foreground" />
-          Level {row.original.level}
+          {t('levelValue', { level: row.original.level })}
         </Badge>
       ),
     },
     {
       accessorKey: 'isActive',
-      header: 'Status',
+      header: t('status'),
       cell: ({ row }) => (
         <Badge
           variant={row.original.isActive ? 'default' : 'secondary'}
@@ -103,12 +104,12 @@ export default function PositionsPage() {
           {row.original.isActive ? (
             <>
               <CheckCircle2 className="h-3 w-3 text-emerald-400" />
-              Aktif
+              {tCommon('active')}
             </>
           ) : (
             <>
               <XCircle className="h-3 w-3 text-muted-foreground" />
-              Non-Aktif
+              {tCommon('inactive')}
             </>
           )}
         </Badge>
@@ -116,7 +117,7 @@ export default function PositionsPage() {
     },
     {
       accessorKey: 'createdAt',
-      header: 'Dibuat Pada',
+      header: t('createdAt'),
       cell: ({ row }) => (
         <span className="text-xs text-muted-foreground">
           {formatDate(row.original.createdAt)}
@@ -137,7 +138,7 @@ export default function PositionsPage() {
               className="h-8 px-2 gap-1 text-xs"
             >
               <Edit2 className="h-3.5 w-3.5" />
-              Edit
+              {tCommon('edit')}
             </Button>
           </div>
         );
@@ -148,12 +149,12 @@ export default function PositionsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Master Jabatan & Posisi"
-        description="Kelola hierarki level jabatan dan katalog posisi seluruh organisasi."
+        title={t('title')}
+        description={t('subtitle')}
         badge={
           positions.length > 0 ? (
             <Badge variant="outline" className="font-mono text-xs px-2 py-0.5">
-              {positions.length} Posisi
+              {t('count', { count: positions.length })}
             </Badge>
           ) : undefined
         }
@@ -161,7 +162,7 @@ export default function PositionsPage() {
           isHrAdmin ? (
             <Button onClick={handleCreateClick} className="gap-2">
               <Plus className="h-4 w-4" />
-              Tambah Posisi
+              {t('addPosition')}
             </Button>
           ) : undefined
         }
@@ -171,7 +172,7 @@ export default function PositionsPage() {
         <div className="relative w-full sm:w-80">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Cari kode atau nama posisi..."
+            placeholder={t('searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9"

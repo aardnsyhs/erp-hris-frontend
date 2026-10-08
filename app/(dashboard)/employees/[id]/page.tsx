@@ -57,6 +57,10 @@ export default function EmployeeDetailPage({ params }: PageProps) {
   const tPayroll = useTranslations('payroll');
   const tEmergency = useTranslations('emergencyContacts');
   const tDocs = useTranslations('employeeDocuments');
+  const tContracts = useTranslations('contracts');
+  const tAssignments = useTranslations('positionAssignments');
+  const tReporting = useTranslations('reportingLines');
+  const tMovement = useTranslations('movementHistory');
   const locale = useLocale();
 
   const currentUser = useAuthStore((state) => state.user);
@@ -195,17 +199,17 @@ export default function EmployeeDetailPage({ params }: PageProps) {
           </TabsTrigger>
           {(isHrAdmin || isSelf) && (
             <TabsTrigger value="contracts" className="text-xs font-medium cursor-pointer">
-              Kontrak Kerja
+                {tContracts('tabTitle')}
             </TabsTrigger>
           )}
           <TabsTrigger value="positions" className="text-xs font-medium cursor-pointer">
-            Riwayat Posisi
+                {tAssignments('tabTitle')}
           </TabsTrigger>
           <TabsTrigger value="reporting" className="text-xs font-medium cursor-pointer">
-            Garis Pelaporan
+                {tReporting('tabTitle')}
           </TabsTrigger>
           <TabsTrigger value="movements" className="text-xs font-medium cursor-pointer">
-            Riwayat Perpindahan
+                {tMovement('tabTitle')}
           </TabsTrigger>
           <TabsTrigger value="documents" className="text-xs font-medium cursor-pointer">
             {tDocs('title')}

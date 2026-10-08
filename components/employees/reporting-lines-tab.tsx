@@ -47,6 +47,7 @@ export function ReportingLinesTab({
   isHrAdmin,
 }: ReportingLinesTabProps) {
   const tCommon = useTranslations('common');
+  const t = useTranslations('reportingLines');
   const locale = useLocale();
 
   const { data: lines = [], isLoading } = useReportingLines(employeeId);
@@ -64,7 +65,7 @@ export function ReportingLinesTab({
   const [isPrimary, setIsPrimary] = useState(true);
 
   const formatDate = (dateString?: string | null) => {
-    if (!dateString) return 'Sekarang';
+    if (!dateString) return t('present');
     return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
       day: 'numeric',
       month: 'short',
@@ -81,12 +82,12 @@ export function ReportingLinesTab({
     e.preventDefault();
 
     if (!managerId || !effectiveFrom) {
-      toast.error('Atasan/Manager dan tanggal efektif wajib diisi');
+      toast.error(t('managerDateRequired'));
       return;
     }
 
     if (managerId === employeeId) {
-      toast.error('Karyawan tidak dapat dijadikan atasan untuk dirinya sendiri');
+      toast.error(t('selfManagerError'));
       return;
     }
 
@@ -97,12 +98,12 @@ export function ReportingLinesTab({
         isPrimary,
       });
 
-      toast.success('Garis pelaporan berhasil diperbarui');
+      toast.success(t('saved'));
       setIsDialogOpen(false);
       setManagerId('');
     } catch (err: any) {
       const msg =
-        err?.response?.data?.message || 'Gagal menyimpan garis pelaporan';
+        err?.response?.data?.message || t('saveFailed');
       toast.error(msg);
     }
   };
@@ -112,10 +113,10 @@ export function ReportingLinesTab({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
           <h3 className="text-base font-semibold text-foreground">
-            Garis Pelaporan & Struktur Atasan Langsung
+            {t('title')}
           </h3>
           <p className="text-xs text-muted-foreground">
-            Hierarki direct manager dan rekam jejak jalur supervisi karyawan.
+            {t('subtitle')}
           </p>
         </div>
 
@@ -126,7 +127,7 @@ export function ReportingLinesTab({
             className="gap-1.5 shrink-0"
           >
             <Plus className="h-4 w-4" />
-            Atur Atasan Baru
+            {t('addManager')}
           </Button>
         )}
       </div>
@@ -134,7 +135,7 @@ export function ReportingLinesTab({
       <div className="flex items-start gap-2.5 p-3 rounded-lg bg-muted/40 border border-border text-xs text-muted-foreground">
         <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
         <p>
-          <strong>Catatan Kebijakan:</strong> Garis pelaporan berfungsi sebagai data struktur organisasi dan jalur supervisi langsung. Persetujuan cuti dan visibilitas absensi tetap mengacu pada departemen penempatan.
+          <strong>{t('policyTitle')}:</strong> {t('policyDescription')}
         </p>
       </div>
 
@@ -147,12 +148,12 @@ export function ReportingLinesTab({
         <div className="flex flex-col items-center justify-center p-8 border border-dashed rounded-lg text-center bg-muted/20">
           <Network className="h-10 w-10 text-muted-foreground/50 mb-2" />
           <p className="text-sm font-medium text-foreground">
-            Belum ada garis pelaporan yang ditentukan
+            {t('emptyTitle')}
           </p>
           <p className="text-xs text-muted-foreground mt-1 max-w-sm">
             {isHrAdmin
-              ? 'Tentukan atasan langsung untuk karyawan ini guna membentuk bagan hierarki supervisi.'
-              : 'Atasan langsung belum ditentukan oleh HR Admin.'}
+              ? t('emptyAdminDescription')
+              : t('emptyDescription')}
           </p>
         </div>
       ) : (
@@ -162,17 +163,17 @@ export function ReportingLinesTab({
             <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 text-card-foreground shadow-xs">
               <div className="flex items-center justify-between gap-2 mb-2">
                 <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                  Atasan Langsung Saat Ini (Direct Manager)
+                  {t('currentManager')}
                 </span>
                 <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-normal text-[11px]">
-                  Aktif
+                  {tCommon('active')}
                 </Badge>
               </div>
 
               <div className="flex flex-col sm:flex-row justify-between gap-4">
                 <div className="space-y-1">
                   <h4 className="text-base font-bold text-foreground">
-                    {currentActivePrimary.manager?.fullName || 'Manager'}
+                    {currentActivePrimary.manager?.fullName || t('manager')}
                   </h4>
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
                     <span className="font-mono">{currentActivePrimary.manager?.nip}</span>
@@ -187,7 +188,7 @@ export function ReportingLinesTab({
                 <div className="text-left sm:text-right self-start sm:self-center text-xs text-muted-foreground">
                   <span className="flex items-center gap-1 sm:justify-end">
                     <Calendar className="h-3.5 w-3.5 text-primary/70" />
-                    Melapor Sejak:
+                    {t('reportingSince')}:
                   </span>
                   <strong className="text-foreground font-medium">
                     {formatDate(currentActivePrimary.effectiveFrom)}
@@ -200,7 +201,7 @@ export function ReportingLinesTab({
           {/* History */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-              Riwayat Supervisi & Atasan Sebelumnya
+              {t('history')}
             </h4>
 
             <div className="relative pl-6 border-l-2 border-border space-y-4">
@@ -227,7 +228,7 @@ export function ReportingLinesTab({
                           </span>
                           {item.isPrimary && (
                             <Badge variant="outline" className="text-[10px]">
-                              Primary Supervisor
+                              {t('primarySupervisor')}
                             </Badge>
                           )}
                         </div>
@@ -256,23 +257,23 @@ export function ReportingLinesTab({
         <DialogContent className="sm:max-w-[460px]">
           <form onSubmit={handleSubmit}>
             <DialogHeader>
-              <DialogTitle>Atur Atasan Langsung Baru</DialogTitle>
+              <DialogTitle>{t('dialogTitle')}</DialogTitle>
               <DialogDescription>
-                Pilih atasan/manager langsung yang akan membawahi karyawan ini.
+                {t('dialogDescription')}
               </DialogDescription>
             </DialogHeader>
 
             <div className="grid gap-3.5 py-3">
               <div className="grid gap-1">
                 <label className="text-xs font-medium text-foreground">
-                  Pilih Atasan / Manager <span className="text-destructive">*</span>
+                  {t('selectManager')} <span className="text-destructive">*</span>
                 </label>
                 <Select
                   value={managerId}
                   onValueChange={(val) => setManagerId(val || '')}
                 >
                   <SelectTrigger className="h-9">
-                    <SelectValue placeholder="Pilih atasan langsung">
+                    <SelectValue placeholder={t('managerPlaceholder')}>
                       {(val) => {
                         const m = eligibleManagers.find((item) => item.id === val);
                         return m ? `${m.fullName} (${m.nip}) - ${m.jobTitle}` : undefined;
@@ -291,7 +292,7 @@ export function ReportingLinesTab({
 
               <div className="grid gap-1">
                 <label className="text-xs font-medium text-foreground">
-                  Tanggal Mulai Melapor <span className="text-destructive">*</span>
+                  {t('startDate')} <span className="text-destructive">*</span>
                 </label>
                 <Input
                   type="date"
@@ -310,10 +311,10 @@ export function ReportingLinesTab({
                     onChange={(e) => setIsPrimary(e.target.checked)}
                     className="rounded border-input text-primary focus:ring-primary h-4 w-4"
                   />
-                  <span>Jadikan Atasan Utama (Primary Reporting Line)</span>
+                  <span>{t('setPrimary')}</span>
                 </label>
                 <p className="text-[11px] text-muted-foreground mt-1 ml-6">
-                  Jika dicentang, atasan utama sebelumnya akan otomatis ditutup masa tugasnya.
+                  {t('primaryHint')}
                 </p>
               </div>
             </div>
@@ -329,8 +330,8 @@ export function ReportingLinesTab({
               </Button>
               <Button type="submit" disabled={createReportingLine.isPending}>
                 {createReportingLine.isPending
-                  ? 'Menyimpan...'
-                  : 'Simpan Garis Pelaporan'}
+                  ? tCommon('saving')
+                  : t('save')}
               </Button>
             </DialogFooter>
           </form>

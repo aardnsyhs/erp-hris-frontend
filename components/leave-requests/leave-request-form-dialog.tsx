@@ -41,6 +41,7 @@ export function LeaveRequestFormDialog({
   onOpenChange,
 }: LeaveRequestFormDialogProps) {
   const t = useTranslations('leave');
+  const tValidation = useTranslations('validation');
   const tCommon = useTranslations('common');
   const createMutation = useCreateLeaveRequest();
   const isSubmitting = createMutation.isPending;
@@ -53,7 +54,7 @@ export function LeaveRequestFormDialog({
     reset,
     formState: { errors },
   } = useForm<LeaveRequestFormValues>({
-    resolver: zodResolver(leaveRequestFormSchema),
+    resolver: zodResolver(leaveRequestFormSchema(tValidation)),
     defaultValues: {
       leaveType: 'ANNUAL',
       startDate: '',

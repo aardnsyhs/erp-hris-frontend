@@ -10,6 +10,7 @@ import {
   UpdateEmployeeDto,
 } from '@/types/employee';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 export function useEmployees(params?: EmployeeQueryParams) {
   return useQuery({
@@ -48,6 +49,7 @@ export function useEmployee(id: string, enabled = true) {
 }
 
 export function useCreateEmployee() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -60,17 +62,18 @@ export function useCreateEmployee() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
-      toast.success(`Karyawan "${data.fullName}" dan akun login berhasil dibuat.`);
+      toast.success(t('employeeCreated', { name: data.fullName }));
     },
     onError: (error: any) => {
       const message =
-        error?.response?.data?.message || 'Gagal menambahkan data karyawan.';
+        error?.response?.data?.message || t('employeeCreateFailed');
       toast.error(Array.isArray(message) ? message.join(', ') : message);
     },
   });
 }
 
 export function useUpdateEmployee() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -87,17 +90,18 @@ export function useUpdateEmployee() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.employees.detail(data.id) });
-      toast.success(`Data karyawan "${data.fullName}" berhasil diperbarui.`);
+      toast.success(t('employeeUpdated', { name: data.fullName }));
     },
     onError: (error: any) => {
       const message =
-        error?.response?.data?.message || 'Gagal memperbarui data karyawan.';
+        error?.response?.data?.message || t('employeeUpdateFailed');
       toast.error(Array.isArray(message) ? message.join(', ') : message);
     },
   });
 }
 
 export function useDeleteEmployee() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -108,18 +112,19 @@ export function useDeleteEmployee() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
       toast.success(
-        `Karyawan "${data.fullName}" berhasil dinonaktifkan (sementara).`,
+        t('employeeDeactivated', { name: data.fullName }),
       );
     },
     onError: (error: any) => {
       const message =
-        error?.response?.data?.message || 'Gagal menonaktifkan karyawan.';
+        error?.response?.data?.message || t('employeeDeactivateFailed');
       toast.error(Array.isArray(message) ? message.join(', ') : message);
     },
   });
 }
 
 export function useTerminateEmployee() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -135,18 +140,19 @@ export function useTerminateEmployee() {
         queryKey: queryKeys.employees.detail(data.id),
       });
       toast.success(
-        `Karyawan "${data.fullName}" telah berhasil diberhentikan secara permanen (TERMINATED).`,
+        t('employeeTerminated', { name: data.fullName }),
       );
     },
     onError: (error: any) => {
       const message =
-        error?.response?.data?.message || 'Gagal memberhentikan karyawan.';
+        error?.response?.data?.message || t('employeeTerminateFailed');
       toast.error(Array.isArray(message) ? message.join(', ') : message);
     },
   });
 }
 
 export function useReactivateEmployee() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -159,11 +165,11 @@ export function useReactivateEmployee() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.employees.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.employees.detail(data.id) });
-      toast.success(`Karyawan "${data.fullName}" berhasil diaktifkan kembali.`);
+      toast.success(t('employeeReactivated', { name: data.fullName }));
     },
     onError: (error: any) => {
       const message =
-        error?.response?.data?.message || 'Gagal mengaktifkan kembali karyawan.';
+        error?.response?.data?.message || t('employeeReactivateFailed');
       toast.error(Array.isArray(message) ? message.join(', ') : message);
     },
   });

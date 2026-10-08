@@ -33,6 +33,7 @@ export function AttendanceActionDialog({
 }: AttendanceActionDialogProps) {
   const isCheckIn = type === 'CHECK_IN';
   const t = useTranslations('attendance');
+  const tValidation = useTranslations('validation');
   const tCommon = useTranslations('common');
 
   const checkInMutation = useCheckIn();
@@ -47,7 +48,7 @@ export function AttendanceActionDialog({
     reset,
     formState: { errors },
   } = useForm<AttendanceActionFormValues>({
-    resolver: zodResolver(attendanceActionSchema),
+    resolver: zodResolver(attendanceActionSchema(tValidation)),
     defaultValues: {
       notes: '',
     },

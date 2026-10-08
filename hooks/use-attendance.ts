@@ -9,6 +9,7 @@ import {
   CheckOutDto,
 } from '@/types/attendance';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 export function useAttendances(params?: AttendanceQueryParams) {
   return useQuery({
@@ -49,6 +50,7 @@ export function useTodayAttendance(employeeId?: string | null) {
 }
 
 export function useCheckIn() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -58,18 +60,18 @@ export function useCheckIn() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.attendances.all });
-      const statusText = data.status === 'LATE' ? ' (Terlambat)' : ' (Tepat Waktu)';
-      toast.success(`Check-in berhasil tercatat${statusText}!`);
+      toast.success(t(data.status === 'LATE' ? 'checkInLate' : 'checkInOnTime'));
     },
     onError: (error: any) => {
       const message =
-        error?.response?.data?.message || 'Gagal melakukan check-in.';
+        error?.response?.data?.message || t('checkInFailed');
       toast.error(Array.isArray(message) ? message.join(', ') : message);
     },
   });
 }
 
 export function useCheckOut() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -79,11 +81,11 @@ export function useCheckOut() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.attendances.all });
-      toast.success('Check-out berhasil tercatat. Terima kasih atas kerja keras Anda hari ini!');
+      toast.success(t('checkOutSuccess'));
     },
     onError: (error: any) => {
       const message =
-        error?.response?.data?.message || 'Gagal melakukan check-out.';
+        error?.response?.data?.message || t('checkOutFailed');
       toast.error(Array.isArray(message) ? message.join(', ') : message);
     },
   });

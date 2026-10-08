@@ -9,6 +9,7 @@ import {
   RejectLeaveRequestDto,
 } from '@/types/leave-request';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 export function useLeaveRequests(params?: LeaveRequestQueryParams) {
   return useQuery({
@@ -48,6 +49,7 @@ export function useLeaveRequest(id: string) {
 }
 
 export function useCreateLeaveRequest() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -60,24 +62,25 @@ export function useCreateLeaveRequest() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.leaveRequests.all });
-      toast.success('Permohonan cuti berhasil diajukan!');
+      toast.success(t('leaveCreated'));
     },
     onError: (error: any) => {
       const status = error?.response?.status;
       if (status === 409) {
         toast.error(
-          'Terdapat permohonan cuti lain yang sudah disetujui (APPROVED) pada rentang tanggal tersebut.',
+          t('leaveOverlap'),
         );
         return;
       }
       const message =
-        error?.response?.data?.message || 'Gagal mengajukan permohonan cuti.';
+        error?.response?.data?.message || t('leaveCreateFailed');
       toast.error(Array.isArray(message) ? message.join(', ') : message);
     },
   });
 }
 
 export function useApproveLeaveRequest() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -89,24 +92,25 @@ export function useApproveLeaveRequest() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.leaveRequests.all });
-      toast.success('Permohonan cuti berhasil disetujui (APPROVED)!');
+      toast.success(t('leaveApproved'));
     },
     onError: (error: any) => {
       const status = error?.response?.status;
       if (status === 409) {
         toast.error(
-          'Terdapat permohonan cuti lain yang sudah disetujui (APPROVED) pada rentang tanggal yang sama.',
+          t('leaveOverlap'),
         );
         return;
       }
       const message =
-        error?.response?.data?.message || 'Gagal menyetujui permohonan cuti.';
+        error?.response?.data?.message || t('leaveApproveFailed');
       toast.error(Array.isArray(message) ? message.join(', ') : message);
     },
   });
 }
 
 export function useRejectLeaveRequest() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -125,11 +129,11 @@ export function useRejectLeaveRequest() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.leaveRequests.all });
-      toast.success('Permohonan cuti berhasil ditolak (REJECTED).');
+      toast.success(t('leaveRejected'));
     },
     onError: (error: any) => {
       const message =
-        error?.response?.data?.message || 'Gagal menolak permohonan cuti.';
+        error?.response?.data?.message || t('leaveRejectFailed');
       toast.error(Array.isArray(message) ? message.join(', ') : message);
     },
   });

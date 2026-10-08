@@ -32,6 +32,7 @@ import {
 
 export default function ProfilePage() {
   const t = useTranslations('profile');
+  const tValidation = useTranslations('validation');
   const tCommon = useTranslations('common');
   const tEmp = useTranslations('employees');
   const tAuth = useTranslations('auth');
@@ -50,7 +51,7 @@ export default function ProfilePage() {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<ChangePasswordFormValues>({
-    resolver: zodResolver(changePasswordSchema),
+    resolver: zodResolver(changePasswordSchema(tValidation)),
     defaultValues: {
       currentPassword: '',
       newPassword: '',

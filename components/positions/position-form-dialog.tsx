@@ -63,12 +63,12 @@ export function PositionFormDialog({
     e.preventDefault();
 
     if (!code.trim() || !title.trim()) {
-      toast.error('Kode dan nama posisi wajib diisi');
+      toast.error(t('codeTitleRequired'));
       return;
     }
 
     if (level < 1) {
-      toast.error('Level posisi minimal 1');
+      toast.error(t('levelMin'));
       return;
     }
 
@@ -84,7 +84,7 @@ export function PositionFormDialog({
             isActive,
           },
         });
-        toast.success('Posisi berhasil diperbarui');
+        toast.success(t('updated'));
       } else {
         await createPosition.mutateAsync({
           code: code.trim().toUpperCase(),
@@ -93,12 +93,12 @@ export function PositionFormDialog({
           level: Number(level),
           isActive,
         });
-        toast.success('Posisi baru berhasil ditambahkan');
+        toast.success(t('created'));
       }
       onOpenChange(false);
     } catch (error: any) {
       const message =
-        error?.response?.data?.message || 'Gagal menyimpan posisi';
+        error?.response?.data?.message || t('saveFailed');
       toast.error(message);
     }
   };
@@ -109,23 +109,23 @@ export function PositionFormDialog({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>
-              {isEditing ? 'Edit Master Posisi' : 'Tambah Master Posisi'}
+              {isEditing ? t('editPosition') : t('addPosition')}
             </DialogTitle>
             <DialogDescription>
               {isEditing
-                ? 'Perbarui informasi jabatan/posisi di bawah ini.'
-                : 'Lengkapi data jabatan/posisi baru untuk organisasi.'}
+                ? t('editDescription')
+                : t('createDescription')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
             <div className="grid gap-1.5">
               <label htmlFor="pos-code" className="text-xs font-medium text-foreground">
-                Kode Posisi <span className="text-destructive">*</span>
+                {t('code')} <span className="text-destructive">*</span>
               </label>
               <Input
                 id="pos-code"
-                placeholder="e.g. ENG-SR, HR-MGR, FIN-ACC"
+                placeholder={t('codePlaceholder')}
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 disabled={isPending}
@@ -136,11 +136,11 @@ export function PositionFormDialog({
 
             <div className="grid gap-1.5">
               <label htmlFor="pos-title" className="text-xs font-medium text-foreground">
-                Nama / Judul Posisi <span className="text-destructive">*</span>
+                {t('positionTitle')} <span className="text-destructive">*</span>
               </label>
               <Input
                 id="pos-title"
-                placeholder="e.g. Senior Software Engineer"
+                placeholder={t('titlePlaceholder')}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 disabled={isPending}
@@ -151,7 +151,7 @@ export function PositionFormDialog({
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-1.5">
                 <label htmlFor="pos-level" className="text-xs font-medium text-foreground">
-                  Tingkat / Level <span className="text-destructive">*</span>
+                  {t('level')} <span className="text-destructive">*</span>
                 </label>
                 <Input
                   id="pos-level"
@@ -164,13 +164,13 @@ export function PositionFormDialog({
                   required
                 />
                 <span className="text-[11px] text-muted-foreground">
-                  (1: Entry, 2: Junior, 3: Mid, dst)
+                  {t('levelHint')}
                 </span>
               </div>
 
               <div className="flex flex-col justify-start gap-2 pt-1">
                 <label htmlFor="pos-active" className="text-xs font-medium text-foreground">
-                  Status Keaktifan
+                  {t('status')}
                 </label>
                 <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer select-none">
                   <input
@@ -181,18 +181,18 @@ export function PositionFormDialog({
                     disabled={isPending}
                     className="rounded border-input text-primary focus:ring-primary h-4 w-4"
                   />
-                  <span>{isActive ? 'Aktif Digunakan' : 'Non-Aktif'}</span>
+                  <span>{isActive ? tCommon('active') : tCommon('inactive')}</span>
                 </label>
               </div>
             </div>
 
             <div className="grid gap-1.5">
               <label htmlFor="pos-desc" className="text-xs font-medium text-foreground">
-                Deskripsi / Keterangan
+                {t('description')}
               </label>
               <Textarea
                 id="pos-desc"
-                placeholder="Deskripsi tugas dan ruang lingkup jabatan..."
+                placeholder={t('descriptionPlaceholder')}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={isPending}
@@ -212,10 +212,10 @@ export function PositionFormDialog({
             </Button>
             <Button type="submit" disabled={isPending}>
               {isPending
-                ? 'Menyimpan...'
+                ? tCommon('saving')
                 : isEditing
-                ? 'Simpan Perubahan'
-                : 'Tambah Posisi'}
+                ? t('saveChanges')
+                : t('addPosition')}
             </Button>
           </DialogFooter>
         </form>

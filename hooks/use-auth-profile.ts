@@ -3,6 +3,7 @@ import { apiClient } from '@/lib/api/axios';
 import { AuthUser, ChangePasswordDto } from '@/types/auth';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 
 export const authKeys = {
   profile: ['auth', 'profile'] as const,
@@ -24,6 +25,7 @@ export function useUserProfile() {
 }
 
 export function useChangePassword() {
+  const t = useTranslations('notifications');
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -34,14 +36,14 @@ export function useChangePassword() {
       );
       return data;
     },
-    onSuccess: (data) => {
-      toast.success(data.message || 'Kata sandi berhasil diperbarui.');
+    onSuccess: () => {
+      toast.success(t('passwordUpdated'));
       queryClient.invalidateQueries({ queryKey: authKeys.profile });
     },
     onError: (error: any) => {
       const message =
         error?.response?.data?.message ||
-        'Gagal mengganti kata sandi. Pastikan kata sandi saat ini sesuai.';
+        t('passwordUpdateFailed');
       toast.error(Array.isArray(message) ? message.join(', ') : message);
     },
   });

@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
+import { enUS, id } from 'date-fns/locale';
 import {
   Calendar as CalendarIcon,
   Check,
@@ -35,8 +37,8 @@ export function parseFromYMD(str?: string | null): Date | undefined {
   return new Date(year, month - 1, day);
 }
 
-export function formatIndonesianDate(d: Date): string {
-  return new Intl.DateTimeFormat('id-ID', {
+export function formatPickerDate(d: Date, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -57,13 +59,15 @@ interface DatePickerProps {
 export function DatePicker({
   value,
   onChange,
-  placeholder = 'Pilih tanggal',
+  placeholder,
   disabled = false,
   disabledDates,
   className,
   allowClear = false,
-  ariaLabel = 'Pilih tanggal',
+  ariaLabel,
 }: DatePickerProps) {
+  const t = useTranslations('datePicker');
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const selectedDate = parseFromYMD(value);
 
@@ -89,7 +93,7 @@ export function DatePicker({
             type="button"
             variant="outline"
             disabled={disabled}
-            aria-label={ariaLabel}
+            aria-label={ariaLabel ?? t('selectDate')}
             aria-expanded={open}
             className={cn(
               'w-full justify-start text-left font-normal text-xs h-8.5 bg-card border-border px-2.5 font-mono cursor-pointer rounded-md',
@@ -101,14 +105,21 @@ export function DatePicker({
       >
         <CalendarIcon className="mr-2 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
         <span className="truncate flex-1">
-          {selectedDate ? formatIndonesianDate(selectedDate) : placeholder}
+          {selectedDate ? formatPickerDate(selectedDate, locale) : placeholder ?? t('selectDate')}
         </span>
         {allowClear && selectedDate && !disabled && (
           <span
             onClick={handleClear}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                e.stopPropagation();
+                onChange?.('');
+              }
+            }}
             role="button"
             tabIndex={0}
-            aria-label="Hapus tanggal"
+            aria-label={t('clearDate')}
             className="ml-1 p-0.5 rounded-sm hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
           >
             <X className="h-3 w-3" />
@@ -120,6 +131,7 @@ export function DatePicker({
         className="w-auto p-2 bg-popover rounded-md shadow-lg border border-border max-w-[calc(100vw-1rem)]"
       >
         <Calendar
+          locale={locale === 'id' ? id : enUS}
           mode="single"
           selected={selectedDate}
           onSelect={handleSelect}
@@ -147,14 +159,16 @@ export function DateRangePicker({
   from,
   to,
   onChange,
-  placeholder = 'Rentang Tanggal',
+  placeholder,
   disabled = false,
   disabledDates,
   className,
   allowClear = false,
-  ariaLabel = 'Pilih rentang tanggal',
+  ariaLabel,
   applyMode = 'manual',
 }: DateRangePickerProps) {
+  const t = useTranslations('datePicker');
+  const locale = useLocale();
   const [open, setOpen] = useState(false);
   const [draftRange, setDraftRange] = useState<DateRange | undefined>(() => {
     const initFrom = parseFromYMD(from);
@@ -238,10 +252,10 @@ export function DateRangePicker({
       const fromDate = parseFromYMD(from);
       const toDate = parseFromYMD(to);
       if (fromDate && toDate) {
-        return `${formatIndonesianDate(fromDate)} – ${formatIndonesianDate(toDate)}`;
+        return `${formatPickerDate(fromDate, locale)} - ${formatPickerDate(toDate, locale)}`;
       }
     }
-    return placeholder;
+    return placeholder ?? t('dateRange');
   })();
 
   const isRangeComplete = !!(draftRange?.from && draftRange?.to);
@@ -267,7 +281,7 @@ export function DateRangePicker({
             type="button"
             variant="outline"
             disabled={disabled}
-            aria-label={ariaLabel}
+            aria-label={ariaLabel ?? t('selectRange')}
             aria-expanded={open}
             className={cn(
               'w-full justify-start text-left font-normal text-xs h-8.5 bg-card border-border px-2.5 font-mono cursor-pointer rounded-md',
@@ -282,9 +296,18 @@ export function DateRangePicker({
         {allowClear && hasAppliedValue && !disabled && (
           <span
             onClick={handleClearTrigger}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                e.stopPropagation();
+                setDraftRange(undefined);
+                setIsSelectingEnd(false);
+                onChange?.({ from: '', to: '' });
+              }
+            }}
             role="button"
             tabIndex={0}
-            aria-label="Hapus rentang tanggal"
+            aria-label={t('clearRange')}
             className="ml-1 p-0.5 rounded-sm hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
           >
             <X className="h-3 w-3" />
@@ -299,29 +322,29 @@ export function DateRangePicker({
         <div className="space-y-2 border-b border-border px-4 py-3 bg-muted/30">
           <div className="flex items-center justify-between">
             <p className="text-xs font-semibold text-foreground font-mono">
-              Pilih rentang tanggal
+              {t('selectRange')}
             </p>
             <span className="text-[10px] text-muted-foreground font-medium font-mono">
               {isSelectingEnd && draftRange?.from
-                ? 'Langkah 2: Pilih tanggal akhir'
+                ? t('selectEnd')
                 : isRangeComplete
-                  ? 'Rentang dipilih'
-                  : 'Langkah 1: Pilih tanggal mulai'}
+                  ? t('rangeSelected')
+                  : t('selectStart')}
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-2 text-xs font-mono">
             <div className="rounded-md bg-card px-2.5 py-1.5 border border-border shadow-2xs">
-              <span className="block text-[10px] text-muted-foreground uppercase">Mulai</span>
+              <span className="block text-[10px] text-muted-foreground uppercase">{t('start')}</span>
               <span className="font-semibold text-foreground text-xs truncate block tabular-nums">
-                {draftRange?.from ? formatIndonesianDate(draftRange.from) : 'Belum dipilih'}
+                {draftRange?.from ? formatPickerDate(draftRange.from, locale) : t('notSelected')}
               </span>
             </div>
 
             <div className="rounded-md bg-card px-2.5 py-1.5 border border-border shadow-2xs">
-              <span className="block text-[10px] text-muted-foreground uppercase">Selesai</span>
+              <span className="block text-[10px] text-muted-foreground uppercase">{t('end')}</span>
               <span className="font-semibold text-foreground text-xs truncate block tabular-nums">
-                {draftRange?.to ? formatIndonesianDate(draftRange.to) : 'Belum dipilih'}
+                {draftRange?.to ? formatPickerDate(draftRange.to, locale) : t('notSelected')}
               </span>
             </div>
           </div>
@@ -330,6 +353,7 @@ export function DateRangePicker({
         {/* Calendar in Padded Container */}
         <div className="px-3 py-2 flex justify-center">
           <Calendar
+            locale={locale === 'id' ? id : enUS}
             mode="range"
             selected={
               draftRange?.from
@@ -355,7 +379,7 @@ export function DateRangePicker({
             className="text-xs min-h-8 px-2.5 text-muted-foreground hover:text-foreground font-mono cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5 mr-1" />
-            Reset
+            {t('reset')}
           </Button>
 
           <div className="flex items-center gap-2">
@@ -366,7 +390,7 @@ export function DateRangePicker({
               onClick={handleCancel}
               className="text-xs min-h-8 px-3 font-mono cursor-pointer"
             >
-              Batal
+              {t('cancel')}
             </Button>
             <Button
               type="button"
@@ -376,7 +400,7 @@ export function DateRangePicker({
               className="text-xs min-h-8 px-3.5 bg-primary hover:bg-primary-hover text-primary-foreground font-semibold font-mono cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Check className="w-3.5 h-3.5 mr-1" />
-              Terapkan
+              {t('apply')}
             </Button>
           </div>
         </div>

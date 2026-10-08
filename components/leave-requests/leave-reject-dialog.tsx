@@ -33,6 +33,7 @@ export function LeaveRejectDialog({
   onOpenChange,
 }: LeaveRejectDialogProps) {
   const t = useTranslations('leave');
+  const tValidation = useTranslations('validation');
   const tCommon = useTranslations('common');
   const rejectMutation = useRejectLeaveRequest();
   const isSubmitting = rejectMutation.isPending;
@@ -43,7 +44,7 @@ export function LeaveRejectDialog({
     reset,
     formState: { errors },
   } = useForm<RejectLeaveRequestFormValues>({
-    resolver: zodResolver(rejectLeaveRequestSchema),
+    resolver: zodResolver(rejectLeaveRequestSchema(tValidation)),
     defaultValues: {
       rejectionReason: '',
     },
