@@ -47,6 +47,7 @@ export interface RejectLeaveRequestDto {
 export interface LeaveRequestQueryParams {
   page?: number;
   limit?: number;
+  search?: string;
   employeeId?: string;
   departmentId?: string;
   status?: LeaveRequestStatus;

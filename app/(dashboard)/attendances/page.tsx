@@ -42,6 +42,7 @@ export default function AttendancesPage() {
   const isEmployee = currentUser?.role === 'EMPLOYEE';
 
   // Filters & Pagination State
+  const [search, setSearch] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
   const [selectedDept, setSelectedDept] = useState<string>('ALL');
   const [startDate, setStartDate] = useState<string>('');
@@ -60,6 +61,7 @@ export default function AttendancesPage() {
   const { data, isLoading, isPlaceholderData } = useAttendances({
     page: pageIndex + 1,
     limit: pageSize,
+    search: search.trim() || undefined,
     status: selectedStatus !== 'ALL' ? (selectedStatus as AttendanceStatus) : undefined,
     departmentId: selectedDept !== 'ALL' ? selectedDept : undefined,
     startDate: startDate || undefined,
@@ -101,6 +103,7 @@ export default function AttendancesPage() {
   };
 
   const resetFilters = () => {
+    setSearch('');
     setSelectedStatus('ALL');
     setSelectedDept('ALL');
     setStartDate('');
@@ -109,7 +112,7 @@ export default function AttendancesPage() {
   };
 
   const hasActiveFilters =
-    selectedStatus !== 'ALL' || selectedDept !== 'ALL' || startDate !== '' || endDate !== '';
+    search !== '' || selectedStatus !== 'ALL' || selectedDept !== 'ALL' || startDate !== '' || endDate !== '';
 
   const columns: ColumnDef<Attendance>[] = [
     {
@@ -293,7 +296,7 @@ export default function AttendancesPage() {
               variant="ghost"
               size="xs"
               onClick={resetFilters}
-              className="text-xs text-muted-foreground hover:text-foreground h-8.5 px-2 font-mono"
+              className="text-xs text-muted-foreground hover:bg-muted hover:text-foreground h-8.5 px-2 font-mono"
             >
               <X className="w-3 h-3 mr-1" />
               {tCommon('resetFilter')}
@@ -310,6 +313,12 @@ export default function AttendancesPage() {
           pageCount={meta?.totalPages}
           pagination={{ pageIndex, pageSize }}
           onPaginationChange={setPagination}
+          searchValue={search}
+          onSearchChange={(val) => {
+            setSearch(val);
+            setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+          }}
+          searchPlaceholder={tCommon('searchPlaceholder')}
           emptyTitle={t('noAttendanceRecords')}
           emptyDescription={t('noAttendanceRecords')}
         />

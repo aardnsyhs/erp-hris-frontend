@@ -190,7 +190,8 @@
     "readOnly": "Read-only",
     "created": "Created",
     "lastModified": "Last Modified",
-    "operator": "Operator"
+    "operator": "Operator",
+    "searchPlaceholder": "Search data..."
   },
   "auth": {
     "loginTitle": "Sign In to HRIS System",
@@ -499,6 +500,7 @@
   "payroll": {
     "title": "Payroll & Payslips",
     "subtitle": "Manage payroll draft generation, salary processing, and employee payout records.",
+    "searchPlaceholder": "Search by employee name...",
     "generateDraft": "Generate Draft Payroll",
     "editDraft": "Edit Draft Payroll",
     "deleteDraft": "Delete Draft",
@@ -617,6 +619,7 @@
     "title": "System Audit Logs",
     "subtitle": "Immutable history of system activities and data mutations for compliance and transparency.",
     "badge": "Audit & Compliance",
+    "searchPlaceholder": "Search logs by ID or user email...",
     "filterByEntity": "Filter Entity",
     "filterByAction": "Filter Action",
     "allEntities": "All Entities",

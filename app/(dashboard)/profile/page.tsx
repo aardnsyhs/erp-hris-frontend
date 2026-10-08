@@ -166,7 +166,7 @@ export default function ProfilePage() {
                             type="button"
                             onClick={() => setShowCurrentPw(!showCurrentPw)}
                             aria-label={showCurrentPw ? tAuth('hidePassword') : tAuth('showPassword')}
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                            className="absolute right-1 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
                           />
                         }
                       >
@@ -207,7 +207,7 @@ export default function ProfilePage() {
                             type="button"
                             onClick={() => setShowNewPw(!showNewPw)}
                             aria-label={showNewPw ? tAuth('hidePassword') : tAuth('showPassword')}
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                            className="absolute right-1 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
                           />
                         }
                       >
@@ -248,7 +248,7 @@ export default function ProfilePage() {
                             type="button"
                             onClick={() => setShowConfirmPw(!showConfirmPw)}
                             aria-label={showConfirmPw ? tAuth('hidePassword') : tAuth('showPassword')}
-                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                            className="absolute right-1 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
                           />
                         }
                       >

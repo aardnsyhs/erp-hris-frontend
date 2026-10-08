@@ -35,6 +35,7 @@ export interface CheckOutDto {
 export interface AttendanceQueryParams {
   page?: number;
   limit?: number;
+  search?: string;
   employeeId?: string;
   departmentId?: string;
   status?: AttendanceStatus;

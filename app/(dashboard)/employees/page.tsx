@@ -349,7 +349,7 @@ function EmployeesContent() {
             variant="ghost"
             size="xs"
             onClick={resetFilters}
-            className="text-xs text-muted-foreground hover:text-foreground h-8.5 px-2 font-mono"
+            className="text-xs text-muted-foreground hover:bg-muted hover:text-foreground h-8.5 px-2 font-mono"
           >
             <X className="w-3 h-3 mr-1" />
             {tCommon('resetFilter')}

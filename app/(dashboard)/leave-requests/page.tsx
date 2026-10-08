@@ -68,6 +68,7 @@ export default function LeaveRequestsPage() {
   );
 
   // Filters State
+  const [search, setSearch] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
   const [selectedLeaveType, setSelectedLeaveType] = useState<string>('ALL');
   const [selectedDept, setSelectedDept] = useState<string>('ALL');
@@ -100,6 +101,7 @@ export default function LeaveRequestsPage() {
   const { data, isLoading, isPlaceholderData } = useLeaveRequests({
     page: pageIndex + 1,
     limit: pageSize,
+    search: search.trim() || undefined,
     status: isPendingTab
       ? 'PENDING'
       : selectedStatus !== 'ALL'
@@ -139,6 +141,7 @@ export default function LeaveRequestsPage() {
   };
 
   const resetFilters = () => {
+    setSearch('');
     setSelectedStatus('ALL');
     setSelectedLeaveType('ALL');
     setSelectedDept('ALL');
@@ -148,6 +151,7 @@ export default function LeaveRequestsPage() {
   };
 
   const hasActiveFilters =
+    search !== '' ||
     selectedStatus !== 'ALL' ||
     selectedLeaveType !== 'ALL' ||
     selectedDept !== 'ALL' ||
@@ -452,7 +456,7 @@ export default function LeaveRequestsPage() {
             variant="ghost"
             size="xs"
             onClick={resetFilters}
-            className="text-xs text-muted-foreground hover:text-foreground h-8.5 px-2 font-mono"
+            className="text-xs text-muted-foreground hover:bg-muted hover:text-foreground h-8.5 px-2 font-mono"
           >
             <X className="w-3 h-3 mr-1" />
             {tCommon('resetFilter')}
@@ -469,6 +473,12 @@ export default function LeaveRequestsPage() {
         pageCount={meta?.totalPages}
         pagination={{ pageIndex, pageSize }}
         onPaginationChange={setPagination}
+        searchValue={search}
+        onSearchChange={(val) => {
+          setSearch(val);
+          setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+        }}
+        searchPlaceholder={tCommon('searchPlaceholder')}
         emptyTitle={tCommon('noData')}
         emptyDescription={tCommon('noData')}
       />

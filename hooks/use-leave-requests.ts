@@ -22,6 +22,7 @@ export function useLeaveRequests(params?: LeaveRequestQueryParams) {
           params: {
             limit: params?.limit ?? 10,
             page: params?.page ?? 1,
+            search: params?.search,
             employeeId: params?.employeeId,
             departmentId: params?.departmentId,
             status: params?.status,

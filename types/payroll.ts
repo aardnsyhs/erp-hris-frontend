@@ -50,6 +50,7 @@ export interface PayrollQueryParams {
   status?: PayrollStatus;
   periodStart?: string;
   periodEnd?: string;
+  search?: string;
 }
 
 export interface PayrollListResponse {

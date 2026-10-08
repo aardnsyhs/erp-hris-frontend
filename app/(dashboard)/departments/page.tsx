@@ -157,7 +157,7 @@ export default function DepartmentsPage() {
         return (
           <Link
             href={`/employees?departmentId=${row.original.id}&status=ACTIVE`}
-            className="inline-flex items-center gap-1.5 font-mono text-xs text-muted-foreground hover:text-foreground"
+            className="inline-flex items-center gap-1.5 font-mono text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             <Users className="w-3.5 h-3.5" />
             <span className="font-medium tabular-nums text-foreground">{t('headcount', { count })}</span>

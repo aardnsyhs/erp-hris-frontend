@@ -20,6 +20,7 @@ export function useAuditLogs(params?: AuditLogQueryParams) {
           actorId: params?.actorId || undefined,
           startDate: params?.startDate || undefined,
           endDate: params?.endDate || undefined,
+          search: params?.search || undefined,
         },
       });
       return data;

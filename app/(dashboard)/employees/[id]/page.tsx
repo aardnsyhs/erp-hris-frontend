@@ -106,7 +106,7 @@ export default function EmployeeDetailPage({ params }: PageProps) {
       <div className="space-y-4">
         <Link
           href="/employees"
-          className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1 font-mono"
+          className="text-xs text-muted-foreground hover:bg-muted hover:text-foreground inline-flex items-center gap-1 font-mono"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           {t('backToList')}
@@ -134,7 +134,7 @@ export default function EmployeeDetailPage({ params }: PageProps) {
         breadcrumbs={
           <Link
             href="/employees"
-            className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1 font-mono"
+            className="text-xs text-muted-foreground hover:bg-muted hover:text-foreground inline-flex items-center gap-1 font-mono"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             {t('backToList')}

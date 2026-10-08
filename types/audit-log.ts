@@ -24,6 +24,7 @@ export interface AuditLogQueryParams {
   actorId?: string;
   startDate?: string;
   endDate?: string;
+  search?: string;
 }
 
 export interface AuditLogListResponse {

@@ -64,6 +64,7 @@ export default function PayrollsPage() {
   // Filters State
   const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
   const [selectedDept, setSelectedDept] = useState<string>('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
   const [periodStart, setPeriodStart] = useState<string>('');
   const [periodEnd, setPeriodEnd] = useState<string>('');
 
@@ -98,6 +99,7 @@ export default function PayrollsPage() {
     departmentId: selectedDept !== 'ALL' ? selectedDept : undefined,
     periodStart: periodStart || undefined,
     periodEnd: periodEnd || undefined,
+    search: searchQuery || undefined,
   });
 
   const payrolls = data?.data || [];
@@ -383,7 +385,7 @@ export default function PayrollsPage() {
             variant="ghost"
             size="xs"
             onClick={resetFilters}
-            className="text-xs text-muted-foreground hover:text-foreground h-8.5 px-2 font-mono"
+            className="text-xs text-muted-foreground hover:bg-muted hover:text-foreground h-8.5 px-2 font-mono"
           >
             <X className="w-3 h-3 mr-1" />
             {tCommon('resetFilter')}
@@ -393,6 +395,12 @@ export default function PayrollsPage() {
 
       {/* Table */}
       <DataTable
+        searchValue={searchQuery}
+        onSearchChange={(val) => {
+          setSearchQuery(val);
+          setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+        }}
+        searchPlaceholder={t('searchPlaceholder') || tCommon('searchPlaceholder')}
         columns={columns}
         data={payrolls}
         isLoading={isLoading || isPlaceholderData}

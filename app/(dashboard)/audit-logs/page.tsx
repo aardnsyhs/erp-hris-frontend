@@ -85,6 +85,7 @@ export default function AuditLogsPage() {
   const [selectedAction, setSelectedAction] = useState<string>('ALL');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
+  const [search, setSearch] = useState<string>('');
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -100,6 +101,7 @@ export default function AuditLogsPage() {
     action: selectedAction !== 'ALL' ? selectedAction : undefined,
     startDate: startDate || undefined,
     endDate: endDate || undefined,
+    search: search.trim() || undefined,
   });
 
   const auditLogs = data?.data || [];
@@ -110,6 +112,7 @@ export default function AuditLogsPage() {
     setSelectedAction('ALL');
     setStartDate('');
     setEndDate('');
+    setSearch('');
     setPagination({ pageIndex: 0, pageSize: 10 });
   };
 
@@ -117,7 +120,8 @@ export default function AuditLogsPage() {
     selectedEntity !== 'ALL' ||
     selectedAction !== 'ALL' ||
     startDate !== '' ||
-    endDate !== '';
+    endDate !== '' ||
+    search !== '';
 
   const formatDate = (dateString: string) => {
     try {
@@ -260,7 +264,7 @@ export default function AuditLogsPage() {
           variant="ghost"
           size="sm"
           onClick={() => setSelectedLog(row.original)}
-          className="h-8 gap-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+          className="h-8 gap-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
         >
           <Eye className="w-3.5 h-3.5" />
           {t('details')}
@@ -347,7 +351,7 @@ export default function AuditLogsPage() {
             variant="ghost"
             size="xs"
             onClick={handleResetFilters}
-            className="text-xs text-muted-foreground hover:text-foreground h-8.5 px-2 font-mono cursor-pointer"
+            className="text-xs text-muted-foreground hover:bg-muted hover:text-foreground h-8.5 px-2 font-mono cursor-pointer"
           >
             <X className="w-3 h-3 mr-1" />
             {tCommon('resetFilter')}
@@ -364,6 +368,12 @@ export default function AuditLogsPage() {
         pagination={{ pageIndex, pageSize }}
         onPaginationChange={setPagination}
         totalRows={meta?.total}
+        searchValue={search}
+        onSearchChange={(val) => {
+          setSearch(val);
+          setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+        }}
+        searchPlaceholder={t('searchPlaceholder') || 'Search...'}
         emptyTitle={tCommon('empty')}
         emptyDescription={tCommon('noData')}
       />
@@ -398,7 +408,7 @@ export default function AuditLogsPage() {
           {selectedLog && (
             <div className="flex flex-col gap-4 overflow-y-auto pr-1">
               {/* Metadata Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-3 rounded-md bg-muted/40 border border-border text-xs">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 p-3 rounded-md bg-muted/40 border border-border text-xs">
                 <div>
                   <span className="text-[10px] text-muted-foreground block font-mono">
                     {t('timestamp')}
@@ -413,6 +423,17 @@ export default function AuditLogsPage() {
                   </span>
                   <span className="font-mono text-[11px] font-medium text-foreground truncate block">
                     {selectedLog.actorEmail || (selectedLog.actorRole ? domainLabel('roles', selectedLog.actorRole) : t('systemActor'))}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-muted-foreground block font-mono">
+                    System User ID
+                  </span>
+                  <span
+                    className="font-mono text-[10px] text-muted-foreground truncate block"
+                    title={selectedLog.actorId || '-'}
+                  >
+                    {selectedLog.actorId || '-'}
                   </span>
                 </div>
                 <div>

@@ -190,7 +190,8 @@
     "readOnly": "Hanya Lihat",
     "created": "Dibuat",
     "lastModified": "Terakhir Diubah",
-    "operator": "Operator"
+    "operator": "Operator",
+    "searchPlaceholder": "Cari data..."
   },
   "auth": {
     "loginTitle": "Masuk ke Sistem HRIS",
@@ -499,6 +500,7 @@
   "payroll": {
     "title": "Penggajian & Slip Gaji",
     "subtitle": "Kelola pembuatan draft payroll, pemrosesan gaji, dan pencatatan pembayaran gaji karyawan.",
+    "searchPlaceholder": "Cari berdasarkan nama karyawan...",
     "generateDraft": "Generate Draft Payroll",
     "editDraft": "Edit Draft Payroll",
     "deleteDraft": "Hapus Draft",
@@ -617,6 +619,7 @@
     "title": "Log Audit Sistem",
     "subtitle": "Riwayat aktivitas dan mutasi data sistem secara immutable untuk kepatuhan & transparansi.",
     "badge": "Audit & Kepatuhan",
+    "searchPlaceholder": "Cari log berdasarkan ID atau email pengguna...",
     "filterByEntity": "Filter Entitas",
     "filterByAction": "Filter Aksi",
     "allEntities": "Semua Entitas",
