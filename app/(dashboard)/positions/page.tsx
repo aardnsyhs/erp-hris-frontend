@@ -147,7 +147,7 @@ export default function PositionsPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <PageHeader
         title={t('title')}
         description={t('subtitle')}
@@ -160,30 +160,25 @@ export default function PositionsPage() {
         }
         actions={
           isHrAdmin ? (
-            <Button onClick={handleCreateClick} className="gap-2">
-              <Plus className="h-4 w-4" />
+            <Button
+              onClick={handleCreateClick}
+              size="sm"
+              className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-xs shrink-0 cursor-pointer font-medium text-xs h-8.5 rounded-md"
+            >
+              <Plus className="w-3.5 h-3.5 mr-1.5" />
               {t('addPosition')}
             </Button>
           ) : undefined
         }
       />
 
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
-        <div className="relative w-full sm:w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder={t('searchPlaceholder')}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-      </div>
-
       <DataTable
         columns={columns}
         data={positions}
         isLoading={isLoading}
+        searchValue={search}
+        onSearchChange={(val) => setSearch(val)}
+        searchPlaceholder={t('searchPlaceholder')}
       />
 
       {isHrAdmin && (

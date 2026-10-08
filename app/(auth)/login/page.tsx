@@ -131,7 +131,10 @@ function LoginForm() {
     }
 
     try {
-      setAuth(loginData.user, loginData.accessToken);
+      const meRes = await apiClient.get('/auth/me', {
+        headers: { Authorization: `Bearer ${loginData.accessToken}` },
+      });
+      setAuth(meRes.data, loginData.accessToken);
       toast.success(t('loginSuccess'));
       router.replace(redirectTo);
       router.refresh();

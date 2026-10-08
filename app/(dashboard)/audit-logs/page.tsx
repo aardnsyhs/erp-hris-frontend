@@ -15,6 +15,7 @@ import {
   Clock,
   Terminal,
   ShieldAlert,
+  X,
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import { useAuditLogs } from '@/hooks/use-audit-logs';
@@ -38,6 +39,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { DateRangePicker } from '@/components/ui/date-picker';
 
 const ENTITY_OPTIONS = [
   'User',
@@ -110,6 +112,12 @@ export default function AuditLogsPage() {
     setEndDate('');
     setPagination({ pageIndex: 0, pageSize: 10 });
   };
+
+  const hasActiveFilters =
+    selectedEntity !== 'ALL' ||
+    selectedAction !== 'ALL' ||
+    startDate !== '' ||
+    endDate !== '';
 
   const formatDate = (dateString: string) => {
     try {
@@ -275,81 +283,76 @@ export default function AuditLogsPage() {
         }
       />
 
-      {/* Filter Control Bar */}
-      <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 p-4 rounded-lg bg-card border border-border shadow-xs">
-        {/* Entity Filter */}
-        <div className="w-full sm:w-44">
-          <Select
-            value={selectedEntity}
-            onValueChange={(val) => setSelectedEntity(val || 'ALL')}
-          >
-            <SelectTrigger className="h-9 text-xs">
-              <SelectValue placeholder={t('filterByEntity')}>
-                {selectedEntity === 'ALL' ? t('allEntities') : auditLabel('entities', selectedEntity)}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">{t('allEntities')}</SelectItem>
-              {ENTITY_OPTIONS.map((entity) => (
-                <SelectItem key={entity} value={entity}>
-                  {auditLabel('entities', entity)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Action Filter */}
-        <div className="w-full sm:w-44">
-          <Select
-            value={selectedAction}
-            onValueChange={(val) => setSelectedAction(val || 'ALL')}
-          >
-            <SelectTrigger className="h-9 text-xs">
-              <SelectValue placeholder={t('filterByAction')}>
-                {selectedAction === 'ALL' ? t('allActions') : auditLabel('actions', selectedAction)}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">{t('allActions')}</SelectItem>
-              {ACTION_OPTIONS.map((action) => (
-                <SelectItem key={action} value={action}>
-                  {auditLabel('actions', action)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Date Filters */}
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <Input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="h-9 text-xs w-full sm:w-36"
-            aria-label={tUi('startDate')}
-          />
-          <span className="text-muted-foreground text-xs font-mono">-</span>
-          <Input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="h-9 text-xs w-full sm:w-36"
-            aria-label={tUi('endDate')}
-          />
-        </div>
-
-        {/* Reset Filters */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleResetFilters}
-          className="h-9 text-xs gap-1.5 ml-auto cursor-pointer"
+      {/* Operational Filter Toolbar */}
+      <div className="flex flex-wrap items-center gap-2">
+        <Select
+          value={selectedEntity}
+          onValueChange={(val) => {
+            setSelectedEntity(val || 'ALL');
+            setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+          }}
         >
-          <RotateCcw className="w-3.5 h-3.5" />
-          {tCommon('resetFilter')}
-        </Button>
+          <SelectTrigger className="w-[170px] h-8.5 text-xs bg-card border-border rounded-md font-mono">
+            <SelectValue placeholder={t('filterByEntity')}>
+              {selectedEntity === 'ALL' ? t('allEntities') : auditLabel('entities', selectedEntity)}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL" className="text-xs">{t('allEntities')}</SelectItem>
+            {ENTITY_OPTIONS.map((entity) => (
+              <SelectItem key={entity} value={entity} className="text-xs">
+                {auditLabel('entities', entity)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={selectedAction}
+          onValueChange={(val) => {
+            setSelectedAction(val || 'ALL');
+            setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+          }}
+        >
+          <SelectTrigger className="w-[170px] h-8.5 text-xs bg-card border-border rounded-md font-mono">
+            <SelectValue placeholder={t('filterByAction')}>
+              {selectedAction === 'ALL' ? t('allActions') : auditLabel('actions', selectedAction)}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL" className="text-xs">{t('allActions')}</SelectItem>
+            {ACTION_OPTIONS.map((action) => (
+              <SelectItem key={action} value={action} className="text-xs">
+                {auditLabel('actions', action)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <div className="w-[230px]">
+          <DateRangePicker
+            from={startDate}
+            to={endDate}
+            placeholder={t('timestamp')}
+            onChange={(range) => {
+              setStartDate(range.from);
+              setEndDate(range.to);
+              setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+            }}
+          />
+        </div>
+
+        {hasActiveFilters && (
+          <Button
+            variant="ghost"
+            size="xs"
+            onClick={handleResetFilters}
+            className="text-xs text-muted-foreground hover:text-foreground h-8.5 px-2 font-mono cursor-pointer"
+          >
+            <X className="w-3 h-3 mr-1" />
+            {tCommon('resetFilter')}
+          </Button>
+        )}
       </div>
 
       {/* Main Audit Logs DataTable */}
