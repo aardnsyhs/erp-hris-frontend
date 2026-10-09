@@ -24,6 +24,7 @@ import { EmergencyContact } from '@/types/emergency-contact';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Dialog,
   DialogContent,
@@ -127,9 +128,7 @@ export function EmergencyContactsTab({
       }
       setIsFormOpen(false);
     } catch (err: any) {
-      setFormError(
-        apiError(err, tUi('contactSaveFailed')),
-      );
+      setFormError(apiError(err, tUi('contactSaveFailed')));
     }
   };
 
@@ -340,16 +339,14 @@ export function EmergencyContactsTab({
               </div>
 
               <div className="flex items-center gap-2 pt-2">
-                <input
-                  type="checkbox"
+                <Checkbox
                   id="isPrimaryContact"
                   checked={isPrimary}
-                  onChange={(e) => setIsPrimary(e.target.checked)}
-                  className="rounded border-border text-primary cursor-pointer w-4 h-4"
+                  onCheckedChange={setIsPrimary}
                 />
                 <label
                   htmlFor="isPrimaryContact"
-                  className="text-xs text-foreground cursor-pointer select-none font-medium"
+                  className="flex min-h-11 items-center text-xs text-foreground cursor-pointer select-none font-medium"
                 >
                   {t('isPrimary')}
                 </label>

@@ -20,6 +20,7 @@ import { useEmployees } from '@/hooks/use-employees';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -115,9 +116,7 @@ export function ReportingLinesTab({
           <h3 className="text-base font-semibold text-foreground">
             {t('title')}
           </h3>
-          <p className="text-xs text-muted-foreground">
-            {t('subtitle')}
-          </p>
+          <p className="text-xs text-muted-foreground">{t('subtitle')}</p>
         </div>
 
         {isHrAdmin && (
@@ -151,9 +150,7 @@ export function ReportingLinesTab({
             {t('emptyTitle')}
           </p>
           <p className="text-xs text-muted-foreground mt-1 max-w-sm">
-            {isHrAdmin
-              ? t('emptyAdminDescription')
-              : t('emptyDescription')}
+            {isHrAdmin ? t('emptyAdminDescription') : t('emptyDescription')}
           </p>
         </div>
       ) : (
@@ -176,7 +173,9 @@ export function ReportingLinesTab({
                     {currentActivePrimary.manager?.fullName || t('manager')}
                   </h4>
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                    <span className="font-mono">{currentActivePrimary.manager?.nip}</span>
+                    <span className="font-mono">
+                      {currentActivePrimary.manager?.nip}
+                    </span>
                     <span>{currentActivePrimary.manager?.jobTitle}</span>
                     <span className="flex items-center gap-1">
                       <Mail className="h-3 w-3" />
@@ -240,7 +239,8 @@ export function ReportingLinesTab({
                       <div className="text-left sm:text-right text-[11px] text-muted-foreground shrink-0">
                         <p className="flex items-center gap-1 sm:justify-end">
                           <Calendar className="h-3 w-3" />
-                          {formatDate(item.effectiveFrom)} - {formatDate(item.effectiveTo)}
+                          {formatDate(item.effectiveFrom)} -{' '}
+                          {formatDate(item.effectiveTo)}
                         </p>
                       </div>
                     </div>
@@ -258,15 +258,14 @@ export function ReportingLinesTab({
           <form onSubmit={handleSubmit}>
             <DialogHeader>
               <DialogTitle>{t('dialogTitle')}</DialogTitle>
-              <DialogDescription>
-                {t('dialogDescription')}
-              </DialogDescription>
+              <DialogDescription>{t('dialogDescription')}</DialogDescription>
             </DialogHeader>
 
             <div className="grid gap-3.5 py-3">
               <div className="grid gap-1">
                 <label className="text-xs font-medium text-foreground">
-                  {t('selectManager')} <span className="text-destructive">*</span>
+                  {t('selectManager')}{' '}
+                  <span className="text-destructive">*</span>
                 </label>
                 <Select
                   value={managerId}
@@ -275,8 +274,12 @@ export function ReportingLinesTab({
                   <SelectTrigger className="h-9">
                     <SelectValue placeholder={t('managerPlaceholder')}>
                       {(val) => {
-                        const m = eligibleManagers.find((item) => item.id === val);
-                        return m ? `${m.fullName} (${m.nip}) - ${m.jobTitle}` : undefined;
+                        const m = eligibleManagers.find(
+                          (item) => item.id === val,
+                        );
+                        return m
+                          ? `${m.fullName} (${m.nip}) - ${m.jobTitle}`
+                          : undefined;
                       }}
                     </SelectValue>
                   </SelectTrigger>
@@ -304,12 +307,14 @@ export function ReportingLinesTab({
               </div>
 
               <div className="pt-1">
-                <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer select-none">
-                  <input
-                    type="checkbox"
+                <label
+                  htmlFor="reporting-primary"
+                  className="flex min-h-11 items-center gap-2 text-xs text-foreground cursor-pointer select-none"
+                >
+                  <Checkbox
+                    id="reporting-primary"
                     checked={isPrimary}
-                    onChange={(e) => setIsPrimary(e.target.checked)}
-                    className="rounded border-input text-primary focus:ring-primary h-4 w-4"
+                    onCheckedChange={setIsPrimary}
                   />
                   <span>{t('setPrimary')}</span>
                 </label>
@@ -329,9 +334,7 @@ export function ReportingLinesTab({
                 {tCommon('cancel')}
               </Button>
               <Button type="submit" disabled={createReportingLine.isPending}>
-                {createReportingLine.isPending
-                  ? tCommon('saving')
-                  : t('save')}
+                {createReportingLine.isPending ? tCommon('saving') : t('save')}
               </Button>
             </DialogFooter>
           </form>

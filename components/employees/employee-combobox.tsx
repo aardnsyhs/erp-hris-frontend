@@ -106,20 +106,20 @@ export function EmployeeCombobox({
             aria-expanded={open}
             aria-label={resolvedPlaceholder}
             disabled={disabled}
-            className="w-full justify-between font-normal text-xs h-9 bg-card text-foreground px-3 cursor-pointer"
+            className="w-full min-w-0 max-w-full justify-between whitespace-normal font-normal text-xs h-auto min-h-11 sm:min-h-9 bg-card text-foreground px-3 py-2 cursor-pointer"
           />
         }
       >
-        <span className="truncate">
+        <span className="min-w-0 flex-1 text-left [overflow-wrap:anywhere]">
           {displayEmployee && displayEmployee.id === value ? (
-            <span className="flex items-center gap-1.5 text-foreground font-medium">
+            <span className="flex min-w-0 flex-wrap items-center gap-1.5 text-foreground font-medium">
               <User className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               <span>{displayEmployee.fullName}</span>
               <span className="font-mono text-muted-foreground text-[11px]">
                 ({displayEmployee.nip})
               </span>
               {displayEmployee.department?.name && (
-                <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded ml-1 truncate">
+                <span className="min-w-0 text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded ml-1">
                   {displayEmployee.department.name}
                 </span>
               )}
@@ -131,7 +131,10 @@ export function EmployeeCombobox({
         <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
       </PopoverTrigger>
 
-      <PopoverContent className="w-[--anchor-width] p-2 bg-popover shadow-lg rounded-xl border border-border" align="start">
+      <PopoverContent
+        className="w-(--anchor-width) max-w-[min(var(--available-width),calc(100vw-1rem))] max-h-(--available-height) overflow-y-auto p-2 bg-popover shadow-lg rounded-xl border border-border"
+        align="start"
+      >
         {/* Search input header */}
         <div className="relative mb-2">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
@@ -172,22 +175,24 @@ export function EmployeeCombobox({
                   onClick={() => handleSelect(emp)}
                   onMouseEnter={() => setHighlightedIndex(idx)}
                   className={cn(
-                    'w-full text-left px-2.5 py-2 rounded-lg flex items-center justify-between transition-colors cursor-pointer',
+                    'w-full min-h-11 whitespace-normal text-left px-2.5 py-2 rounded-lg flex items-center justify-between transition-colors cursor-pointer [overflow-wrap:anywhere]',
                     isSelected
                       ? 'bg-primary/10 text-primary font-medium'
                       : isHighlighted
-                      ? 'bg-muted text-foreground'
-                      : 'text-foreground hover:bg-muted',
+                        ? 'bg-muted text-foreground'
+                        : 'text-foreground hover:bg-muted',
                   )}
                 >
                   <div className="flex flex-col min-w-0 pr-2">
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-medium truncate">{emp.fullName}</span>
+                    <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                      <span className="min-w-0 font-medium">
+                        {emp.fullName}
+                      </span>
                       <span className="font-mono text-[10px] text-muted-foreground">
                         ({emp.nip})
                       </span>
                     </div>
-                    <span className="text-[10px] text-muted-foreground truncate">
+                    <span className="text-[10px] text-muted-foreground">
                       {emp.jobTitle} • {emp.department?.name || '-'}
                     </span>
                   </div>

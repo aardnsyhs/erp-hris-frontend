@@ -36,7 +36,10 @@ interface FlatCandidate {
   disabledReason?: string;
 }
 
-function collectExcludedIds(nodes: DepartmentTreeNode[], targetId: string): Set<string> {
+function collectExcludedIds(
+  nodes: DepartmentTreeNode[],
+  targetId: string,
+): Set<string> {
   const excluded = new Set<string>();
 
   function findAndCollect(current: DepartmentTreeNode, foundTarget: boolean) {
@@ -56,7 +59,10 @@ function collectExcludedIds(nodes: DepartmentTreeNode[], targetId: string): Set<
   return excluded;
 }
 
-function computeSubtreeHeight(nodes: DepartmentTreeNode[], targetId: string): number {
+function computeSubtreeHeight(
+  nodes: DepartmentTreeNode[],
+  targetId: string,
+): number {
   function findNode(current: DepartmentTreeNode): DepartmentTreeNode | null {
     if (current.id === targetId) return current;
     for (const child of current.children || []) {
@@ -137,7 +143,9 @@ export function DepartmentParentSelect({
   const t = useTranslations('departments');
 
   // Fetch full active tree for candidate filtering
-  const { data: tree = [], isLoading } = useDepartmentTree({ includeArchived: false });
+  const { data: tree = [], isLoading } = useDepartmentTree({
+    includeArchived: false,
+  });
 
   const targetSubtreeHeight = useMemo(() => {
     if (!excludeId) return 0;
@@ -151,10 +159,16 @@ export function DepartmentParentSelect({
 
   const disabledReasonMessage = t('depthLimitNotice');
   const candidates = useMemo(() => {
-    return flattenTreeCandidates(tree, excludedIds, targetSubtreeHeight, disabledReasonMessage);
+    return flattenTreeCandidates(
+      tree,
+      excludedIds,
+      targetSubtreeHeight,
+      disabledReasonMessage,
+    );
   }, [tree, excludedIds, targetSubtreeHeight, disabledReasonMessage]);
 
-  const internalValue = value === null ? ROOT_SENTINEL_VALUE : (value ?? ROOT_SENTINEL_VALUE);
+  const internalValue =
+    value === null ? ROOT_SENTINEL_VALUE : (value ?? ROOT_SENTINEL_VALUE);
 
   const handleValueChange = (val: string | null) => {
     if (val === ROOT_SENTINEL_VALUE || val === null || val === '') {
@@ -173,7 +187,8 @@ export function DepartmentParentSelect({
       <SelectTrigger className="w-full text-xs font-sans">
         <SelectValue placeholder={placeholder || t('selectParentPlaceholder')}>
           {(val) => {
-            if (!val || val === '') return placeholder || t('selectParentPlaceholder');
+            if (!val || val === '')
+              return placeholder || t('selectParentPlaceholder');
             if (val === ROOT_SENTINEL_VALUE) {
               return t('makeRootDepartment');
             }
@@ -192,8 +207,11 @@ export function DepartmentParentSelect({
               <SelectLabel className="text-[11px] font-mono text-muted-foreground uppercase tracking-wider">
                 {t('rootLevelLabel')}
               </SelectLabel>
-              <SelectItem value={ROOT_SENTINEL_VALUE} className="text-xs cursor-pointer font-medium">
-                <div className="flex items-center gap-2">
+              <SelectItem
+                value={ROOT_SENTINEL_VALUE}
+                className="text-xs cursor-pointer font-medium"
+              >
+                <div className="flex min-w-0 items-center gap-2">
                   <Network className="w-3.5 h-3.5 text-primary shrink-0" />
                   <span>{t('makeRootDepartment')}</span>
                 </div>
@@ -220,7 +238,7 @@ export function DepartmentParentSelect({
                 className="text-xs cursor-pointer"
               >
                 <div
-                  className="flex items-center gap-1.5"
+                  className="flex min-w-0 flex-wrap items-center gap-1.5"
                   style={{ paddingLeft: `${cand.level * 14}px` }}
                 >
                   {cand.level > 0 && (
@@ -229,12 +247,14 @@ export function DepartmentParentSelect({
                   <span className="font-mono text-[10px] px-1 py-0.5 rounded bg-muted text-muted-foreground border border-border shrink-0">
                     L{cand.level}
                   </span>
-                  <span className="font-mono font-semibold text-foreground shrink-0">
+                  <span className="min-w-0 font-mono font-semibold text-foreground [overflow-wrap:anywhere]">
                     {cand.code}
                   </span>
-                  <span className="text-muted-foreground truncate">- {cand.name}</span>
+                  <span className="min-w-0 text-muted-foreground [overflow-wrap:anywhere]">
+                    - {cand.name}
+                  </span>
                   {cand.isDisabled && (
-                    <span className="text-[10px] text-destructive italic ml-1 shrink-0">
+                    <span className="min-w-0 text-[10px] text-destructive italic ml-1">
                       ({t('depthLimitReached')})
                     </span>
                   )}

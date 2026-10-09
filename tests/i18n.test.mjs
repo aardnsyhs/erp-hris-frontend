@@ -10,6 +10,8 @@ import { NextIntlClientProvider } from 'next-intl';
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import sharp from 'sharp';
+import { compile } from '@tailwindcss/node';
+import postcss from 'postcss';
 
 const catalogs = {
   en: JSON.parse(fs.readFileSync(new URL('../messages/en.json', import.meta.url), 'utf8')),
@@ -81,6 +83,219 @@ function elements(tree) {
   if (!React.isValidElement(tree)) return [];
   return [tree, ...elements(tree.props.children)];
 }
+
+test('select wrappers allow full labels and preserve value callbacks and control states', () => {
+  const primitive = Object.fromEntries(['Root', 'Group', 'Value', 'Trigger', 'Icon', 'Portal', 'Positioner', 'Popup', 'List', 'GroupLabel', 'Item', 'ItemText', 'ItemIndicator', 'Separator', 'ScrollUpArrow', 'ScrollDownArrow'].map((key) => [key, `select-${key}`]));
+  const ui = loadModule('components/ui/select.tsx', { '@base-ui/react/select': { Select: primitive } });
+  const label = 'Change password (CHANGE_PASSWORD)';
+  const trigger = ui.SelectTrigger({ className: 'w-[170px] h-8.5', children: label, disabled: true, 'aria-invalid': true });
+  assert.equal(trigger.props.disabled, true);
+  assert.equal(trigger.props['aria-invalid'], true);
+  assert.ok(trigger.props.className.split(' ').includes('h-auto'));
+  assert.ok(!trigger.props.className.includes('line-clamp'));
+  const value = ui.SelectValue({ children: label, placeholder: 'All Actions' });
+  assert.equal(value.props.children, label);
+  assert.ok(value.props.className.includes('whitespace-normal'));
+  const item = ui.SelectItem({ value: 'CHANGE_PASSWORD', children: label });
+  assert.equal(item.props.value, 'CHANGE_PASSWORD');
+  const text = elements(item).find((node) => node.type === 'select-ItemText');
+  assert.equal(text.props.children, label);
+  assert.ok(text.props.className.includes('overflow-wrap:anywhere'));
+  assert.ok(!text.props.className.includes('shrink-0'));
+  const popup = ui.SelectContent({ children: item });
+  const positioner = elements(popup).find((node) => node.type === 'select-Positioner');
+  assert.equal(positioner.props.collisionPadding, 8);
+  assert.equal(positioner.props.alignItemWithTrigger, false);
+});
+
+test('checkbox forwards boolean, uncontrolled, disabled and mixed state without coercion', () => {
+  const { Checkbox } = loadModule('components/ui/checkbox.tsx');
+  const changed = [];
+  const tree = Checkbox({ checked: false, indeterminate: true, disabled: true, required: true, id: 'all', name: 'selection', 'aria-invalid': true, onCheckedChange: (value) => changed.push(value) });
+  assert.equal(tree.props.indeterminate, true);
+  assert.equal(tree.props.checked, false);
+  assert.equal(tree.props.required, true);
+  assert.equal(tree.props.disabled, true);
+  assert.equal(tree.props.id, 'all');
+  assert.equal(tree.props.name, 'selection');
+  tree.props.onCheckedChange(true); tree.props.onCheckedChange(false);
+  assert.deepEqual(changed, [true, false]);
+  const uncontrolled = Checkbox({ defaultChecked: true });
+  assert.equal(uncontrolled.props.defaultChecked, true);
+  assert.equal(uncontrolled.props.checked, undefined);
+  const html = renderToStaticMarkup(React.createElement(Checkbox, { checked: false, indeterminate: true, 'aria-label': 'Select all' }));
+  assert.ok(html.includes('aria-checked="mixed"'));
+  assert.ok(html.includes('type="checkbox"'));
+});
+
+test('checkbox renders the primitive state and SVG for checked, unchecked and mixed values', () => {
+  const { Checkbox } = loadModule('components/ui/checkbox.tsx');
+  for (const checked of [false, true, false]) {
+    const html = renderToStaticMarkup(React.createElement(Checkbox, { checked, name: 'active', 'aria-label': 'Active' }));
+    assert.ok(html.includes(`aria-checked="${checked}"`));
+    assert.ok(html.includes(checked ? 'data-checked=""' : 'data-unchecked=""'));
+    assert.equal(html.includes('<svg'), checked);
+    assert.ok(!html.includes('data-disabled=""'));
+    if (checked) {
+      assert.ok(html.includes('lucide-check'));
+      assert.ok(html.includes('stroke="currentColor"'));
+      assert.ok(html.includes('stroke-width="2"'));
+      assert.ok(html.includes('data-slot="checkbox-indicator"'));
+    }
+  }
+  const uncontrolled = renderToStaticMarkup(React.createElement(Checkbox, { defaultChecked: true }));
+  assert.ok(uncontrolled.includes('lucide-check'));
+  assert.ok(uncontrolled.includes('type="checkbox"'));
+  assert.ok(uncontrolled.includes('checked=""'));
+  const disabled = renderToStaticMarkup(React.createElement(Checkbox, { checked: true, disabled: true }));
+  assert.ok(disabled.includes('data-disabled=""'));
+  assert.ok(disabled.includes('lucide-check'));
+  const mixed = renderToStaticMarkup(React.createElement(Checkbox, { indeterminate: true }));
+  assert.ok(mixed.includes('aria-checked="mixed"'));
+  assert.ok(mixed.includes('data-indeterminate=""'));
+  assert.ok(mixed.includes('lucide-minus'));
+  assert.ok(!mixed.includes('lucide-check'));
+  const indicator = Checkbox({}).props.children;
+  const computedMixed = renderToStaticMarkup(indicator.props.render({}, { indeterminate: true }));
+  assert.ok(computedMixed.includes('lucide-minus'));
+  assert.ok(!computedMixed.includes('lucide-check'));
+});
+
+test('compiled checkbox CSS restricts the dark neutral fill to unchecked state', async () => {
+  const { Checkbox } = loadModule('components/ui/checkbox.tsx');
+  const root = Checkbox({});
+  const indicator = root.props.children;
+  const compiler = await compile(fs.readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8'), {
+    base: fileURLToPath(new URL('..', import.meta.url)), onDependency() {},
+  });
+  const css = postcss.parse(compiler.build([...root.props.className.split(' '), ...indicator.props.className.split(' ')]));
+  const backgrounds = [];
+  css.walkDecls('background-color', (declaration) => {
+    if (declaration.parent.selector) backgrounds.push({ selector: declaration.parent.selector, value: declaration.value });
+  });
+  const neutral = backgrounds.filter(({ value }) => value.includes('var(--input)'));
+  assert.ok(neutral.length > 0);
+  for (const { selector } of neutral) {
+    assert.ok(selector.includes(':is(.dark *)'));
+    assert.ok(selector.includes('[data-unchecked]'));
+  }
+  for (const state of ['checked', 'indeterminate']) {
+    assert.ok(backgrounds.some(({ selector, value }) => selector.includes(`[data-${state}]`) && value === 'var(--primary)'));
+    let foreground = false;
+    css.walkDecls('color', (declaration) => {
+      if (declaration.parent.selector?.includes(`[data-${state}]`) && declaration.value === 'var(--primary-foreground)') foreground = true;
+    });
+    assert.ok(foreground);
+  }
+  let svgSize = false;
+  css.walkDecls('width', (declaration) => {
+    if (declaration.parent.selector?.includes('>svg') && declaration.value.includes('3.5')) svgSize = true;
+  });
+  assert.ok(svgSize);
+  let disabledOpacity = false;
+  css.walkDecls('opacity', (declaration) => {
+    if (declaration.parent.selector?.includes('[data-disabled]') && declaration.value === '50%') disabledOpacity = true;
+  });
+  assert.ok(disabledOpacity);
+});
+
+test('table page-size select retains numeric values and existing pagination actions', () => {
+  const sizes = [];
+  const { DataTablePagination } = loadModule('components/shared/data-table-pagination.tsx', {
+    'next-intl': { useTranslations: () => createTranslator({ locale: 'en', messages: catalogs.en, namespace: 'common' }) },
+    '@/components/ui/select': { Select: 'select', SelectTrigger: 'trigger', SelectValue: 'value', SelectContent: 'options', SelectItem: 'option' },
+  });
+  const table = {
+    getState: () => ({ pagination: { pageIndex: 2, pageSize: 10 } }),
+    getPageCount: () => 5,
+    getFilteredRowModel: () => ({ rows: [] }),
+    setPageSize: (size) => sizes.push(size),
+    getCanPreviousPage: () => true, getCanNextPage: () => true,
+  };
+  const tree = DataTablePagination({ table, totalRows: 50 });
+  const select = elements(tree).find((node) => node.type === 'select');
+  assert.equal(select.props.value, '10');
+  assert.deepEqual(elements(tree).filter((node) => node.type === 'option').map((node) => node.props.value), ['10', '20', '30', '50']);
+  select.props.onValueChange('30');
+  assert.deepEqual(sizes, [30]);
+});
+
+test('Audit Logs Action selection preserves enum values, long labels and pagination reset', () => {
+  const state = stateHarness();
+  const queries = [];
+  const Page = loadModule('app/(dashboard)/audit-logs/page.tsx', {
+    react: state.react,
+    'next-intl': { useLocale: () => 'en', useTranslations: (namespace) => createTranslator({ locale: 'en', messages: catalogs.en, namespace }) },
+    '@/hooks/use-domain-label': { useDomainLabel: () => (group, value) => value === 'CHANGE_PASSWORD' ? 'Change password' : value },
+    '@/lib/stores/auth-store': { useAuthStore: (select) => select({ user: { role: 'HR_ADMIN' } }) },
+    '@/hooks/use-audit-logs': { useAuditLogs: (query) => { queries.push(query); return { data: { data: [] } }; } },
+    '@/components/shared/data-table': { DataTable: 'table' },
+    '@/components/ui/select': { Select: 'select', SelectTrigger: 'trigger', SelectValue: 'value', SelectContent: 'options', SelectItem: 'option' },
+  }).default;
+  let tree = state.render(Page);
+  elements(tree).find((node) => node.type === 'table').props.onPaginationChange({ pageIndex: 3, pageSize: 10 });
+  tree = state.render(Page);
+  elements(tree).filter((node) => node.type === 'select')[1].props.onValueChange('CHANGE_PASSWORD');
+  tree = state.render(Page);
+  assert.equal(queries.at(-1).action, 'CHANGE_PASSWORD');
+  assert.equal(queries.at(-1).page, 1);
+  assert.ok(elements(tree).some((node) => node.type === 'value' && node.props.children === 'Change password (CHANGE_PASSWORD)'));
+});
+
+test('replaced form checkboxes retain boolean payloads for positions, contacts and reporting lines', async () => {
+  for (const kind of ['position', 'contact', 'reporting']) {
+    const state = stateHarness();
+    let initialEffect;
+    state.react.useEffect = state.react.default.useEffect = (effect) => { initialEffect = effect; };
+    const payloads = [];
+    const mutation = { isPending: false, mutateAsync: async (payload) => { payloads.push(payload); } };
+    const overrides = {
+      react: state.react,
+      'next-intl': { useLocale: () => 'en', useTranslations: (namespace) => createTranslator({ locale: 'en', messages: catalogs.en, namespace }) },
+      sonner: { toast: { success() {}, error() {} } },
+      '@/hooks/use-api-error': { useApiError: () => () => '' },
+      '@/components/ui/checkbox': { Checkbox: 'checkbox' },
+      '@/components/ui/input': { Input: 'input' },
+      '@/components/ui/button': { Button: 'button' },
+      '@/components/ui/select': { Select: 'select', SelectTrigger: 'trigger', SelectValue: 'value', SelectContent: 'options', SelectItem: 'option' },
+      '@/hooks/use-positions': { useCreatePosition: () => mutation, useUpdatePosition: () => mutation },
+      '@/hooks/use-emergency-contacts': { useEmergencyContacts: () => ({ data: [{ id: 'contact', name: 'Test fixture', relationship: 'Sibling', phone: '0812345678', isPrimary: true }] }), useCreateEmergencyContact: () => mutation, useUpdateEmergencyContact: () => mutation, useDeleteEmergencyContact: () => mutation },
+      '@/hooks/use-reporting-lines': { useReportingLines: () => ({ data: [] }), useCreateReportingLine: () => mutation },
+      '@/hooks/use-employees': { useEmployees: () => ({ data: { data: [{ id: 'manager', fullName: 'Test fixture' }] } }) },
+    };
+    const [file, name] = kind === 'position' ? ['components/positions/position-form-dialog.tsx', 'PositionFormDialog'] : kind === 'contact' ? ['components/employees/emergency-contacts-tab.tsx', 'EmergencyContactsTab'] : ['components/employees/reporting-lines-tab.tsx', 'ReportingLinesTab'];
+    const Component = loadModule(file, overrides)[name];
+    const props = { open: true, onOpenChange() {}, employeeId: 'employee', isHrAdmin: true };
+    if (kind === 'position') props.positionToEdit = { id: 'position', code: 'FIXTURE', title: 'Test fixture', level: 1, isActive: true };
+    let tree = state.render(Component, props);
+    if (initialEffect) { initialEffect(); tree = state.render(Component, props); }
+    if (kind === 'contact') {
+      elements(tree).find((node) => node.type === 'button' && React.Children.toArray(node.props.children).includes(catalogs.en.common.edit)).props.onClick();
+      tree = state.render(Component, props);
+    }
+    const initialCheckbox = elements(tree).find((node) => node.type === 'checkbox');
+    assert.equal(initialCheckbox.props.checked, true);
+    assert.ok(elements(tree).some((node) => node.type === 'label' && node.props.htmlFor === initialCheckbox.props.id));
+    const inputs = elements(tree).filter((node) => node.type === 'input');
+    const values = kind === 'position' ? ['FIXTURE', 'Test fixture', '1'] : kind === 'contact' ? ['Test fixture', 'Sibling', '0812345678', ''] : ['2026-10-09'];
+    inputs.forEach((input, index) => input.props.onChange({ target: { value: values[index] } }));
+    if (kind === 'reporting') elements(tree).find((node) => node.type === 'select').props.onValueChange('manager');
+    tree = state.render(Component, props);
+    for (const checked of [false, true, false]) {
+      const checkbox = elements(tree).find((node) => node.type === 'checkbox');
+      checkbox.props.onCheckedChange(checked);
+      tree = state.render(Component, props);
+      assert.equal(elements(tree).find((node) => node.type === 'checkbox').props.checked, checked);
+      await elements(tree).find((node) => node.type === 'form').props.onSubmit({ preventDefault() {} });
+      const payload = kind === 'position' ? payloads.at(-1).payload : kind === 'contact' ? payloads.at(-1).input : payloads.at(-1);
+      assert.equal(payload[kind === 'position' ? 'isActive' : 'isPrimary'], checked);
+      if (kind === 'reporting') {
+        elements(tree).find((node) => node.type === 'select').props.onValueChange('manager');
+        tree = state.render(Component, props);
+      }
+    }
+  }
+});
 
 function pickerHarness(locale = 'en') {
   const state = stateHarness();

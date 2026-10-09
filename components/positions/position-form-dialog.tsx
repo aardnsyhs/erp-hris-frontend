@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Position } from '@/types/position';
 import { useCreatePosition, useUpdatePosition } from '@/hooks/use-positions';
@@ -112,15 +113,16 @@ export function PositionFormDialog({
               {isEditing ? t('editPosition') : t('addPosition')}
             </DialogTitle>
             <DialogDescription>
-              {isEditing
-                ? t('editDescription')
-                : t('createDescription')}
+              {isEditing ? t('editDescription') : t('createDescription')}
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
             <div className="grid gap-1.5">
-              <label htmlFor="pos-code" className="text-xs font-medium text-foreground">
+              <label
+                htmlFor="pos-code"
+                className="text-xs font-medium text-foreground"
+              >
                 {t('code')} <span className="text-destructive">*</span>
               </label>
               <Input
@@ -135,7 +137,10 @@ export function PositionFormDialog({
             </div>
 
             <div className="grid gap-1.5">
-              <label htmlFor="pos-title" className="text-xs font-medium text-foreground">
+              <label
+                htmlFor="pos-title"
+                className="text-xs font-medium text-foreground"
+              >
                 {t('positionTitle')} <span className="text-destructive">*</span>
               </label>
               <Input
@@ -150,7 +155,10 @@ export function PositionFormDialog({
 
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-1.5">
-                <label htmlFor="pos-level" className="text-xs font-medium text-foreground">
+                <label
+                  htmlFor="pos-level"
+                  className="text-xs font-medium text-foreground"
+                >
                   {t('level')} <span className="text-destructive">*</span>
                 </label>
                 <Input
@@ -169,25 +177,34 @@ export function PositionFormDialog({
               </div>
 
               <div className="flex flex-col justify-start gap-2 pt-1">
-                <label htmlFor="pos-active" className="text-xs font-medium text-foreground">
+                <label
+                  htmlFor="pos-active"
+                  className="text-xs font-medium text-foreground"
+                >
                   {t('status')}
                 </label>
-                <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer select-none">
-                  <input
-                    type="checkbox"
+                <label
+                  htmlFor="pos-active"
+                  className="flex min-h-11 items-center gap-2 text-xs text-foreground cursor-pointer select-none"
+                >
+                  <Checkbox
                     id="pos-active"
                     checked={isActive}
-                    onChange={(e) => setIsActive(e.target.checked)}
+                    onCheckedChange={setIsActive}
                     disabled={isPending}
-                    className="rounded border-input text-primary focus:ring-primary h-4 w-4"
                   />
-                  <span>{isActive ? tCommon('active') : tCommon('inactive')}</span>
+                  <span>
+                    {isActive ? tCommon('active') : tCommon('inactive')}
+                  </span>
                 </label>
               </div>
             </div>
 
             <div className="grid gap-1.5">
-              <label htmlFor="pos-desc" className="text-xs font-medium text-foreground">
+              <label
+                htmlFor="pos-desc"
+                className="text-xs font-medium text-foreground"
+              >
                 {t('description')}
               </label>
               <Textarea
@@ -214,8 +231,8 @@ export function PositionFormDialog({
               {isPending
                 ? tCommon('saving')
                 : isEditing
-                ? t('saveChanges')
-                : t('addPosition')}
+                  ? t('saveChanges')
+                  : t('addPosition')}
             </Button>
           </DialogFooter>
         </form>
