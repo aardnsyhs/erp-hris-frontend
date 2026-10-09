@@ -1,8 +1,8 @@
 'use client';
 
-import React, { use, useState } from 'react';
+import React, { Suspense, use, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useDomainLabel } from '@/hooks/use-domain-label';
 import { useApiError } from '@/hooks/use-api-error';
@@ -52,6 +52,11 @@ interface PageProps {
 }
 
 export default function EmployeeDetailPage({ params }: PageProps) {
+  return <Suspense><EmployeeDetailContent params={params} /></Suspense>;
+}
+
+function EmployeeDetailContent({ params }: PageProps) {
+  const searchParams = useSearchParams();
   const { id } = use(params);
   const router = useRouter();
   const t = useTranslations('employees');
@@ -197,7 +202,7 @@ export default function EmployeeDetailPage({ params }: PageProps) {
           ) : undefined
         }
       />
-      <Tabs defaultValue="profile" className="w-full space-y-4">
+      <Tabs defaultValue={searchParams.get('tab') === 'contracts' && (isHrAdmin || isSelf) ? 'contracts' : 'profile'} className="w-full space-y-4">
         <TabsList className="flex flex-wrap h-auto p-1 bg-muted/60 gap-1 w-full justify-start">
           <TabsTrigger value="profile" className="text-xs font-medium cursor-pointer">
             {t('personalInfo')}
@@ -345,6 +350,7 @@ export default function EmployeeDetailPage({ params }: PageProps) {
         {(isHrAdmin || isSelf) && (
           <TabsContent value="contracts" className="mt-0">
             <ContractsTab
+              highlightedContractId={searchParams.get('contractId') ?? undefined}
               employeeId={employee.id}
               isHrAdmin={isHrAdmin}
               isSelf={isSelf}

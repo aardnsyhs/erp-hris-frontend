@@ -25,6 +25,7 @@ export function usePayrolls(params?: PayrollQueryParams) {
           status: params?.status,
           periodStart: params?.periodStart,
           periodEnd: params?.periodEnd,
+          exactPeriod: params?.exactPeriod,
         },
       });
       return data;

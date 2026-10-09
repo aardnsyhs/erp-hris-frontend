@@ -37,6 +37,7 @@ const navConfigs: NavConfig[] = [
     icon: LayoutDashboard,
     roles: ['HR_ADMIN', 'MANAGER', 'EMPLOYEE'],
   },
+  { key: 'hrBrief', href: '/hr-brief', icon: Briefcase, roles: ['HR_ADMIN'] },
   {
     key: 'employees',
     href: '/employees',

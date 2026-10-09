@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ColumnDef, PaginationState } from '@tanstack/react-table';
 import { useLocale, useTranslations } from 'next-intl';
@@ -21,7 +22,8 @@ import {
   useProcessPayroll,
   usePayPayroll,
 } from '@/hooks/use-payrolls';
-import { useDepartments } from '@/hooks/use-departments';
+import { useDepartmentTree } from '@/hooks/use-departments';
+import { flattenBriefDepartments } from '@/lib/hr-brief';
 import { Payroll, PayrollStatus } from '@/types/payroll';
 import { DataTable } from '@/components/shared/data-table';
 import { StatusBadge } from '@/components/shared/status-badge';
@@ -52,7 +54,14 @@ import { PayrollDeleteDialog } from '@/components/payroll/payroll-delete-dialog'
 import { PayslipDialog } from '@/components/payroll/payslip-dialog';
 
 export default function PayrollsPage() {
+  return <Suspense><PayrollsContent /></Suspense>;
+}
+
+function PayrollsContent() {
+  const searchParams = useSearchParams();
+  const [exactPeriod, setExactPeriod] = useState(searchParams.get('exactPeriod') === 'true');
   const t = useTranslations('payroll');
+  const tBrief = useTranslations('hrBrief');
   const tCommon = useTranslations('common');
   const tEmp = useTranslations('employees');
   const tNav = useTranslations('navigation');
@@ -62,11 +71,11 @@ export default function PayrollsPage() {
   const isHrAdmin = currentUser?.role === 'HR_ADMIN';
 
   // Filters State
-  const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
-  const [selectedDept, setSelectedDept] = useState<string>('ALL');
+  const [selectedStatus, setSelectedStatus] = useState<string>(['DRAFT', 'PROCESSED', 'PAID'].includes(searchParams.get('status') ?? '') ? searchParams.get('status')! : 'ALL');
+  const [selectedDept, setSelectedDept] = useState<string>(searchParams.get('departmentId') || 'ALL');
   const [searchQuery, setSearchQuery] = useState('');
-  const [periodStart, setPeriodStart] = useState<string>('');
-  const [periodEnd, setPeriodEnd] = useState<string>('');
+  const [periodStart, setPeriodStart] = useState<string>(searchParams.get('periodStart') || '');
+  const [periodEnd, setPeriodEnd] = useState<string>(searchParams.get('periodEnd') || '');
 
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -88,8 +97,8 @@ export default function PayrollsPage() {
   const payMutation = usePayPayroll();
 
   // Queries
-  const { data: departmentsData } = useDepartments();
-  const departments = departmentsData?.data || [];
+  const { data: departmentsData } = useDepartmentTree({ includeArchived: true }, isHrAdmin);
+  const departments = flattenBriefDepartments(departmentsData ?? []);
 
   const { data, isLoading, isPlaceholderData } = usePayrolls({
     page: pageIndex + 1,
@@ -99,6 +108,7 @@ export default function PayrollsPage() {
     departmentId: selectedDept !== 'ALL' ? selectedDept : undefined,
     periodStart: periodStart || undefined,
     periodEnd: periodEnd || undefined,
+    exactPeriod: exactPeriod || undefined,
     search: searchQuery || undefined,
   });
 
@@ -135,6 +145,7 @@ export default function PayrollsPage() {
     setSelectedDept('ALL');
     setPeriodStart('');
     setPeriodEnd('');
+    setExactPeriod(false);
     setPagination((prev) => ({ ...prev, pageIndex: 0 }));
   };
 
@@ -353,7 +364,7 @@ export default function PayrollsPage() {
               <SelectValue placeholder={tCommon('allDepartments')}>
                 {selectedDept === 'ALL'
                   ? tCommon('allDepartments')
-                  : departments.find((d) => d.id === selectedDept)?.name || tCommon('allDepartments')}
+                  : departments.find((d) => d.id === selectedDept)?.name || tBrief('selectedDepartment')}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -375,6 +386,7 @@ export default function PayrollsPage() {
             onChange={(range) => {
               setPeriodStart(range.from);
               setPeriodEnd(range.to);
+              setExactPeriod(false);
               setPagination((prev) => ({ ...prev, pageIndex: 0 }));
             }}
           />
@@ -411,6 +423,7 @@ export default function PayrollsPage() {
         emptyTitle={t('noPayrollRecords')}
         emptyDescription={t('noPayrollRecords')}
       />
+      {exactPeriod && <p className="text-sm text-muted-foreground">{tBrief('exactPayrollPeriod')}</p>}
 
       {/* Generate Dialog */}
       <PayrollGenerateDialog

@@ -1,18 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ColumnDef, PaginationState } from '@tanstack/react-table';
 import { useLocale, useTranslations } from 'next-intl';
 import { useDomainLabel } from '@/hooks/use-domain-label';
-import {
-  CalendarDays,
-  Plus,
-  Eye,
-  Check,
-  X,
-  Clock,
-} from 'lucide-react';
+import { CalendarDays, Plus, Eye, Check, X, Clock } from 'lucide-react';
 import { useAuthStore } from '@/lib/stores/auth-store';
 import {
   useApproveLeaveRequest,
@@ -49,6 +43,15 @@ import { LeaveDetailDialog } from '@/components/leave-requests/leave-detail-dial
 import { cn } from '@/lib/utils';
 
 export default function LeaveRequestsPage() {
+  return (
+    <Suspense>
+      <LeaveRequestsContent />
+    </Suspense>
+  );
+}
+
+function LeaveRequestsContent() {
+  const params = useSearchParams();
   const t = useTranslations('leave');
   const tUi = useTranslations('uiCopy');
   const domainLabel = useDomainLabel();
@@ -63,15 +66,21 @@ export default function LeaveRequestsPage() {
   const currentEmployeeId = currentUser?.employeeId;
 
   // Active Tab for Approvers: 'PENDING_APPROVALS' vs 'ALL_HISTORY'
-  const [activeTab, setActiveTab] = useState<'PENDING_APPROVALS' | 'ALL_HISTORY'>(
-    isApproverRole ? 'PENDING_APPROVALS' : 'ALL_HISTORY',
-  );
+  const [activeTab, setActiveTab] = useState<
+    'PENDING_APPROVALS' | 'ALL_HISTORY'
+  >(isApproverRole ? 'PENDING_APPROVALS' : 'ALL_HISTORY');
 
   // Filters State
   const [search, setSearch] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState<string>('ALL');
+  const [selectedStatus, setSelectedStatus] = useState<string>(() =>
+    ['PENDING', 'APPROVED', 'REJECTED'].includes(params.get('status') ?? '')
+      ? params.get('status')!
+      : 'ALL',
+  );
   const [selectedLeaveType, setSelectedLeaveType] = useState<string>('ALL');
-  const [selectedDept, setSelectedDept] = useState<string>('ALL');
+  const [selectedDept, setSelectedDept] = useState<string>(
+    () => params.get('departmentId') || 'ALL',
+  );
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 
@@ -82,12 +91,10 @@ export default function LeaveRequestsPage() {
 
   // Dialogs State
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [selectedForDetail, setSelectedForDetail] = useState<LeaveRequest | null>(
-    null,
-  );
-  const [selectedForReject, setSelectedForReject] = useState<LeaveRequest | null>(
-    null,
-  );
+  const [selectedForDetail, setSelectedForDetail] =
+    useState<LeaveRequest | null>(null);
+  const [selectedForReject, setSelectedForReject] =
+    useState<LeaveRequest | null>(null);
 
   // Mutations
   const approveMutation = useApproveLeaveRequest();
@@ -107,7 +114,10 @@ export default function LeaveRequestsPage() {
       : selectedStatus !== 'ALL'
         ? (selectedStatus as LeaveRequestStatus)
         : undefined,
-    leaveType: selectedLeaveType !== 'ALL' ? (selectedLeaveType as LeaveType) : undefined,
+    leaveType:
+      selectedLeaveType !== 'ALL'
+        ? (selectedLeaveType as LeaveType)
+        : undefined,
     departmentId: selectedDept !== 'ALL' ? selectedDept : undefined,
     startDate: startDate || undefined,
     endDate: endDate || undefined,
@@ -195,10 +205,13 @@ export default function LeaveRequestsPage() {
       cell: ({ row }) => (
         <div className="flex flex-col text-xs font-mono">
           <span className="font-medium text-foreground">
-            {formatDate(row.original.startDate)} – {formatDate(row.original.endDate)}
+            {formatDate(row.original.startDate)} –{' '}
+            {formatDate(row.original.endDate)}
           </span>
           <span className="text-[11px] text-muted-foreground">
-            {t('calendarDays', { count: getDaysCount(row.original.startDate, row.original.endDate) })}
+            {t('calendarDays', {
+              count: getDaysCount(row.original.startDate, row.original.endDate),
+            })}
           </span>
         </div>
       ),
@@ -212,7 +225,10 @@ export default function LeaveRequestsPage() {
       accessorKey: 'reason',
       header: t('reason'),
       cell: ({ row }) => (
-        <span className="text-xs text-muted-foreground truncate max-w-44 block" title={row.original.reason}>
+        <span
+          className="text-xs text-muted-foreground truncate max-w-44 block"
+          title={row.original.reason}
+        >
           {row.original.reason}
         </span>
       ),
@@ -294,7 +310,9 @@ export default function LeaveRequestsPage() {
       {/* Page Header */}
       <PageHeader
         title={t('title')}
-        description={isApproverRole ? t('subtitleApprover') : t('subtitleEmployee')}
+        description={
+          isApproverRole ? t('subtitleApprover') : t('subtitleEmployee')
+        }
         actions={
           <Button
             onClick={() => setIsFormOpen(true)}
@@ -369,10 +387,18 @@ export default function LeaveRequestsPage() {
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL" className="text-xs">{tCommon('allStatus')}</SelectItem>
-              <SelectItem value="PENDING" className="text-xs">{t('statusPending')}</SelectItem>
-              <SelectItem value="APPROVED" className="text-xs">{t('statusApproved')}</SelectItem>
-              <SelectItem value="REJECTED" className="text-xs">{t('statusRejected')}</SelectItem>
+              <SelectItem value="ALL" className="text-xs">
+                {tCommon('allStatus')}
+              </SelectItem>
+              <SelectItem value="PENDING" className="text-xs">
+                {t('statusPending')}
+              </SelectItem>
+              <SelectItem value="APPROVED" className="text-xs">
+                {t('statusApproved')}
+              </SelectItem>
+              <SelectItem value="REJECTED" className="text-xs">
+                {t('statusRejected')}
+              </SelectItem>
             </SelectContent>
           </Select>
         )}
@@ -402,11 +428,21 @@ export default function LeaveRequestsPage() {
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="ALL" className="text-xs">{tCommon('allTypes')}</SelectItem>
-            <SelectItem value="ANNUAL" className="text-xs">{t('annual')}</SelectItem>
-            <SelectItem value="SICK" className="text-xs">{t('sick')}</SelectItem>
-            <SelectItem value="UNPAID" className="text-xs">{t('unpaid')}</SelectItem>
-            <SelectItem value="MATERNITY" className="text-xs">{t('maternity')}</SelectItem>
+            <SelectItem value="ALL" className="text-xs">
+              {tCommon('allTypes')}
+            </SelectItem>
+            <SelectItem value="ANNUAL" className="text-xs">
+              {t('annual')}
+            </SelectItem>
+            <SelectItem value="SICK" className="text-xs">
+              {t('sick')}
+            </SelectItem>
+            <SelectItem value="UNPAID" className="text-xs">
+              {t('unpaid')}
+            </SelectItem>
+            <SelectItem value="MATERNITY" className="text-xs">
+              {t('maternity')}
+            </SelectItem>
           </SelectContent>
         </Select>
 
@@ -424,11 +460,14 @@ export default function LeaveRequestsPage() {
               <SelectValue placeholder={tCommon('allDepartments')}>
                 {selectedDept === 'ALL'
                   ? tCommon('allDepartments')
-                  : departments.find((d) => d.id === selectedDept)?.name || tCommon('allDepartments')}
+                  : departments.find((d) => d.id === selectedDept)?.name ||
+                    tCommon('allDepartments')}
               </SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL" className="text-xs">{tCommon('allDepartments')}</SelectItem>
+              <SelectItem value="ALL" className="text-xs">
+                {tCommon('allDepartments')}
+              </SelectItem>
               {departments.map((dept) => (
                 <SelectItem key={dept.id} value={dept.id} className="text-xs">
                   {dept.name}
@@ -484,10 +523,7 @@ export default function LeaveRequestsPage() {
       />
 
       {/* Request Leave Dialog */}
-      <LeaveRequestFormDialog
-        open={isFormOpen}
-        onOpenChange={setIsFormOpen}
-      />
+      <LeaveRequestFormDialog open={isFormOpen} onOpenChange={setIsFormOpen} />
 
       {/* Detail Dialog */}
       <LeaveDetailDialog

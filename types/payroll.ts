@@ -43,6 +43,7 @@ export interface UpdatePayrollDto {
 }
 
 export interface PayrollQueryParams {
+  exactPeriod?: boolean;
   page?: number;
   limit?: number;
   employeeId?: string;

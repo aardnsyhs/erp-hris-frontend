@@ -61,6 +61,7 @@ export function AppHeader() {
   };
 
   const getPageTitle = () => {
+    if (pathname.startsWith('/hr-brief')) return tNav('hrBrief');
     if (pathname === '/') return tNav('dashboard');
     if (pathname.startsWith('/employees')) return tNav('employees');
     if (pathname.startsWith('/positions')) return tNav('positions');

@@ -35,9 +35,11 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { wibCalendarDate } from '@/lib/hr-brief';
 
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
+  const tNav = useTranslations('navigation');
   const tUi = useTranslations('uiCopy');
   const user = useAuthStore((state) => state.user);
   const role = user?.role || 'EMPLOYEE';
@@ -47,6 +49,7 @@ export default function DashboardPage() {
     <div className="space-y-5">
       {/* Console Header */}
       <PageHeader
+        actions={role === 'HR_ADMIN' ? <Link href="/hr-brief" className={buttonVariants({ variant: 'outline' })}>{tNav('hrBrief')}</Link> : undefined}
         title={emp?.fullName || user?.email || tUi('operationsConsole')}
         description={
           emp?.jobTitle && emp?.department?.name
@@ -81,7 +84,7 @@ function HRAdminDashboard() {
   const tDept = useTranslations('departments');
   const tAtt = useTranslations('attendance');
   const tCommon = useTranslations('common');
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = wibCalendarDate();
 
   const { data: employeesData, isLoading: loadingEmployees } = useEmployees({
     status: 'ACTIVE',
@@ -354,6 +357,7 @@ function ManagerDashboard({ departmentId }: { departmentId?: string | null }) {
   const domainLabel = useDomainLabel();
   const locale = useLocale();
   const todayStr = new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
+    timeZone: 'Asia/Jakarta',
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -371,8 +375,8 @@ function ManagerDashboard({ departmentId }: { departmentId?: string | null }) {
   });
   const { data: attendanceData, isLoading: loadingAttendance } = useAttendances({
     departmentId: departmentId || undefined,
-    startDate: new Date().toISOString().split('T')[0],
-    endDate: new Date().toISOString().split('T')[0],
+    startDate: wibCalendarDate(),
+    endDate: wibCalendarDate(),
     limit: 100,
   });
 

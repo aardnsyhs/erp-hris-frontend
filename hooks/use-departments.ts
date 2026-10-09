@@ -34,8 +34,9 @@ export function useDepartments(params?: DepartmentQueryParams) {
   });
 }
 
-export function useDepartmentTree(params?: DepartmentTreeQueryParams) {
+export function useDepartmentTree(params?: DepartmentTreeQueryParams, enabled = true) {
   return useQuery({
+    enabled,
     queryKey: queryKeys.departments.tree(params),
     queryFn: async () => {
       const { data } = await apiClient.get<DepartmentTreeNode[]>('/departments/tree', {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useApiError } from '@/hooks/use-api-error';
 import {
@@ -50,12 +50,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 
 interface ContractsTabProps {
+  highlightedContractId?: string;
   employeeId: string;
   isHrAdmin: boolean;
   isSelf: boolean;
 }
 
 export function ContractsTab({
+  highlightedContractId,
   employeeId,
   isHrAdmin,
   isSelf,
@@ -66,6 +68,12 @@ export function ContractsTab({
   const locale = useLocale();
 
   const { data: contracts = [], isLoading } = useContracts(employeeId);
+  useEffect(() => {
+    if (!highlightedContractId || isLoading) return;
+    const target = document.getElementById(`contract-${highlightedContractId}`);
+    target?.scrollIntoView({ block: 'center' });
+    target?.focus({ preventScroll: true });
+  }, [highlightedContractId, isLoading]);
   const { data: docsData } = useEmployeeDocuments(employeeId, { limit: 100 }, isHrAdmin);
   const employeeDocuments = docsData?.data || [];
 
@@ -92,6 +100,7 @@ export function ContractsTab({
   const formatDate = (dateString?: string | null) => {
     if (!dateString) return '-';
     return new Intl.DateTimeFormat(locale === 'en' ? 'en-US' : 'id-ID', {
+      timeZone: 'UTC',
       day: 'numeric',
       month: 'short',
       year: 'numeric',
@@ -238,7 +247,9 @@ export function ContractsTab({
             return (
               <div
                 key={c.id}
-                className="p-4 rounded-lg border bg-card text-card-foreground flex flex-col sm:flex-row justify-between gap-4 shadow-xs"
+                id={`contract-${c.id}`}
+                tabIndex={c.id === highlightedContractId ? -1 : undefined}
+                className={`p-4 rounded-lg border bg-card text-card-foreground flex flex-col sm:flex-row justify-between gap-4 shadow-xs ${c.id === highlightedContractId ? 'ring-2 ring-primary' : ''}`}
               >
                 <div className="space-y-2 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">

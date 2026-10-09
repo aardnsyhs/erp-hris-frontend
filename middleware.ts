@@ -4,6 +4,11 @@ import { getPublicLocale, isPublicPage } from '@/lib/site';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const authRole = request.cookies.get('auth_role')?.value;
+  if (pathname.startsWith('/hr-brief') && authRole && authRole !== 'HR_ADMIN') {
+    const response = NextResponse.redirect(new URL('/', request.url));
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    return response;
+  }
   const requestHeaders = new Headers(request.headers);
   requestHeaders.delete('x-public-locale');
   const publicLocale = getPublicLocale(pathname);

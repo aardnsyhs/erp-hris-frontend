@@ -1,4 +1,8 @@
 export const queryKeys = {
+  hrBrief: {
+    all: ['hr-brief'] as const,
+    detail: (filters?: unknown) => ['hr-brief', filters] as const,
+  },
   auth: {
     me: ['auth', 'me'] as const,
   },
@@ -78,4 +82,3 @@ export const queryKeys = {
       ['movement-histories', 'list', employeeId] as const,
   },
 };
-

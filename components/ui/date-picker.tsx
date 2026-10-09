@@ -1,14 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { enUS, id } from 'date-fns/locale';
-import {
-  Calendar as CalendarIcon,
-  Check,
-  RotateCcw,
-  X,
-} from 'lucide-react';
+import { Calendar as CalendarIcon, Check, RotateCcw, X } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
 import { Calendar } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
@@ -20,21 +15,19 @@ import {
 import { cn } from '@/lib/utils';
 
 export function formatToYMD(d: Date): string {
-  const year = d.getFullYear();
+  const year = String(d.getFullYear()).padStart(4, '0');
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
 
 export function parseFromYMD(str?: string | null): Date | undefined {
-  if (!str) return undefined;
-  const parts = str.split('-');
-  if (parts.length !== 3) return undefined;
-  const year = parseInt(parts[0], 10);
-  const month = parseInt(parts[1], 10);
-  const day = parseInt(parts[2], 10);
-  if (isNaN(year) || isNaN(month) || isNaN(day)) return undefined;
-  return new Date(year, month - 1, day);
+  if (!str || !/^\d{4}-\d{2}-\d{2}$/.test(str)) return undefined;
+  const [year, month, day] = str.split('-').map(Number);
+  const date = new Date(0);
+  date.setFullYear(year, month - 1, day);
+  date.setHours(0, 0, 0, 0);
+  return year > 0 && formatToYMD(date) === str ? date : undefined;
 }
 
 export function formatPickerDate(d: Date, locale: string): string {
@@ -105,7 +98,9 @@ export function DatePicker({
       >
         <CalendarIcon className="mr-2 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
         <span className="truncate flex-1">
-          {selectedDate ? formatPickerDate(selectedDate, locale) : placeholder ?? t('selectDate')}
+          {selectedDate
+            ? formatPickerDate(selectedDate, locale)
+            : (placeholder ?? t('selectDate'))}
         </span>
         {allowClear && selectedDate && !disabled && (
           <span
@@ -177,25 +172,27 @@ export function DateRangePicker({
   });
   const [isSelectingEnd, setIsSelectingEnd] = useState(false);
 
-  // Sync draft with applied props whenever applied props change or popover opens
-  useEffect(() => {
+  const [applied, setApplied] = useState({ from, to });
+  // External filters supersede any unfinished selection.
+  if (applied.from !== from || applied.to !== to) {
+    setApplied({ from, to });
     const initFrom = parseFromYMD(from);
     const initTo = parseFromYMD(to);
-    setDraftRange(initFrom || initTo ? { from: initFrom, to: initTo } : undefined);
+    setDraftRange(
+      initFrom || initTo ? { from: initFrom, to: initTo } : undefined,
+    );
     setIsSelectingEnd(false);
-  }, [from, to, open]);
+  }
 
-  // Handle day click inside calendar
-  const handleDayClick = (clickedDate: Date) => {
+  const handleSelect = (_range: DateRange | undefined, clickedDate: Date) => {
     if (!isSelectingEnd || !draftRange?.from) {
-      // Step 1: User picks start date
       setDraftRange({ from: clickedDate, to: undefined });
       setIsSelectingEnd(true);
-      // Do NOT trigger onChange, popover stays open
     } else {
-      // Step 2: User picks end date
-      const fromDate = draftRange.from <= clickedDate ? draftRange.from : clickedDate;
-      const toDate = draftRange.from <= clickedDate ? clickedDate : draftRange.from;
+      const fromDate =
+        draftRange.from <= clickedDate ? draftRange.from : clickedDate;
+      const toDate =
+        draftRange.from <= clickedDate ? clickedDate : draftRange.from;
 
       setDraftRange({ from: fromDate, to: toDate });
       setIsSelectingEnd(false);
@@ -207,14 +204,15 @@ export function DateRangePicker({
         });
         setOpen(false);
       }
-      // In manual mode (default), draft is updated and user clicks "Terapkan"
     }
   };
 
   const handleApply = () => {
     if (!draftRange?.from || !draftRange?.to) return;
-    const fromDate = draftRange.from <= draftRange.to ? draftRange.from : draftRange.to;
-    const toDate = draftRange.from <= draftRange.to ? draftRange.to : draftRange.from;
+    const fromDate =
+      draftRange.from <= draftRange.to ? draftRange.from : draftRange.to;
+    const toDate =
+      draftRange.from <= draftRange.to ? draftRange.to : draftRange.from;
 
     onChange?.({
       from: formatToYMD(fromDate),
@@ -227,7 +225,9 @@ export function DateRangePicker({
   const handleCancel = () => {
     const initFrom = parseFromYMD(from);
     const initTo = parseFromYMD(to);
-    setDraftRange(initFrom || initTo ? { from: initFrom, to: initTo } : undefined);
+    setDraftRange(
+      initFrom || initTo ? { from: initFrom, to: initTo } : undefined,
+    );
     setIsSelectingEnd(false);
     setOpen(false);
   };
@@ -266,13 +266,12 @@ export function DateRangePicker({
       open={open}
       onOpenChange={(nextOpen) => {
         setOpen(nextOpen);
-        if (!nextOpen) {
-          // Revert draft to applied range on close
-          const initFrom = parseFromYMD(from);
-          const initTo = parseFromYMD(to);
-          setDraftRange(initFrom || initTo ? { from: initFrom, to: initTo } : undefined);
-          setIsSelectingEnd(false);
-        }
+        const initFrom = parseFromYMD(from);
+        const initTo = parseFromYMD(to);
+        setDraftRange(
+          initFrom || initTo ? { from: initFrom, to: initTo } : undefined,
+        );
+        setIsSelectingEnd(false);
       }}
     >
       <PopoverTrigger
@@ -316,11 +315,10 @@ export function DateRangePicker({
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="w-[calc(100vw-1rem)] sm:w-[340px] max-w-[calc(100vw-1rem)] p-0 bg-popover rounded-md shadow-xl border border-border overflow-hidden"
+        className="w-[calc(100vw-1rem)] sm:w-[340px] max-w-[calc(100vw-1rem)] max-h-[var(--available-height)] overflow-y-auto p-0 bg-popover rounded-md shadow-xl border border-border"
       >
-        {/* Structured Header with Mulai / Selesai Cards */}
         <div className="space-y-2 border-b border-border px-4 py-3 bg-muted/30">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap gap-2 items-center justify-between">
             <p className="text-xs font-semibold text-foreground font-mono">
               {t('selectRange')}
             </p>
@@ -335,40 +333,48 @@ export function DateRangePicker({
 
           <div className="grid grid-cols-2 gap-2 text-xs font-mono">
             <div className="rounded-md bg-card px-2.5 py-1.5 border border-border shadow-2xs">
-              <span className="block text-[10px] text-muted-foreground uppercase">{t('start')}</span>
+              <span className="block text-[10px] text-muted-foreground uppercase">
+                {t('start')}
+              </span>
               <span className="font-semibold text-foreground text-xs truncate block tabular-nums">
-                {draftRange?.from ? formatPickerDate(draftRange.from, locale) : t('notSelected')}
+                {draftRange?.from
+                  ? formatPickerDate(draftRange.from, locale)
+                  : t('notSelected')}
               </span>
             </div>
 
             <div className="rounded-md bg-card px-2.5 py-1.5 border border-border shadow-2xs">
-              <span className="block text-[10px] text-muted-foreground uppercase">{t('end')}</span>
+              <span className="block text-[10px] text-muted-foreground uppercase">
+                {t('end')}
+              </span>
               <span className="font-semibold text-foreground text-xs truncate block tabular-nums">
-                {draftRange?.to ? formatPickerDate(draftRange.to, locale) : t('notSelected')}
+                {draftRange?.to
+                  ? formatPickerDate(draftRange.to, locale)
+                  : t('notSelected')}
               </span>
             </div>
           </div>
         </div>
 
-        {/* Calendar in Padded Container */}
         <div className="px-3 py-2 flex justify-center">
           <Calendar
+            className="[--cell-size:min(2.75rem,calc((100vw-4rem)/7))] sm:[--cell-size:2.5rem]"
             locale={locale === 'id' ? id : enUS}
             mode="range"
             selected={
               draftRange?.from
                 ? {
-                  from: draftRange.from,
-                  to: draftRange.to,
-                }
+                    from: draftRange.from,
+                    to: draftRange.to,
+                  }
                 : undefined
             }
-            onDayClick={handleDayClick}
+            onSelect={handleSelect}
+            defaultMonth={draftRange?.from ?? parseFromYMD(from)}
             disabled={disabledDates}
           />
         </div>
 
-        {/* Structured Footer Actions */}
         <div className="flex items-center justify-between gap-2 border-t border-border px-4 py-3 bg-muted/30">
           <Button
             type="button"
@@ -376,7 +382,7 @@ export function DateRangePicker({
             size="sm"
             onClick={handleReset}
             disabled={!hasAppliedValue && !draftRange?.from}
-            className="text-xs min-h-8 px-2.5 text-muted-foreground hover:text-foreground font-mono cursor-pointer"
+            className="text-xs min-h-11 px-2.5 text-muted-foreground hover:text-foreground font-mono cursor-pointer"
           >
             <RotateCcw className="w-3.5 h-3.5 mr-1" />
             {t('reset')}
@@ -388,7 +394,7 @@ export function DateRangePicker({
               variant="outline"
               size="sm"
               onClick={handleCancel}
-              className="text-xs min-h-8 px-3 font-mono cursor-pointer"
+              className="text-xs min-h-11 px-3 font-mono cursor-pointer"
             >
               {t('cancel')}
             </Button>
@@ -397,7 +403,7 @@ export function DateRangePicker({
               size="sm"
               disabled={!isRangeComplete}
               onClick={handleApply}
-              className="text-xs min-h-8 px-3.5 bg-primary hover:bg-primary-hover text-primary-foreground font-semibold font-mono cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-xs min-h-11 px-3.5 bg-primary hover:bg-primary-hover text-primary-foreground font-semibold font-mono cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Check className="w-3.5 h-3.5 mr-1" />
               {t('apply')}

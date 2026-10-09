@@ -1,7 +1,11 @@
-import { QueryClient } from '@tanstack/react-query';
+import { MutationCache, QueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/api/query-keys';
 
 export function createQueryClient() {
-  return new QueryClient({
+  const client: QueryClient = new QueryClient({
+    mutationCache: new MutationCache({
+      onSuccess: () => client.invalidateQueries({ queryKey: queryKeys.hrBrief.all }),
+    }),
     defaultOptions: {
       queries: {
         staleTime: 60 * 1000, // 1 minute fresh data
@@ -14,6 +18,7 @@ export function createQueryClient() {
       },
     },
   });
+  return client;
 }
 
 export const queryClient = createQueryClient();

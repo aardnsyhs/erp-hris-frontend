@@ -44,6 +44,179 @@ function translator(locale) {
   return createTranslator({ locale, messages: catalogs[locale], namespace: 'validation' });
 }
 
+// Exercise component handlers without a DOM; browser layout remains a separate check.
+function stateHarness() {
+  const slots = [];
+  let cursor = 0;
+  let changed = false;
+  const hooks = {
+    ...React,
+    useState(initial) {
+      const index = cursor++;
+      if (!(index in slots)) slots[index] = typeof initial === 'function' ? initial() : initial;
+      return [slots[index], (value) => {
+        const next = typeof value === 'function' ? value(slots[index]) : value;
+        if (!Object.is(next, slots[index])) changed = true;
+        slots[index] = next;
+      }];
+    },
+  };
+  return {
+    react: { __esModule: true, default: hooks, ...hooks },
+    render(Component, props = {}) {
+      let tree;
+      for (let attempt = 0; attempt < 10; attempt++) {
+        cursor = 0;
+        changed = false;
+        tree = Component(props);
+        if (!changed) return tree;
+      }
+      throw new Error('Component did not stabilize');
+    },
+  };
+}
+
+function elements(tree) {
+  if (Array.isArray(tree)) return tree.flatMap(elements);
+  if (!React.isValidElement(tree)) return [];
+  return [tree, ...elements(tree.props.children)];
+}
+
+function pickerHarness(locale = 'en') {
+  const state = stateHarness();
+  const picker = loadModule('components/ui/date-picker.tsx', {
+    react: state.react,
+    'next-intl': {
+      useLocale: () => locale,
+      useTranslations: (namespace) => createTranslator({ locale, messages: catalogs[locale], namespace }),
+    },
+    '@/components/ui/calendar': { Calendar: 'calendar' },
+    '@/components/ui/button': { Button: 'button' },
+    '@/components/ui/popover': { Popover: 'popover', PopoverContent: 'popup', PopoverTrigger: 'trigger' },
+  });
+  let props = { from: '2026-10-02', to: '2026-10-08' };
+  let tree;
+  return {
+    ...picker,
+    render(next = {}) { props = { ...props, ...next }; tree = state.render(picker.DateRangePicker, props); return tree; },
+    single(next) { tree = state.render(picker.DatePicker, next); return tree; },
+    calendar: () => elements(tree).find((item) => item.type === 'calendar').props,
+    open(value) { tree.props.onOpenChange(value); },
+    action(key) {
+      const label = catalogs[locale].datePicker[key];
+      const button = elements(tree).find((item) => item.type === 'button' && elements(item).length && React.Children.toArray(item.props.children).includes(label));
+      assert.ok(button, `Missing ${key} button`);
+      return button.props;
+    },
+  };
+}
+
+for (const locale of ['en', 'id']) {
+  test(`${locale}: range selection inside an applied range stays controlled until Apply`, () => {
+    const picker = pickerHarness(locale);
+    const changes = [];
+    picker.render({ onChange: (range) => changes.push(range) });
+    picker.open(true);
+    picker.render();
+    assert.equal(typeof picker.calendar().onSelect, 'function');
+    assert.equal(picker.calendar().onDayClick, undefined);
+    picker.calendar().onSelect(undefined, picker.parseFromYMD('2026-10-06'));
+    let tree = picker.render();
+    assert.equal(picker.formatToYMD(picker.calendar().selected.from), '2026-10-06');
+    assert.equal(picker.calendar().selected.to, undefined);
+    assert.equal(picker.action('apply').disabled, true);
+    assert.deepEqual(changes, []);
+    picker.calendar().onSelect(undefined, picker.parseFromYMD('2026-10-08'));
+    tree = picker.render();
+    assert.equal(picker.formatToYMD(picker.calendar().selected.to), '2026-10-08');
+    const text = elements(tree).flatMap((item) => React.Children.toArray(item.props.children).filter((value) => typeof value === 'string'));
+    assert.ok(text.includes(picker.formatPickerDate(picker.parseFromYMD('2026-10-06'), locale)));
+    assert.ok(text.some((value) => value.includes(picker.formatPickerDate(picker.parseFromYMD('2026-10-02'), locale))));
+    assert.deepEqual(changes, []);
+    picker.action('apply').onClick();
+    assert.deepEqual(changes, [{ from: '2026-10-06', to: '2026-10-08' }]);
+    picker.render({ from: changes[0].from, to: changes[0].to });
+    picker.open(true);
+    picker.render();
+    assert.equal(picker.formatToYMD(picker.calendar().selected.from), '2026-10-06');
+  });
+}
+
+test('range Cancel, dismiss, reopen and external props discard unfinished drafts; Reset clears', () => {
+  const picker = pickerHarness();
+  const changes = [];
+  picker.render({ onChange: (range) => changes.push(range) });
+  for (const close of [() => picker.action('cancel').onClick(), () => picker.open(false)]) {
+    picker.open(true); picker.render();
+    picker.calendar().onSelect(undefined, picker.parseFromYMD('2026-10-06')); picker.render();
+    close(); picker.render();
+    picker.open(true); picker.render();
+    assert.equal(picker.formatToYMD(picker.calendar().selected.from), '2026-10-02');
+    assert.deepEqual(changes, []);
+  }
+  picker.calendar().onSelect(undefined, picker.parseFromYMD('2026-10-07')); picker.render();
+  picker.render({ from: '2026-09-28', to: '2026-10-03' });
+  assert.equal(picker.formatToYMD(picker.calendar().selected.from), '2026-09-28');
+  picker.action('reset').onClick();
+  assert.deepEqual(changes, [{ from: '', to: '' }]);
+  picker.render({ from: '', to: '' }); picker.open(true); picker.render();
+  assert.equal(picker.calendar().selected, undefined);
+  const defaults = briefHelpers.defaultBriefPeriod(new Date('2026-10-08T08:00:00Z'));
+  picker.render({ from: defaults.startDate, to: defaults.endDate });
+  assert.equal(picker.formatToYMD(picker.calendar().selected.from), '2026-10-02');
+});
+
+test('range supports same-day, reverse and cross-month selection; auto waits for both dates', () => {
+  const picker = pickerHarness();
+  const changes = [];
+  picker.render({ applyMode: 'auto', onChange: (range) => changes.push(range) });
+  for (const [first, second, expected] of [
+    ['2026-10-08', '2026-10-08', { from: '2026-10-08', to: '2026-10-08' }],
+    ['2026-10-03', '2026-09-28', { from: '2026-09-28', to: '2026-10-03' }],
+    ['2026-01-01', '2026-05-01', { from: '2026-01-01', to: '2026-05-01' }],
+  ]) {
+    picker.open(true); picker.render();
+    const before = changes.length;
+    picker.calendar().onSelect(undefined, picker.parseFromYMD(first)); picker.render();
+    assert.equal(changes.length, before);
+    picker.calendar().onSelect(undefined, picker.parseFromYMD(second)); picker.render();
+    assert.deepEqual(changes.at(-1), expected);
+    picker.render(expected);
+  }
+});
+
+test('single-date selection follows props immediately and date-only parsing stays local and strict', () => {
+  const picker = pickerHarness();
+  const changes = [];
+  const onChange = (value) => changes.push(value);
+  picker.single({ value: '2026-10-02', onChange });
+  assert.equal(picker.calendar().mode, 'single');
+  picker.calendar().onSelect(picker.parseFromYMD('2026-10-06'));
+  assert.deepEqual(changes, ['2026-10-06']);
+  picker.single({ value: '2026-10-06', onChange });
+  assert.equal(picker.formatToYMD(picker.calendar().selected), '2026-10-06');
+  for (const invalid of ['2026-02-29', '2026-13-01', '2026-10-32', '2026-1-01', 'bad']) assert.equal(picker.parseFromYMD(invalid), undefined);
+  for (const date of ['2024-02-29', '2026-10-08', '0001-01-01']) assert.equal(picker.formatToYMD(picker.parseFromYMD(date)), date);
+});
+
+test('actual calendar marks only draft endpoints, independently of today and focus styling', () => {
+  const { Calendar } = loadModule('components/ui/calendar.tsx');
+  const from = new Date(2026, 9, 6);
+  const to = new Date(2026, 9, 8);
+  const html = renderToStaticMarkup(React.createElement(Calendar, {
+    mode: 'range', selected: { from, to }, onSelect: () => {},
+    defaultMonth: new Date(2026, 9, 1), today: new Date(2026, 9, 2),
+  }));
+  const buttons = html.match(/<button\b[^>]*>/g) || [];
+  assert.equal(buttons.filter((button) => button.includes('data-range-start="true"')).length, 1);
+  assert.equal(buttons.filter((button) => button.includes('data-range-end="true"')).length, 1);
+  assert.ok(buttons.find((button) => button.includes(`data-day="${from.toLocaleDateString()}"`)).includes('data-range-start="true"'));
+  assert.ok(buttons.find((button) => button.includes(`data-day="${to.toLocaleDateString()}"`)).includes('data-range-end="true"'));
+  const previousStart = buttons.find((button) => button.includes(`data-day="${new Date(2026, 9, 2).toLocaleDateString()}"`));
+  assert.ok(!previousStart.includes('data-range-start="true"'));
+  assert.ok(!previousStart.includes('aria-selected="true"'));
+});
+
 function keys(object, prefix = '') {
   return Object.entries(object).flatMap(([key, value]) => {
     const fullKey = prefix ? `${prefix}.${key}` : key;
@@ -54,6 +227,190 @@ function keys(object, prefix = '') {
 test('English and Indonesian catalogs contain the same keys', () => {
   assert.deepEqual(keys(catalogs.en), keys(catalogs.id));
 });
+
+const briefHelpers = loadModule('lib/hr-brief.ts');
+const briefFixture = {
+  period: { startDate: '2026-10-02', endDate: '2026-10-08' },
+  referenceDate: '2026-10-08', timezone: 'Asia/Jakarta', generatedAt: '2026-10-07T17:05:00.000Z',
+  departmentId: null, contractHorizon: { days: 30, endDate: '2026-11-07' },
+  attendance: { PRESENT: 201, LATE: 37, ABSENT: 0, recordedEmployeeDays: 238 },
+  open: {
+    total: 258,
+    leaves: { total: 81, remaining: 80, limit: 20, items: [{ id: 'old-pending', employeeId: 'emp-1', employee: { id: 'emp-1', fullName: 'Test fixture', nip: 'TEST-1' }, startDate: '2026-09-01', endDate: '2026-09-02', createdAt: '2026-08-25T02:00:00Z', datesPassed: true }] },
+    upcomingContracts: { total: 30, remaining: 29, limit: 20, items: [{ id: 'contract-1', employeeId: 'emp-1', employee: { id: 'emp-1', fullName: 'Test fixture', nip: 'TEST-1' }, contractNumber: 'FIXTURE-1', endDate: '2026-10-15' }] },
+    expiredActiveContracts: { total: 2, remaining: 2, limit: 20, items: [] },
+    payrolls: { total: 145, remaining: 145, limit: 20, items: [], groups: [{ periodStart: '2026-09-01', periodEnd: '2026-09-30', status: 'DRAFT', total: 145 }] },
+  },
+};
+
+test('HR Brief previews five records, expands loaded details and preserves backend totals and scope', () => {
+  const state = stateHarness();
+  const fixture = structuredClone(briefFixture);
+  fixture.open.leaves.items = Array.from({ length: 20 }, (_, index) => ({ ...briefFixture.open.leaves.items[0], id: `leave-${index}` }));
+  fixture.open.leaves.remaining = 61;
+  fixture.open.payrolls.items = Array.from({ length: 20 }, (_, index) => ({ id: `payroll-${index}`, employeeId: 'emp-1', employee: { fullName: 'Fixture' }, periodStart: '2026-09-01', periodEnd: '2026-09-30', status: 'DRAFT' }));
+  fixture.open.payrolls.remaining = 125;
+  const t = createTranslator({ locale: 'en', messages: catalogs.en, namespace: 'hrBrief' });
+  const Page = loadModule('app/(dashboard)/hr-brief/page.tsx', {
+    react: state.react,
+    'next-intl': { useLocale: () => 'en', useTranslations: () => t },
+    '@/hooks/use-api-error': { useApiError: () => () => '' },
+    '@/hooks/use-hr-brief': { useHrBrief: () => ({ data: fixture, isPending: false, isError: false }) },
+    '@/hooks/use-departments': { useDepartmentTree: () => ({ data: [], isPending: false, isError: false }) },
+    '@/lib/stores/auth-store': { useAuthStore: (selector) => selector({ user: { role: 'HR_ADMIN' } }) },
+    '@/components/ui/button': { Button: 'button', buttonVariants: () => '' },
+    '@/components/ui/select': { Select: 'select', SelectTrigger: 'trigger', SelectValue: 'value', SelectContent: 'options', SelectItem: 'option' },
+  }).default;
+  const Content = Page().type;
+  let tree = state.render(Content);
+  const byId = (id) => elements(tree).find((item) => item.props.id === id);
+  const action = (label) => elements(tree).find((item) => item.type === 'button' && React.Children.toArray(item.props.children).includes(label));
+  const count = (id) => React.Children.toArray(byId(id).props.children).length;
+  assert.equal(count('brief-leaves'), 5);
+  assert.equal(byId('brief-payroll-records').props.hidden, true);
+  assert.equal(count('brief-payroll-list'), 5);
+  const section = elements(tree).find((item) => item.props.title === t('pendingLeaves'));
+  assert.equal(section.props.count, 81);
+  assert.ok(elements(tree).some((item) => item.props.children === t('remaining', { count: 76 })));
+  const summary = briefHelpers.buildBriefSummary(fixture, 'en', t('allDepartments'), t);
+  assert.ok(elements(tree).some((item) => item.props.children === summary));
+  action(t('showMore')).props.onClick(); tree = state.render(Content);
+  assert.equal(count('brief-leaves'), 20);
+  assert.ok(elements(tree).some((item) => item.props.children === t('remaining', { count: 61 })));
+  action(t('showLess')).props.onClick(); tree = state.render(Content);
+  assert.equal(count('brief-leaves'), 5);
+  action(t('showRecords')).props.onClick(); tree = state.render(Content);
+  assert.equal(byId('brief-payroll-records').props.hidden, false);
+  assert.equal(count('brief-payroll-list'), 5);
+  const payrollMore = elements(tree).find((item) => item.props['aria-controls'] === 'brief-payroll-list');
+  payrollMore.props.onClick(); tree = state.render(Content);
+  assert.equal(count('brief-payroll-list'), 20);
+  assert.ok(elements(tree).some((item) => item.props.href === '/payrolls/payroll-19'));
+  assert.ok(elements(tree).some((item) => item.props.children === t('remaining', { count: 125 })));
+  elements(tree).find((item) => item.props['aria-controls'] === 'brief-payroll-list').props.onClick(); tree = state.render(Content);
+  assert.equal(count('brief-payroll-list'), 5);
+  action(t('hideRecords')).props.onClick(); tree = state.render(Content);
+  assert.equal(byId('brief-payroll-records').props.hidden, true);
+  action(t('showMore')).props.onClick(); tree = state.render(Content);
+  elements(tree).find((item) => item.type === 'select').props.onValueChange('dept-1'); tree = state.render(Content);
+  assert.equal(count('brief-leaves'), 5);
+  assert.equal(byId('brief-payroll-records').props.hidden, true);
+  const allLeaves = elements(tree).find((item) => item.props.href?.startsWith('/leave-requests?'));
+  const source = new URL(allLeaves.props.href, 'https://example.test');
+  assert.equal(source.searchParams.get('status'), 'PENDING');
+  assert.equal(source.searchParams.get('departmentId'), 'dept-1');
+});
+
+test('HR Brief calendar defaults use WIB and validate inclusive 90-day bounds', () => {
+  assert.deepEqual(briefHelpers.defaultBriefPeriod(new Date('2026-10-07T17:00:00Z')), { startDate: '2026-10-02', endDate: '2026-10-08' });
+  assert.equal(briefHelpers.wibCalendarDate(new Date('2026-10-07T16:59:59Z')), '2026-10-07');
+  assert.equal(briefHelpers.validBriefPeriod('2026-01-01', '2026-03-31'), true);
+  for (const [start, end] of [['2026-02-29', '2026-03-01'], ['2026-01-01', '2026-04-01'], ['2026-10-09', '2026-10-08']]) assert.equal(briefHelpers.validBriefPeriod(start, end), false);
+});
+
+test('View all pending leave initializes the actual API query with its department and no recap date restriction', () => {
+  const state = stateHarness();
+  const queries = [];
+  const params = new URLSearchParams('status=PENDING&departmentId=dept-1');
+  const Page = loadModule('app/(dashboard)/leave-requests/page.tsx', {
+    react: state.react,
+    'next/navigation': { useSearchParams: () => params },
+    '@/components/shared/data-table': { DataTable: 'table' },
+    'next-intl': {
+      useLocale: () => 'en',
+      useTranslations: (namespace) => createTranslator({ locale: 'en', messages: catalogs.en, namespace }),
+    },
+    '@/hooks/use-domain-label': { useDomainLabel: () => (value) => value },
+    '@/lib/stores/auth-store': { useAuthStore: (selector) => selector({ user: { role: 'HR_ADMIN' } }) },
+    '@/hooks/use-departments': { useDepartments: () => ({ data: { data: [] } }) },
+    '@/hooks/use-leave-requests': {
+      useApproveLeaveRequest: () => ({}),
+      useLeaveRequests: (query) => { queries.push(query); return { data: { data: [] }, isLoading: false }; },
+    },
+  }).default;
+  const Content = Page().props.children.type;
+  state.render(Content);
+  assert.equal(queries.at(-1).status, 'PENDING');
+  assert.equal(queries.at(-1).departmentId, 'dept-1');
+  assert.equal(queries.at(-1).startDate, undefined);
+  assert.equal(queries.at(-1).endDate, undefined);
+});
+
+test('HR Brief source URLs preserve record IDs and exact payroll group filters', () => {
+  const contract = new URL(briefHelpers.contractSourceLink('emp-1', 'contract-1'), 'https://example.test');
+  assert.equal(contract.pathname, '/employees/emp-1');
+  assert.equal(contract.searchParams.get('tab'), 'contracts');
+  assert.equal(contract.searchParams.get('contractId'), 'contract-1');
+  const payroll = new URL(briefHelpers.payrollGroupSourceLink(briefFixture.open.payrolls.groups[0], 'dept-1'), 'https://example.test');
+  assert.equal(payroll.searchParams.get('status'), 'DRAFT');
+  assert.equal(payroll.searchParams.get('departmentId'), 'dept-1');
+  assert.equal(payroll.searchParams.get('exactPeriod'), 'true');
+});
+
+test('successful mutations invalidate every cached brief filter; failed mutations do not', async () => {
+  const { createQueryClient } = loadModule('lib/api/query-client.ts');
+  const { queryKeys } = loadModule('lib/api/query-keys.ts');
+  const client = createQueryClient();
+  const first = queryKeys.hrBrief.detail({ departmentId: 'dept-1' });
+  const second = queryKeys.hrBrief.detail({ departmentId: 'dept-2' });
+  client.setQueryData(first, briefFixture);
+  client.setQueryData(second, briefFixture);
+  await client.getMutationCache().build(client, { mutationFn: async () => ({ status: 'APPROVED' }) }).execute();
+  assert.equal(client.getQueryState(first).isInvalidated, true);
+  assert.equal(client.getQueryState(second).isInvalidated, true);
+  client.setQueryData(first, briefFixture);
+  await assert.rejects(client.getMutationCache().build(client, { mutationFn: async () => { throw new Error('fixture failure'); } }).execute());
+  assert.equal(client.getQueryState(first).isInvalidated, false);
+  client.clear();
+});
+
+for (const locale of ['en', 'id']) {
+  test(`${locale}: HR Brief summary uses actual totals, explicit scopes, WIB and complete templates`, () => {
+    const errors = [];
+    const t = createTranslator({ locale, messages: catalogs[locale], namespace: 'hrBrief', onError: (error) => errors.push(error) });
+    const summary = briefHelpers.buildBriefSummary(briefFixture, locale, t('allDepartments'), t);
+    for (const count of [201, 37, 238, 81, 30, 2, 145]) assert.ok(summary.includes(String(count)));
+    assert.ok(summary.includes('WIB'));
+    assert.ok(summary.includes('2026'));
+    assert.ok(summary.includes(t('allDepartments')));
+    const singular = structuredClone(briefFixture);
+    singular.open.leaves.total = 1;
+    singular.open.payrolls.total = 1;
+    const singularSummary = briefHelpers.buildBriefSummary(singular, locale, 'Fixture', t);
+    assert.ok(singularSummary.includes(locale === 'en' ? '1 pending leave request,' : '1 pengajuan cuti'));
+    for (const key of Object.keys(catalogs[locale].hrBrief)) {
+      if (key === 'summaryTemplate') continue;
+      t(key, { count: 2, days: 30, time: '00:05', date: '8 Oct', start: '2 Oct', end: '8 Oct' });
+    }
+    assert.deepEqual(errors, []);
+  });
+
+  test(`${locale}: HR Brief renders data, bounded detail counts and real source links; errors never show zero metrics`, () => {
+    const renderBrief = (query, role = 'HR_ADMIN') => {
+      const Page = loadModule('app/(dashboard)/hr-brief/page.tsx', {
+        '@/hooks/use-hr-brief': { useHrBrief: () => query },
+        '@/hooks/use-departments': { useDepartmentTree: () => ({ data: [], isPending: false, isError: false }) },
+        '@/lib/stores/auth-store': { useAuthStore: (selector) => selector({ user: { role } }) },
+      }).default;
+      return renderToStaticMarkup(React.createElement(NextIntlClientProvider, { locale, messages: catalogs[locale], timeZone: 'Asia/Jakarta' }, React.createElement(Page)));
+    };
+    const ready = renderBrief({ data: briefFixture, isPending: false, isError: false, isFetching: false });
+    assert.ok(ready.includes('/leave-requests/old-pending'));
+    assert.ok(ready.includes('contractId=contract-1'));
+    assert.ok(ready.includes('exactPeriod=true'));
+    assert.ok(ready.includes('80'));
+    assert.ok(ready.includes(catalogs[locale].hrBrief.datesPassed));
+    const error = renderBrief({ data: briefFixture, isError: true, isPending: false, error: new Error('fixture'), refetch: () => {} });
+    assert.ok(error.includes('role="alert"'));
+    assert.ok(!error.includes(catalogs[locale].hrBrief.attention));
+    assert.ok(!error.includes('201'));
+    const loading = renderBrief({ isPending: true, isError: false });
+    assert.ok(loading.includes('role="status"'));
+    const denied = renderBrief({ isPending: true, isError: false }, 'MANAGER');
+    assert.ok(denied.includes(catalogs[locale].hrBrief.adminOnly));
+    assert.ok(!denied.includes(catalogs[locale].hrBrief.copy));
+  });
+}
 
 const { localizedApiError } = loadModule('lib/i18n/api-error.ts');
 const { localizedDomainLabel } = loadModule('lib/i18n/domain-label.ts');
